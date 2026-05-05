@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Voyager of Lyra</title>
+
+    <!-- Vue -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #111, #333);
+            color: #eee;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #222;
+            padding: 10px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header .title-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .header .stats {
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 30%;
+            background: #1a1a1a;
+            padding: 10px;
+            border-right: 2px solid #444;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .panel {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #2a2a2a;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: #fff;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .slot {
+            cursor: pointer;
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+
+        .slot:hover {
+            background: #333;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .equipment-button {
+            padding: 8px;
+            background: #444;
+            border: 1px solid #666;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .equipment-button:hover {
+            background: #555;
+        }
+
+        .equipment-button.selected {
+            background: #ffa500;
+            border-color: #ff8c00;
+        }
+
+        .battle-area {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            align-items: stretch;
+            min-height: 0;
+        }
+
+        .units {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            flex: 2;
+        }
+
+        .teams-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: stretch;
+            min-height: 0;
+        }
+
+        .player-column,
+        .enemy-column {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .player-column .unit-slot,
+        .enemy-column .unit-slot {
+            flex: 1;
+        }
+
+        .player-column h4 {
+            color: #7cff7c;
+        }
+
+        .enemy-column h4 {
+            color: #ff7c7c;
+        }
+
+        .player-column .unit-slot {
+            background: #0d250e;
+            border-color: #1a7f2e;
+        }
+
+        .enemy-column .unit-slot {
+            background: #2a0d0d;
+            border-color: #9f2d2d;
+        }
+
+        .unit-slot {
+            border: 1px solid #555;
+            padding: 10px;
+            margin: 6px 0;
+            background: #1a1a1a;
+            border-radius: 3px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .log {
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 3px;
+        }
+
+        .log div {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .log-ally {
+            color: #7cff7c;
+        }
+
+        .log-enemy {
+            color: #ff7c7c;
+        }
+
+        .log-turn {
+            color: #f6f34d;
+        }
+
+        .upgrade-preview {
+            display: none;
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 6px 10px;
+            z-index: 100;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            margin-right: 8px;
+        }
+
+        .upgrade-btn-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .upgrade-btn-wrap:hover .upgrade-preview {
+            display: block;
+        }
+
+        .stat-up {
+            color: #7cff7c;
+        }
+
+        .stat-current {
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+
+    <header class="header">
+        <div class="title-stats">
+            <h1>Voyager of Lyra</h1>
+            <div class="stats">Gold: {{ gold }} | Exp: {{ exp }} | Diamond: {{ diamond }}</div>
+        </div>
+        <div class="header-actions">
+            <button @click="saveGame">Save Game</button>
+            <button @click="triggerLoad">Load Game</button>
+            <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
+        </div>
+    </header>
+
+    <div class="main-content">
+        <aside class="left-panel">
+            <!-- 队伍 -->
+            <div class="panel">
+                <h3>Team</h3>
+                <div v-for="(slot, i) in team" :key="i" class="slot" @click="removeFromTeam(i)">
+                    Slot {{ i+1 }}: {{ getCharName(slot) || "Empty" }}
+                </div>
+            </div>
+
+            <!-- 仓库 -->
+            <div class="panel">
+                <h3>Characters</h3>
+                <button v-for="char in characters" :key="char.id"
+                    @click="selectChar(char.id)"
+                    :style="{
+                        background: selectedChar === char.id ? '#ffa500' : team.includes(char.id) ? '#4caf50' : '#333',
+                        color: '#fff'
+                    }">
+                    {{ char.name }}
+                </button>
+            </div>
+
+            <!-- Character Info -->
+            <div v-if="selectedChar" class="panel">
+                <h3>Character Info</h3>
+                <div v-if="getChar(selectedChar)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <span style="grid-column: 1 / -1;">Name: {{ getChar(selectedChar).name }}</span>
+                        <span>Lv: {{ getChar(selectedChar).level }}</span>
+                        <span></span>
+                        <span v-if="!showLevelUpPreview">HP: {{ getCharEffective(getChar(selectedChar)).hp }}</span>
+                        <span v-else>HP: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">ATK: {{ getCharEffective(getChar(selectedChar)).atk }}</span>
+                        <span v-else>ATK: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).atk }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[1]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">DEF: {{ getCharEffective(getChar(selectedChar)).def }}</span>
+                        <span v-else>DEF: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">SPD: {{ getCharEffective(getChar(selectedChar)).spd }}</span>
+                        <span v-else>SPD: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
+                        <span>Crit: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
+                        <span>DefR: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <span>EXP: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : 'Max' }}</span>
+                        <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
+                            @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
+                            style="padding: 2px 8px; font-size: 0.8rem;">
+                            +{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : 'Max' }} EXP
+                        </button>
+                    </div>
+                    <button @click="toggleTeam(selectedChar)" style="margin-top: 8px; width: 100%;"
+                        :disabled="team.filter(Boolean).length >= 5 && !team.includes(selectedChar)">
+                        {{ team.includes(selectedChar) ? 'Remove from Team' : 'Add to Team' }}
+                    </button>
+                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span><strong>{{ skills[getChar(selectedChar).skillId]?.name || 'None' }}</strong> Lv.{{ getChar(selectedChar).skillLevel || 1 }}</span>
+                            <div style="font-size: 0.8rem; color: #aaa;">{{ getSkillEffect(getChar(selectedChar)) }}</div>
+                        </div>
+                        <div class="upgrade-btn-wrap">
+                            <button v-if="getSkillUpgradeInfo(getChar(selectedChar))" @click="upgradeSkill(selectedChar)"
+                                :disabled="!canUpgradeSkill(getChar(selectedChar))">
+                                +{{ getSkillUpgradeInfo(getChar(selectedChar)).cost }}💎
+                            </button>
+                            <span v-else style="color: #888; padding: 5px;">MAX</span>
+                            <div class="upgrade-preview" v-if="getSkillUpgradePreview(getChar(selectedChar))">
+                                <div><span class="stat-current">Effect:</span> <span class="stat-up">{{ getSkillUpgradePreview(getChar(selectedChar)) }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                        <h4 style="margin: 5px 0;">Equipment</h4>
+                        <div class="equipment-grid">
+                            <button v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
+                                :key="slot"
+                                @click="selectEquipment(slot)"
+                                :class="['equipment-button', { selected: selectedEquipment === slot }]">
+                                {{ EQUIPMENT_UPGRADES && EQUIPMENT_UPGRADES[slot] ? EQUIPMENT_UPGRADES[slot].name : slot }}<br>
+                                +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>
+                                Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}
+                            </button>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+                            <div class="upgrade-btn-wrap" v-if="getEquipmentUpgrade(getChar(selectedChar), selectedEquipment)">
+                                <button @click="upgradeEquipment(selectedChar, selectedEquipment)"
+                                    :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)">
+                                    +{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}G
+                                </button>
+                                <div class="upgrade-preview">
+                                    <div>
+                                        <span class="stat-current">{{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).label }}:</span>
+                                        {{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).currentVal }} → <span class="stat-up">{{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).newVal }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="right-panel">
+            <!-- Stages -->
+            <div class="panel">
+                <h3>Stages</h3>
+                <div v-for="(stage, i) in stages" :key="stage.id"
+                    :style="{ color: i < currentStage ? 'green' : i === currentStage ? 'yellow' : 'gray' }">
+                    Stage {{ stage.id }}: {{ stage.title }} - {{ i < currentStage ? 'Completed' : i === currentStage ? 'Current' : 'Locked' }}
+                </div>
+            </div>
+
+            <!-- 战斗 -->
+            <div class="panel">
+                <h3>Battle</h3>
+
+                <div v-if="currentStage < stages.length">
+                    <h4>Stage {{ stages[currentStage].id }}: {{ stages[currentStage].title }}</h4>
+                    <p>{{ stages[currentStage].text }}</p>
+                    <button @click="startBattle">Start Battle</button>
+                </div>
+                <div v-else>
+                    <p>All stages completed!</p>
+                </div>
+
+                <div v-if="inBattle" class="battle-area">
+                    <div class="units">
+                        <div class="teams-row">
+                            <!-- Player Side -->
+                            <div class="player-column">
+                                <h4>Player Team</h4>
+                                <div v-for="i in 5" :key="'player-' + i" class="unit-slot">
+                                    <div v-if="playerUnits[i-1]" :style="{ opacity: playerUnits[i-1].hp <= 0 ? 0.3 : 1 }">
+                                        <b>{{ playerUnits[i-1].name }}</b><br>
+                                        HP: {{ playerUnits[i-1].hp }}<br>
+                                        ATK: {{ playerUnits[i-1].atk }}<br>
+                                        DEF: {{ playerUnits[i-1].def }}<br>
+                                        SPD: {{ playerUnits[i-1].spd }}<br>
+                                        Crit: {{ Math.round(playerUnits[i-1].critChance * 100) }}%<br>
+                                        DefR: {{ playerUnits[i-1].defReduce }}
+                                    </div>
+                                    <div v-else>
+                                        Empty
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enemy Side -->
+                            <div class="enemy-column">
+                                <h4>Enemies</h4>
+                                <div v-for="i in 5" :key="'enemy-' + i" class="unit-slot">
+                                    <div v-if="enemyUnits[i-1]" :style="{ opacity: enemyUnits[i-1].hp <= 0 ? 0.3 : 1 }">
+                                        <b>{{ enemyUnits[i-1].name }}</b><br>
+                                        HP: {{ enemyUnits[i-1].hp }}<br>
+                                        ATK: {{ enemyUnits[i-1].atk }}<br>
+                                        DEF: {{ enemyUnits[i-1].def }}<br>
+                                        SPD: {{ enemyUnits[i-1].spd }}
+                                    </div>
+                                    <div v-else>
+                                        Empty
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</div>
+
+<!-- 🔥 用 module -->
+<script type="module">
+import { CHARACTERS } from "./data/characters.js"
+import { ENEMIES } from "./data/enemies.js"
+import { STAGES } from "./data/stages.js"
+import { LEVELS } from "./data/levels.js"
+import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
+import { SKILLS, MAX_SKILL_LEVEL, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription } from "./data/skills.js"
+
+const { createApp } = Vue
+
+createApp({
+
+    data() {
+        return {
+            gold: 0,
+            exp: 0,
+            diamond: 0,
+            diamondTimer: 0,
+
+            characters: CHARACTERS,
+            enemies: ENEMIES,
+            stages: STAGES,
+            levels: LEVELS,
+            skills: SKILLS,
+
+            team: [null, null, null, null, null],
+            currentStage: 0,
+            battleStatus: null, // 'win', 'lose', or null
+            selectedChar: null,
+            selectedEquipment: null, // 'weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories'
+            saveFileName: 'voyager_save.txt',
+            turnNumber: 0,
+            showLevelUpPreview: false,
+
+            inBattle: false,
+            playerUnits: [],
+            enemyUnits: []
+        }
+    },
+
+    mounted() {
+        console.log('EQUIPMENT_UPGRADES loaded:', !!EQUIPMENT_UPGRADES)
+        this.loadAutoSave()
+
+        setInterval(() => {
+            const multiplier = 1 + this.currentStage * 0.1
+            this.gold += Math.floor(multiplier)
+            this.exp += Math.floor(multiplier)
+
+            this.diamondTimer++
+            if (this.diamondTimer >= 60) {
+                this.diamond++
+                this.diamondTimer = 0
+            }
+        }, 1000)
+
+        setInterval(() => {
+            this.autoSaveGame()
+        }, 60000)
+    },
+
+    methods: {
+
+        getChar(id) {
+            return this.characters.find(c => c.id === id)
+        },
+
+        getCharName(id) {
+            const c = this.getChar(id)
+            return c ? c.name : null
+        },
+
+        toggleTeam(id) {
+            const index = this.team.indexOf(id)
+            if (index !== -1) {
+                this.team[index] = null
+                return
+            }
+            const empty = this.team.indexOf(null)
+            if (empty !== -1) {
+                this.team[empty] = id
+            }
+        },
+
+        selectChar(id) {
+            this.selectedChar = this.selectedChar === id ? null : id
+        },
+
+        getNextLevelInfo(char) {
+            if (!char) return null
+            return this.levels.find(level => level.level === char.level + 1) || null
+        },
+
+        canLevelUp(char) {
+            const next = this.getNextLevelInfo(char)
+            return next ? this.exp >= next.exp : false
+        },
+
+        levelUpChar(id) {
+            const char = this.getChar(id)
+            if (!char) return
+            const next = this.getNextLevelInfo(char)
+            if (!next) return
+            if (this.exp < next.exp) return
+            this.exp -= next.exp
+            char.level = Math.min(char.level + 1, this.levels[this.levels.length - 1].level)
+        },
+
+        selectEquipment(slot) {
+            this.selectedEquipment = this.selectedEquipment === slot ? null : slot
+        },
+
+        getEquipmentUpgrade(char, slot) {
+            if (!char || !char.equipment || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+            const currentLevel = char.equipment[slot] || 0
+            return EQUIPMENT_UPGRADES[slot].upgrades[currentLevel] || null
+        },
+
+        getEquipmentAttributeText(slot, level) {
+            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
+            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
+            if (!upgrade) return ''
+            const labelMap = {
+                atk: 'attack',
+                def: 'defense',
+                hp: 'health',
+                spd: 'speed',
+                critChance: 'critical chance',
+                defReduce: 'defense reduction'
+            }
+            const stat = EQUIPMENT_UPGRADES[slot].stat
+            const label = labelMap[stat] || stat
+            return `+${upgrade.bonus} ${label}`
+        },
+
+        canUpgradeEquipment(char, slot) {
+            const upgrade = this.getEquipmentUpgrade(char, slot)
+            return upgrade ? this.gold >= upgrade.cost : false
+        },
+
+        upgradeEquipment(charId, slot) {
+            const char = this.getChar(charId)
+            if (!char || !char.equipment) return
+            const upgrade = this.getEquipmentUpgrade(char, slot)
+            if (!upgrade) return
+            if (this.gold < upgrade.cost) return
+            this.gold -= upgrade.cost
+            char.equipment[slot] = (char.equipment[slot] || 0) + 1
+        },
+
+        getSkillUpgradeInfo(char) {
+            if (!char || !char.skillId) return null
+            const cost = getSkillUpgradeCost(char.skillId, char.skillLevel || 1)
+            if (cost === null) return null
+            return {
+                level: (char.skillLevel || 1) + 1,
+                cost: cost
+            }
+        },
+
+        canUpgradeSkill(char) {
+            const upgrade = this.getSkillUpgradeInfo(char)
+            return upgrade ? this.diamond >= upgrade.cost : false
+        },
+
+        getSkillEffect(char) {
+            if (!char || !char.skillId) return ''
+            return getSkillDescription(char.skillId, char.skillLevel || 1)
+        },
+
+        upgradeSkill(charId) {
+            const char = this.getChar(charId)
+            if (!char || !char.skillId) return
+            const upgrade = this.getSkillUpgradeInfo(char)
+            if (!upgrade) return
+            if (this.diamond < upgrade.cost) return
+            this.diamond -= upgrade.cost
+            char.skillLevel = (char.skillLevel || 1) + 1
+        },
+
+        getLevelUpPreview(char) {
+            if (!char) return []
+            const next = this.getNextLevelInfo(char)
+            if (!next) return []
+            const currHp = this.getCharEffective(char).hp
+            const currAtk = this.getCharEffective(char).atk
+            const currDef = this.getCharEffective(char).def
+            const currSpd = this.getCharEffective(char).spd
+            const nextLevel = char.level + 1
+            const statMultiplier = 1 + 0.1 * (nextLevel - 1)
+            const speedMultiplier = 1 + 0.05 * (nextLevel - 1)
+            const baseHp = char.hp + this.getEquipBonusForStat(char, 'hp')
+            const baseAtk = char.atk + this.getEquipBonusForStat(char, 'atk')
+            const baseDef = char.def + this.getEquipBonusForStat(char, 'def')
+            const baseSpd = char.spd + this.getEquipBonusForStat(char, 'spd')
+            const newHp = Math.round(baseHp * statMultiplier)
+            const newAtk = Math.round(baseAtk * statMultiplier)
+            const newDef = Math.round(baseDef * statMultiplier)
+            const newSpd = Math.max(1, Math.round(baseSpd * speedMultiplier))
+            return [
+                { label: 'HP', curr: currHp, next: newHp },
+                { label: 'ATK', curr: currAtk, next: newAtk },
+                { label: 'DEF', curr: currDef, next: newDef },
+                { label: 'SPD', curr: currSpd, next: newSpd }
+            ]
+        },
+
+        getSkillUpgradePreview(char) {
+            if (!char || !char.skillId) return ''
+            const upgrade = this.getSkillUpgradeInfo(char)
+            if (!upgrade) return ''
+            return getSkillDescription(char.skillId, upgrade.level)
+        },
+
+        getEquipUpgradePreview(char, slot) {
+            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+            const currentLevel = char.equipment[slot] || 0
+            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
+            if (!upgrade) return null
+            const stat = EQUIPMENT_UPGRADES[slot].stat
+            const labelMap = { atk: 'ATK', def: 'DEF', hp: 'HP', spd: 'SPD', critChance: 'Crit', defReduce: 'DefR' }
+            const label = labelMap[stat] || stat
+            const effective = this.getCharEffective(char)
+            let currentVal = effective[stat]
+            let newVal = currentVal + upgrade.bonus
+            if (stat === 'critChance') {
+                currentVal = Math.round(effective[stat] * 100) + '%'
+                newVal = Math.round((effective[stat] + upgrade.bonus / 100) * 100) + '%'
+            }
+            return { label, bonus: upgrade.bonus, currentVal, newVal, stat }
+        },
+
+        getEquipCurrentBonus(char, slot) {
+            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return 0
+            const level = char.equipment[slot] || 0
+            if (level === 0) return 0
+            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
+            return upgrade ? upgrade.bonus : 0
+        },
+
+        getEquipBonusForStat(char, statName) {
+            if (!char || !char.equipment || !EQUIPMENT_UPGRADES) return 0
+            let bonus = 0
+            Object.entries(char.equipment).forEach(([slot, level]) => {
+                if (level > 0 && EQUIPMENT_UPGRADES[slot] && EQUIPMENT_UPGRADES[slot].stat === statName) {
+                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
+                    if (upgrade) bonus += upgrade.bonus
+                }
+            })
+            return bonus
+        },
+
+        getEquipStatLabel(slot) {
+            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
+            const labelMap = { atk: 'ATK', def: 'DEF', hp: 'HP', spd: 'SPD', critChance: 'Crit', defReduce: 'DefR' }
+            return labelMap[EQUIPMENT_UPGRADES[slot].stat] || ''
+        },
+
+        getCharEffective(char) {
+            if (!char) return null
+            const level = char.level || 1
+            const statMultiplier = 1 + 0.1 * (level - 1)
+            const speedMultiplier = 1 + 0.05 * (level - 1)
+
+            // Calculate equipment bonuses
+            let equipmentBonus = { atk: 0, def: 0, hp: 0, spd: 0, critChance: 0, defReduce: 0 }
+            if (char.equipment && EQUIPMENT_UPGRADES) {
+                Object.entries(char.equipment).forEach(([slot, level]) => {
+                    if (level > 0 && EQUIPMENT_UPGRADES[slot]) {
+                        const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
+                        if (upgrade) {
+                            const stat = EQUIPMENT_UPGRADES[slot].stat
+                            if (equipmentBonus.hasOwnProperty(stat)) {
+                                equipmentBonus[stat] += upgrade.bonus
+                            }
+                        }
+                    }
+                })
+            }
+
+            return {
+                ...char,
+                atk: Math.round(char.atk * statMultiplier) + equipmentBonus.atk,
+                def: Math.round(char.def * statMultiplier) + equipmentBonus.def,
+                hp: Math.round(char.hp * statMultiplier) + equipmentBonus.hp,
+                spd: Math.max(1, Math.round(char.spd * speedMultiplier) + equipmentBonus.spd),
+                critChance: Math.min(1, (char.critChance || 0) + equipmentBonus.critChance / 100),
+                defReduce: (char.defReduce || 0) + equipmentBonus.defReduce
+            }
+        },
+
+        refreshUnitStats(unit) {
+            const atkMult = unit.buffs.reduce((mult, buff) => mult * (buff.atkMult || 1), 1)
+            const defMult = unit.buffs.reduce((mult, buff) => mult * (buff.defMult || 1), 1)
+            const spdMult = unit.buffs.reduce((mult, buff) => mult * (buff.spdMult || 1), 1)
+            unit.atk = Math.max(1, Math.round(unit.baseAtk * atkMult))
+            unit.def = Math.max(0, Math.round(unit.baseDef * defMult))
+            unit.spd = Math.max(1, Math.round(unit.baseSpd * spdMult))
+            unit.critChance = unit.baseCritChance
+            unit.defReduce = unit.baseDefReduce
+        },
+
+        applyBuff(unit, buff) {
+            unit.buffs.push({ ...buff })
+            this.refreshUnitStats(unit)
+        },
+
+        tickUnitBuffs(unit) {
+            unit.buffs = unit.buffs
+                .map(buff => ({ ...buff, duration: buff.duration - 1 }))
+                .filter(buff => buff.duration > 0)
+            this.refreshUnitStats(unit)
+        },
+
+        saveGame() {
+            const saveData = {
+                gold: this.gold,
+                exp: this.exp,
+                diamond: this.diamond,
+                currentStage: this.currentStage,
+                team: this.team,
+                characters: this.characters.map(c => ({ id: c.id, level: c.level, skillLevel: c.skillLevel, equipment: c.equipment }))
+            }
+            const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'text/plain;charset=utf-8' })
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = this.saveFileName
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+        },
+
+        autoSaveGame() {
+            const saveData = {
+                gold: this.gold,
+                exp: this.exp,
+                diamond: this.diamond,
+                currentStage: this.currentStage,
+                team: this.team,
+                characters: this.characters.map(c => ({ id: c.id, level: c.level, skillLevel: c.skillLevel, equipment: c.equipment }))
+            }
+            localStorage.setItem('voyager_autosave', JSON.stringify(saveData))
+        },
+
+        loadAutoSave() {
+            const saved = localStorage.getItem('voyager_autosave')
+            if (saved) {
+                try {
+                    this.applySaveData(JSON.parse(saved))
+                } catch (error) {
+                    console.warn('Failed to parse autosave from localStorage:', error)
+                }
+            }
+        },
+
+        applySaveData(data) {
+            if (typeof data.gold === 'number') this.gold = data.gold
+            if (typeof data.exp === 'number') this.exp = data.exp
+            if (typeof data.diamond === 'number') this.diamond = data.diamond
+            if (typeof data.currentStage === 'number') this.currentStage = data.currentStage
+            if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
+            if (Array.isArray(data.characters)) {
+                data.characters.forEach(saved => {
+                    const char = this.getChar(saved.id)
+                    if (char) {
+                        if (typeof saved.level === 'number') {
+                            char.level = Math.max(1, saved.level)
+                        }
+                        if (typeof saved.skillLevel === 'number') {
+                            char.skillLevel = Math.max(1, saved.skillLevel)
+                        }
+                        if (saved.equipment && typeof saved.equipment === 'object') {
+                            char.equipment = { ...char.equipment, ...saved.equipment }
+                        }
+                    }
+                })
+            }
+        },
+
+        triggerLoad() {
+            this.$refs.saveInput.click()
+        },
+
+        loadGameFile(event) {
+            const file = event.target.files[0]
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = () => {
+                try {
+                    const data = JSON.parse(reader.result)
+                    if (typeof data.gold === 'number') this.gold = data.gold
+                    if (typeof data.exp === 'number') this.exp = data.exp
+                    if (typeof data.diamond === 'number') this.diamond = data.diamond
+                    if (typeof data.currentStage === 'number') this.currentStage = data.currentStage
+                    if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
+                    if (Array.isArray(data.characters)) {
+                        data.characters.forEach(saved => {
+                            const char = this.getChar(saved.id)
+                            if (char) {
+                                if (typeof saved.level === 'number') {
+                                    char.level = Math.max(1, saved.level)
+                                }
+                                if (typeof saved.skillLevel === 'number') {
+                                    char.skillLevel = Math.max(1, saved.skillLevel)
+                                }
+                                if (saved.equipment && typeof saved.equipment === 'object') {
+                                    char.equipment = { ...char.equipment, ...saved.equipment }
+                                }
+                            }
+                        })
+                    }
+                    this.selectedChar = null
+                    this.inBattle = false
+                    this.battleStatus = null
+                } catch (error) {
+                    alert('Failed to load save file. Please pick a valid game save.')
+                }
+            }
+            reader.readAsText(file)
+            event.target.value = ''
+        },
+
+        startBattle() {
+            this.playerUnits = this.team
+                .filter(Boolean)
+                .map(id => {
+                    const char = this.getChar(id)
+                    const effective = this.getCharEffective(char)
+                    const skillLevel = char.skillLevel || 1
+                    const skill = getSkillAtLevel(char.skillId, skillLevel)
+                    return {
+                        id: char.id,
+                        name: char.name,
+                        skill: skill,
+                        skillLevel: skillLevel,
+                        baseAtk: effective.atk,
+                        baseDef: effective.def,
+                        baseSpd: effective.spd,
+                        baseHp: effective.hp,
+                        baseCritChance: effective.critChance,
+                        baseDefReduce: effective.defReduce,
+                        atk: effective.atk,
+                        def: effective.def,
+                        spd: effective.spd,
+                        hp: effective.hp,
+                        critChance: effective.critChance,
+                        defReduce: effective.defReduce,
+                        buffs: [],
+                        stunnedTurns: 0,
+                        side: 'p'
+                    }
+                })
+
+            const enemyTeam = this.enemies.find(e => e.id === this.stages[this.currentStage].enemyTeamId)
+            this.enemyUnits = enemyTeam.members.map(e => ({
+                ...e,
+                baseAtk: e.atk,
+                baseDef: e.def,
+                baseSpd: e.spd,
+                baseHp: e.hp,
+                baseCritChance: e.critChance || 0,
+                baseDefReduce: e.defReduce || 0,
+                critChance: e.critChance || 0,
+                defReduce: e.defReduce || 0,
+                buffs: [],
+                stunnedTurns: 0,
+                side: 'e'
+            }))
+
+            this.turnNumber = 1
+            this.battleStatus = null
+            this.inBattle = true
+
+            this.runBattle()
+        },
+
+        runBattle() {
+            const loop = setInterval(() => {
+
+                if (this.isAllDead(this.playerUnits)) {
+                    this.battleStatus = 'lose'
+                    setTimeout(() => {
+                        this.inBattle = false
+                    }, 1000)
+                    clearInterval(loop)
+                    return
+                }
+
+                if (this.isAllDead(this.enemyUnits)) {
+                    this.battleStatus = 'win'
+                    const drop = this.stages[this.currentStage].drops || { gold: 10, exp: 5, diamond: 0 }
+                    this.gold += drop.gold
+                    this.exp += drop.exp
+                    if (drop.diamond) {
+                        this.diamond += drop.diamond
+                    }
+                    if (this.currentStage < this.stages.length - 1) {
+                        this.currentStage++
+                    }
+                    setTimeout(() => {
+                        this.inBattle = false
+                    }, 1000)
+                    clearInterval(loop)
+                    return
+                }
+
+                let all = [
+                    ...this.playerUnits.map(u => ({ ...u, side: "p" })),
+                    ...this.enemyUnits.map(u => ({ ...u, side: "e" }))
+                ]
+
+                all.sort((a, b) => {
+                    if (b.spd !== a.spd) return b.spd - a.spd
+                    return Math.random() > 0.5 ? 1 : -1
+                })
+
+                for (let unit of all) {
+                    if (unit.hp <= 0) continue
+
+                    if (unit.stunnedTurns > 0) {
+                        unit.stunnedTurns--
+                        continue
+                    }
+
+                    const targets = unit.side === "p" ? this.enemyUnits : this.playerUnits
+                    const aliveTargets = targets.filter(t => t.hp > 0)
+                    if (!aliveTargets.length) continue
+
+                    const useSkill = unit.skill && unit.side === 'p' && this.turnNumber % unit.skill.cooldown === 0
+                    if (useSkill) {
+                        const skill = unit.skill
+                        if (skill.type === 'multi_attack') {
+                            const strikeTargets = aliveTargets.slice(0, skill.targets)
+                            strikeTargets.forEach(target => {
+                                const effectiveDef = Math.max(0, target.def - unit.defReduce)
+                                let dmg = Math.max(1, unit.atk - effectiveDef)
+                                if (Math.random() < unit.critChance) {
+                                    dmg = Math.round(dmg * 1.5)
+                                }
+                                target.hp -= dmg
+                            })
+                        } else if (skill.type === 'stun') {
+                            const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                            target.stunnedTurns = skill.duration
+                        } else if (skill.type === 'buff') {
+                            const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                            allies.filter(a => a.hp > 0).forEach(ally => {
+                                const buff = { duration: skill.duration }
+                                if (skill.atkMult) buff.atkMult = skill.atkMult
+                                if (skill.defMult) buff.defMult = skill.defMult
+                                if (skill.spdMult) buff.spdMult = skill.spdMult
+                                this.applyBuff(ally, buff)
+                            })
+                        } else if (skill.type === 'heal') {
+                            const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                            const healTarget = allies
+                                .filter(a => a.hp > 0)
+                                .sort((a, b) => a.hp - b.hp)[0]
+                            if (healTarget) {
+                                healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + skill.amount)
+                            }
+                        }
+                        continue
+                    }
+
+                    const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                    const effectiveDef = Math.max(0, target.def - unit.defReduce)
+                    let dmg = Math.max(1, unit.atk - effectiveDef)
+                    if (Math.random() < unit.critChance) {
+                        dmg = Math.round(dmg * 1.5)
+                    }
+                    target.hp -= dmg
+                }
+
+                this.playerUnits.forEach(unit => this.tickUnitBuffs(unit))
+                this.enemyUnits.forEach(unit => this.tickUnitBuffs(unit))
+
+                this.turnNumber++
+
+            }, 1000)
+        },
+
+        isAllDead(team) {
+            return team.every(u => u.hp <= 0)
+        }
+
+    }
+
+}).mount("#app")
+</script>
+
+</body>
+</html>
