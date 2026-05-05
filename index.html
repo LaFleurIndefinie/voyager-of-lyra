@@ -154,6 +154,7 @@
             flex: 1;
             align-items: stretch;
             min-height: 0;
+            position: relative;
         }
 
         .units {
@@ -161,6 +162,60 @@
             flex-direction: column;
             min-height: 0;
             flex: 2;
+        }
+
+        .battle-result-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .result-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 15px 40px;
+            border-radius: 8px;
+            border: 3px solid;
+        }
+
+        .battle-result-overlay.win .result-text {
+            color: #7cff7c;
+            background: rgba(0, 50, 0, 0.9);
+            border-color: #7cff7c;
+            text-shadow: 0 0 15px #7cff7c;
+            box-shadow: 0 0 20px rgba(124, 255, 124, 0.3);
+        }
+
+        .battle-result-overlay.lose .result-text {
+            color: #ff7c7c;
+            background: rgba(50, 0, 0, 0.9);
+            border-color: #ff7c7c;
+            text-shadow: 0 0 15px #ff7c7c;
+            box-shadow: 0 0 20px rgba(255, 124, 124, 0.3);
+        }
+
+        .continue-btn {
+            padding: 10px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            background: #444;
+            color: #fff;
+            border: 2px solid #666;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .continue-btn:hover {
+            background: #555;
+            border-color: #888;
         }
 
         .teams-row {
@@ -298,6 +353,72 @@
             font-size: 0.8rem;
             margin-top: 5px;
         }
+
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .stage-btn {
+            aspect-ratio: 1;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #333;
+            color: #666;
+            font-size: 0.75rem;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stage-btn.completed {
+            background: #2d5a2d;
+            color: #7cff7c;
+            cursor: pointer;
+        }
+
+        .stage-btn.completed:hover {
+            background: #3a7a3a;
+        }
+
+        .stage-btn.current {
+            background: #5a5a2d;
+            color: #ffff00;
+            border-color: #888;
+            cursor: pointer;
+        }
+
+        .stage-btn.current:hover {
+            background: #7a7a3a;
+        }
+
+        .stage-btn.selected {
+            background: #5a4a1d;
+            color: #ffa500;
+            border-color: #ffa500;
+            box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+        }
+
+        .stage-btn.boss {
+            font-weight: bold;
+            border-width: 2px;
+        }
+
+        .stage-btn.boss.completed {
+            background: #4a2d5a;
+            border-color: #9b59b6;
+        }
+
+        .stage-btn.boss.current {
+            background: #5a3a2d;
+            border-color: #e74c3c;
+        }
     </style>
 </head>
 
@@ -371,20 +492,30 @@
                         :disabled="team.filter(Boolean).length >= 5 && !team.includes(selectedChar)">
                         {{ team.includes(selectedChar) ? 'Remove from Team' : 'Add to Team' }}
                     </button>
-                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <span><strong>{{ skills[getChar(selectedChar).skillId]?.name || 'None' }}</strong> Lv.{{ getChar(selectedChar).skillLevel || 1 }}</span>
-                            <div style="font-size: 0.8rem; color: #aaa;">{{ getSkillEffect(getChar(selectedChar)) }}</div>
-                        </div>
-                        <div class="upgrade-btn-wrap">
-                            <button v-if="getSkillUpgradeInfo(getChar(selectedChar))" @click="upgradeSkill(selectedChar)"
-                                :disabled="!canUpgradeSkill(getChar(selectedChar))">
-                                +{{ getSkillUpgradeInfo(getChar(selectedChar)).cost }}💎
+                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                        <h4 style="margin: 5px 0;">Skills</h4>
+                        <div v-for="s in [1, 2]" :key="s" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div>
+                                <span v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s">
+                                    <strong>{{ skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || 'None' }}</strong> Lv.{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}
+                                </span>
+                                <span v-else>
+                                    <strong>{{ skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || 'None' }}</strong> Lv.<span class="stat-current">{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}</span> → <span class="stat-up">{{ (getChar(selectedChar)['skill' + s + 'Level'] || 1) + 1 }}</span>
+                                </span>
+                                <div v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s" style="font-size: 0.8rem; color: #aaa;">{{ getSkillEffect(getChar(selectedChar), s) }}</div>
+                                <div v-else style="font-size: 0.8rem; color: #aaa;">
+                                    <span class="stat-current">{{ getSkillEffect(getChar(selectedChar), s) }}</span> → <span class="stat-up">{{ getSkillUpgradePreview(getChar(selectedChar), s) }}</span>
+                                </div>
+                            </div>
+                            <button v-if="getSkillUpgradeInfo(getChar(selectedChar), s)"
+                                @click="upgradeSkill(selectedChar, s)"
+                                @mouseenter="hoveringSkillUpgrade = s"
+                                @mouseleave="hoveringSkillUpgrade = null"
+                                :disabled="!canUpgradeSkill(getChar(selectedChar), s)"
+                                style="padding: 2px 8px; font-size: 0.8rem;">
+                                +{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}💎
                             </button>
                             <span v-else style="color: #888; padding: 5px;">MAX</span>
-                            <div class="upgrade-preview" v-if="getSkillUpgradePreview(getChar(selectedChar))">
-                                <div><span class="stat-current">Effect:</span> <span class="stat-up">{{ getSkillUpgradePreview(getChar(selectedChar)) }}</span></div>
-                            </div>
                         </div>
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
@@ -424,9 +555,19 @@
             <!-- Stages -->
             <div class="panel">
                 <h3>Stages</h3>
-                <div v-for="(stage, i) in stages" :key="stage.id"
-                    :style="{ color: i < currentStage ? 'green' : i === currentStage ? 'yellow' : 'gray' }">
-                    Stage {{ stage.id }}: {{ stage.title }} - {{ i < currentStage ? 'Completed' : i === currentStage ? 'Current' : 'Locked' }}
+                <div class="stages-grid">
+                    <button v-for="(stage, i) in stages" :key="stage.id"
+                        class="stage-btn"
+                        :class="{
+                            completed: i < currentStage,
+                            selected: i === selectedStage,
+                            current: i === currentStage,
+                            boss: stage.isBoss
+                        }"
+                        :disabled="i > currentStage"
+                        @click="selectedStage = i">
+                        {{ stage.id }}
+                    </button>
                 </div>
             </div>
 
@@ -434,9 +575,10 @@
             <div class="panel">
                 <h3>Battle</h3>
 
-                <div v-if="currentStage < stages.length">
-                    <h4>Stage {{ stages[currentStage].id }}: {{ stages[currentStage].title }}</h4>
-                    <p>{{ stages[currentStage].text }}</p>
+                <div v-if="selectedStage !== null && selectedStage < stages.length">
+                    <h4>{{ stages[selectedStage].isBoss ? '👑 ' : '' }}Stage {{ stages[selectedStage].id }}: {{ stages[selectedStage].title }}</h4>
+                    <p>{{ stages[selectedStage].text }}</p>
+                    <p style="font-size: 0.85rem; color: #aaa;">AFK: {{ stages[selectedStage].afkGain }}x</p>
                     <button @click="startBattle">Start Battle</button>
                 </div>
                 <div v-else>
@@ -451,7 +593,9 @@
                                 <h4>Player Team</h4>
                                 <div v-for="i in 5" :key="'player-' + i" class="unit-slot">
                                     <div v-if="playerUnits[i-1]" :style="{ opacity: playerUnits[i-1].hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ playerUnits[i-1].name }}</b><br>
+                                        <b>{{ playerUnits[i-1].name }}</b>
+                                        <span v-if="playerUnits[i-1].tauntTurns > 0" style="color: #ffa500;"> [TAUNT]</span>
+                                        <span v-if="playerUnits[i-1].shieldBlocks > 0" style="color: #00bfff;"> [SHIELD x{{ playerUnits[i-1].shieldBlocks }}]</span><br>
                                         HP: {{ playerUnits[i-1].hp }}<br>
                                         ATK: {{ playerUnits[i-1].atk }}<br>
                                         DEF: {{ playerUnits[i-1].def }}<br>
@@ -470,7 +614,8 @@
                                 <h4>Enemies</h4>
                                 <div v-for="i in 5" :key="'enemy-' + i" class="unit-slot">
                                     <div v-if="enemyUnits[i-1]" :style="{ opacity: enemyUnits[i-1].hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ enemyUnits[i-1].name }}</b><br>
+                                        <b>{{ enemyUnits[i-1].name }}</b>
+                                        <span v-if="enemyUnits[i-1].shieldBlocks > 0" style="color: #00bfff;"> [SHIELD x{{ enemyUnits[i-1].shieldBlocks }}]</span><br>
                                         HP: {{ enemyUnits[i-1].hp }}<br>
                                         ATK: {{ enemyUnits[i-1].atk }}<br>
                                         DEF: {{ enemyUnits[i-1].def }}<br>
@@ -482,6 +627,11 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <!-- Battle Result Overlay -->
+                    <div v-if="battleStatus" class="battle-result-overlay" :class="battleStatus">
+                        <div class="result-text">{{ battleStatus === 'win' ? 'VICTORY' : 'DEFEAT' }}</div>
+                        <button @click="closeBattle" class="continue-btn">Continue</button>
                     </div>
                 </div>
             </div>
@@ -497,7 +647,7 @@ import { ENEMIES } from "./data/enemies.js"
 import { STAGES } from "./data/stages.js"
 import { LEVELS } from "./data/levels.js"
 import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
-import { SKILLS, MAX_SKILL_LEVEL, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription } from "./data/skills.js"
+import { SKILLS, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription, getCharSkill, getCharSkillEffect, getCharSkillInfo, getCharNextSkillEffect, getSkillType } from "./data/skills.js"
 
 const { createApp } = Vue
 
@@ -519,6 +669,7 @@ createApp({
 
             team: [null, null, null, null, null],
             currentStage: 0,
+            selectedStage: 0,
             battleStatus: null, // 'win', 'lose', or null
             selectedChar: null,
             selectedEquipment: null, // 'weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories'
@@ -526,6 +677,7 @@ createApp({
             turnNumber: 0,
             showLevelUpPreview: false,
             hoveredEquipUpgrade: false,
+            hoveringSkillUpgrade: null,
 
             inBattle: false,
             playerUnits: [],
@@ -538,7 +690,7 @@ createApp({
         this.loadAutoSave()
 
         setInterval(() => {
-            const stage = this.stages[this.currentStage] || { afkGain: 1 }
+            const stage = this.stages[this.selectedStage] || { afkGain: 1 }
             const multiplier = stage.afkGain || 1
             this.gold += Math.floor(multiplier)
             this.exp += Math.floor(multiplier)
@@ -644,34 +796,26 @@ createApp({
             char.equipment[slot] = (char.equipment[slot] || 0) + 1
         },
 
-        getSkillUpgradeInfo(char) {
-            if (!char || !char.skillId) return null
-            const cost = getSkillUpgradeCost(char.skillId, char.skillLevel || 1)
-            if (cost === null) return null
-            return {
-                level: (char.skillLevel || 1) + 1,
-                cost: cost
-            }
+        getSkillUpgradeInfo(char, slot = 1) {
+            return getCharSkillInfo(char, slot)
         },
 
-        canUpgradeSkill(char) {
-            const upgrade = this.getSkillUpgradeInfo(char)
+        canUpgradeSkill(char, slot = 1) {
+            const upgrade = getCharSkillInfo(char, slot)
             return upgrade ? this.diamond >= upgrade.cost : false
         },
 
-        getSkillEffect(char) {
-            if (!char || !char.skillId) return ''
-            return getSkillDescription(char.skillId, char.skillLevel || 1)
+        getSkillEffect(char, slot = 1) {
+            return getCharSkillEffect(char, slot)
         },
 
-        upgradeSkill(charId) {
+        upgradeSkill(charId, slot = 1) {
             const char = this.getChar(charId)
-            if (!char || !char.skillId) return
-            const upgrade = this.getSkillUpgradeInfo(char)
+            const upgrade = getCharSkillInfo(char, slot)
             if (!upgrade) return
             if (this.diamond < upgrade.cost) return
             this.diamond -= upgrade.cost
-            char.skillLevel = (char.skillLevel || 1) + 1
+            char['skill' + slot + 'Level'] = (char['skill' + slot + 'Level'] || 1) + 1
         },
 
         getLevelUpPreview(char) {
@@ -683,7 +827,7 @@ createApp({
             const currDef = this.getCharEffective(char).def
             const currSpd = this.getCharEffective(char).spd
             const nextLevel = char.level + 1
-            const statMultiplier = 1 + 0.1 * (nextLevel - 1)
+            const statMultiplier = 1 + 0.12 * (nextLevel - 1)
             const speedMultiplier = 1 + 0.05 * (nextLevel - 1)
             const baseHp = char.hp + this.getEquipBonusForStat(char, 'hp')
             const baseAtk = char.atk + this.getEquipBonusForStat(char, 'atk')
@@ -701,11 +845,8 @@ createApp({
             ]
         },
 
-        getSkillUpgradePreview(char) {
-            if (!char || !char.skillId) return ''
-            const upgrade = this.getSkillUpgradeInfo(char)
-            if (!upgrade) return ''
-            return getSkillDescription(char.skillId, upgrade.level)
+        getSkillUpgradePreview(char, slot = 1) {
+            return getCharNextSkillEffect(char, slot)
         },
 
         getEquipUpgradePreview(char, slot) {
@@ -772,8 +913,8 @@ createApp({
         getCharEffective(char) {
             if (!char) return null
             const level = char.level || 1
-            const statMultiplier = 1 + 0.1 * (level - 1)
-            const speedMultiplier = 1 + 0.05 * (level - 1)
+            const statMultiplier = 1 + 0.12 * (level - 1)
+            const speedMultiplier = 1 + 0.06 * (level - 1)
 
             // Calculate equipment bonuses
             let equipmentBonus = { atk: 0, def: 0, hp: 0, spd: 0, critChance: 0, defReduce: 0 }
@@ -806,15 +947,30 @@ createApp({
             const atkMult = unit.buffs.reduce((mult, buff) => mult * (buff.atkMult || 1), 1)
             const defMult = unit.buffs.reduce((mult, buff) => mult * (buff.defMult || 1), 1)
             const spdMult = unit.buffs.reduce((mult, buff) => mult * (buff.spdMult || 1), 1)
-            unit.atk = Math.max(1, Math.round(unit.baseAtk * atkMult))
-            unit.def = Math.max(0, Math.round(unit.baseDef * defMult))
-            unit.spd = Math.max(1, Math.round(unit.baseSpd * spdMult))
-            unit.critChance = unit.baseCritChance
+
+            // Apply debuffs (enemy debuffs reduce stats)
+            const debuffAtkMult = unit.debuffs.reduce((mult, d) => mult * (d.atkMult || 1), 1)
+            const debuffDefMult = unit.debuffs.reduce((mult, d) => mult * (d.defMult || 1), 1)
+            const debuffSpdMult = unit.debuffs.reduce((mult, d) => mult * (d.spdMult || 1), 1)
+
+            unit.atk = Math.max(1, Math.round(unit.baseAtk * atkMult * debuffAtkMult))
+            unit.def = Math.max(0, Math.round(unit.baseDef * defMult * debuffDefMult))
+            unit.spd = Math.max(1, Math.round(unit.baseSpd * spdMult * debuffSpdMult))
+
+            // Apply crit buff
+            const critBonus = unit.buffs.reduce((bonus, buff) => bonus + (buff.critBonus || 0), 0)
+            unit.critChance = Math.min(1, unit.baseCritChance + critBonus)
+
             unit.defReduce = unit.baseDefReduce
         },
 
         applyBuff(unit, buff) {
             unit.buffs.push({ ...buff })
+            this.refreshUnitStats(unit)
+        },
+
+        applyDebuff(unit, debuff) {
+            unit.debuffs.push({ ...debuff })
             this.refreshUnitStats(unit)
         },
 
@@ -825,14 +981,22 @@ createApp({
             this.refreshUnitStats(unit)
         },
 
+        tickUnitDebuffs(unit) {
+            unit.debuffs = unit.debuffs
+                .map(d => ({ ...d, duration: d.duration - 1 }))
+                .filter(d => d.duration > 0)
+            this.refreshUnitStats(unit)
+        },
+
         saveGame() {
             const saveData = {
                 gold: this.gold,
                 exp: this.exp,
                 diamond: this.diamond,
                 currentStage: this.currentStage,
+                selectedStage: this.selectedStage,
                 team: this.team,
-                characters: this.characters.map(c => ({ id: c.id, level: c.level, skillLevel: c.skillLevel, equipment: c.equipment }))
+                characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
             }
             const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'text/plain;charset=utf-8' })
             const url = URL.createObjectURL(blob)
@@ -851,8 +1015,9 @@ createApp({
                 exp: this.exp,
                 diamond: this.diamond,
                 currentStage: this.currentStage,
+                selectedStage: this.selectedStage,
                 team: this.team,
-                characters: this.characters.map(c => ({ id: c.id, level: c.level, skillLevel: c.skillLevel, equipment: c.equipment }))
+                characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
             }
             localStorage.setItem('voyager_autosave', JSON.stringify(saveData))
         },
@@ -873,6 +1038,7 @@ createApp({
             if (typeof data.exp === 'number') this.exp = data.exp
             if (typeof data.diamond === 'number') this.diamond = data.diamond
             if (typeof data.currentStage === 'number') this.currentStage = data.currentStage
+            if (typeof data.selectedStage === 'number') this.selectedStage = data.selectedStage
             if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
             if (Array.isArray(data.characters)) {
                 data.characters.forEach(saved => {
@@ -881,8 +1047,17 @@ createApp({
                         if (typeof saved.level === 'number') {
                             char.level = Math.max(1, saved.level)
                         }
+                        // Handle both old (skillLevel) and new (skill1Level, skill2Level) formats
+                        if (typeof saved.skill1Level === 'number') {
+                            char.skill1Level = Math.max(1, saved.skill1Level)
+                        }
+                        if (typeof saved.skill2Level === 'number') {
+                            char.skill2Level = Math.max(1, saved.skill2Level)
+                        }
+                        // Legacy support for old saves
                         if (typeof saved.skillLevel === 'number') {
-                            char.skillLevel = Math.max(1, saved.skillLevel)
+                            if (!char.skill1Level) char.skill1Level = Math.max(1, saved.skillLevel)
+                            else if (!char.skill2Level) char.skill2Level = Math.max(1, saved.skillLevel)
                         }
                         if (saved.equipment && typeof saved.equipment === 'object') {
                             char.equipment = { ...char.equipment, ...saved.equipment }
@@ -903,27 +1078,7 @@ createApp({
             reader.onload = () => {
                 try {
                     const data = JSON.parse(reader.result)
-                    if (typeof data.gold === 'number') this.gold = data.gold
-                    if (typeof data.exp === 'number') this.exp = data.exp
-                    if (typeof data.diamond === 'number') this.diamond = data.diamond
-                    if (typeof data.currentStage === 'number') this.currentStage = data.currentStage
-                    if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
-                    if (Array.isArray(data.characters)) {
-                        data.characters.forEach(saved => {
-                            const char = this.getChar(saved.id)
-                            if (char) {
-                                if (typeof saved.level === 'number') {
-                                    char.level = Math.max(1, saved.level)
-                                }
-                                if (typeof saved.skillLevel === 'number') {
-                                    char.skillLevel = Math.max(1, saved.skillLevel)
-                                }
-                                if (saved.equipment && typeof saved.equipment === 'object') {
-                                    char.equipment = { ...char.equipment, ...saved.equipment }
-                                }
-                            }
-                        })
-                    }
+                    this.applySaveData(data)
                     this.selectedChar = null
                     this.inBattle = false
                     this.battleStatus = null
@@ -941,13 +1096,12 @@ createApp({
                 .map(id => {
                     const char = this.getChar(id)
                     const effective = this.getCharEffective(char)
-                    const skillLevel = char.skillLevel || 1
-                    const skill = getSkillAtLevel(char.skillId, skillLevel)
+                    const skill1 = getCharSkill(char, 1)
+                    const skill2 = getCharSkill(char, 2)
                     return {
                         id: char.id,
                         name: char.name,
-                        skill: skill,
-                        skillLevel: skillLevel,
+                        skills: [skill1, skill2].filter(Boolean),
                         baseAtk: effective.atk,
                         baseDef: effective.def,
                         baseSpd: effective.spd,
@@ -962,11 +1116,14 @@ createApp({
                         defReduce: effective.defReduce,
                         buffs: [],
                         stunnedTurns: 0,
+                        tauntTurns: 0,
+                        shieldBlocks: 0,
+                        debuffs: [],
                         side: 'p'
                     }
                 })
 
-            const enemyTeam = this.enemies.find(e => e.id === this.stages[this.currentStage].enemyTeamId)
+            const enemyTeam = this.enemies.find(e => e.id === this.stages[this.selectedStage].enemyTeamId)
             this.enemyUnits = enemyTeam.members.map(e => ({
                 ...e,
                 baseAtk: e.atk,
@@ -979,6 +1136,9 @@ createApp({
                 defReduce: e.defReduce || 0,
                 buffs: [],
                 stunnedTurns: 0,
+                tauntTurns: 0,
+                shieldBlocks: 0,
+                debuffs: [],
                 side: 'e'
             }))
 
@@ -989,21 +1149,23 @@ createApp({
             this.runBattle()
         },
 
+        closeBattle() {
+            this.inBattle = false
+            this.battleStatus = null
+        },
+
         runBattle() {
             const loop = setInterval(() => {
 
                 if (this.isAllDead(this.playerUnits)) {
                     this.battleStatus = 'lose'
-                    setTimeout(() => {
-                        this.inBattle = false
-                    }, 1000)
                     clearInterval(loop)
                     return
                 }
 
                 if (this.isAllDead(this.enemyUnits)) {
                     this.battleStatus = 'win'
-                    const drop = this.stages[this.currentStage].drops || { gold: 10, exp: 5, diamond: 0 }
+                    const drop = this.stages[this.selectedStage].drops || { gold: 10, exp: 5, diamond: 0 }
                     this.gold += drop.gold
                     this.exp += drop.exp
                     if (drop.diamond) {
@@ -1012,9 +1174,6 @@ createApp({
                     if (this.currentStage < this.stages.length - 1) {
                         this.currentStage++
                     }
-                    setTimeout(() => {
-                        this.inBattle = false
-                    }, 1000)
                     clearInterval(loop)
                     return
                 }
@@ -1037,62 +1196,204 @@ createApp({
                         continue
                     }
 
+                    // Tick taunt
+                    if (unit.tauntTurns > 0) {
+                        unit.tauntTurns--
+                    }
+
                     const targets = unit.side === "p" ? this.enemyUnits : this.playerUnits
-                    const aliveTargets = targets.filter(t => t.hp > 0)
+                    let aliveTargets = targets.filter(t => t.hp > 0)
                     if (!aliveTargets.length) continue
 
-                    const useSkill = unit.skill && unit.side === 'p' && this.turnNumber % unit.skill.cooldown === 0
-                    if (useSkill) {
-                        const skill = unit.skill
-                        if (skill.type === 'multi_attack') {
-                            const strikeTargets = aliveTargets.slice(0, skill.targets)
-                            strikeTargets.forEach(target => {
-                                const effectiveDef = Math.max(0, target.def - unit.defReduce)
-                                let dmg = Math.max(1, unit.atk - effectiveDef)
-                                if (Math.random() < unit.critChance) {
-                                    dmg = Math.round(dmg * 1.5)
+                    // Check skills - randomly use one if multiple are available
+                    let usedSkill = false
+                    if (unit.skills && unit.side === 'p') {
+                        // Find all skills ready to use
+                        const readySkills = unit.skills.filter(s => s && s.cooldown > 0 && this.turnNumber % s.cooldown === 0)
+                        if (readySkills.length > 0) {
+                            // Randomly pick one skill to use
+                            const skill = readySkills[Math.floor(Math.random() * readySkills.length)]
+                            usedSkill = true
+                            if (skill.type === 'multi_attack') {
+                                const strikeTargets = aliveTargets.slice(0, skill.targets)
+                                strikeTargets.forEach(target => {
+                                    this.dealDamage(unit, target)
+                                })
+                            } else if (skill.type === 'multi_attack_random') {
+                                for (let i = 0; i < skill.hits; i++) {
+                                    const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                    if (target) {
+                                        const randomDmgPct = skill.minDmgPct + Math.random() * (skill.maxDmgPct - skill.minDmgPct)
+                                        const dmg = Math.max(1, Math.round(unit.atk * randomDmgPct))
+                                        target.hp -= dmg
+                                    }
                                 }
-                                target.hp -= dmg
-                            })
-                        } else if (skill.type === 'stun') {
-                            const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
-                            target.stunnedTurns = skill.duration
-                        } else if (skill.type === 'buff') {
-                            const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
-                            allies.filter(a => a.hp > 0).forEach(ally => {
-                                const buff = { duration: skill.duration }
-                                if (skill.atkMult) buff.atkMult = skill.atkMult
-                                if (skill.defMult) buff.defMult = skill.defMult
-                                if (skill.spdMult) buff.spdMult = skill.spdMult
-                                this.applyBuff(ally, buff)
-                            })
-                        } else if (skill.type === 'heal') {
-                            const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
-                            const healTarget = allies
-                                .filter(a => a.hp > 0)
-                                .sort((a, b) => a.hp - b.hp)[0]
-                            if (healTarget) {
-                                healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + skill.amount)
+                            } else if (skill.type === 'stun') {
+                                const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                target.stunnedTurns = skill.duration
+                            } else if (skill.type === 'taunt') {
+                                unit.tauntTurns = skill.duration
+                            } else if (skill.type === 'buff') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                allies.filter(a => a.hp > 0).forEach(ally => {
+                                    const buff = { duration: skill.duration }
+                                    if (skill.atkMult) buff.atkMult = skill.atkMult
+                                    if (skill.defMult) buff.defMult = skill.defMult
+                                    if (skill.spdMult) buff.spdMult = skill.spdMult
+                                    this.applyBuff(ally, buff)
+                                })
+                            } else if (skill.type === 'multi_buff') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                allies.filter(a => a.hp > 0).forEach(ally => {
+                                    const buff = {
+                                        duration: skill.duration,
+                                        atkMult: skill.atkMult,
+                                        defMult: skill.defMult,
+                                        spdMult: skill.spdMult
+                                    }
+                                    this.applyBuff(ally, buff)
+                                })
+                            } else if (skill.type === 'heal') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                const healTarget = allies
+                                    .filter(a => a.hp > 0)
+                                    .sort((a, b) => a.hp - b.hp)[0]
+                                if (healTarget) {
+                                    healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + skill.amount)
+                                }
+                            } else if (skill.type === 'heal_percent') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
+                                const targetsToHeal = injured.slice(0, skill.targets)
+                                targetsToHeal.forEach(ally => {
+                                    const lostHp = ally.baseHp - ally.hp
+                                    const healAmount = Math.round(lostHp * skill.pct)
+                                    ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
+                                })
+                            } else if (skill.type === 'shield') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
+                                alive.forEach(ally => {
+                                    ally.shieldBlocks += skill.blocks
+                                })
+                            } else if (skill.type === 'debuff') {
+                                const enemies = unit.side === 'p' ? this.enemyUnits : this.playerUnits
+                                enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                    this.applyDebuff(enemy, {
+                                        duration: skill.duration,
+                                        atkMult: skill.atkMult,
+                                        defMult: skill.defMult
+                                    })
+                                })
+                            } else if (skill.type === 'slow') {
+                                const enemies = unit.side === 'p' ? this.enemyUnits : this.playerUnits
+                                enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                    this.applyDebuff(enemy, {
+                                        duration: skill.duration,
+                                        spdMult: skill.spdMult
+                                    })
+                                })
+                            } else if (skill.type === 'resurrect') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                const dead = allies.filter(a => a.hp <= 0)
+                                if (dead.length > 0) {
+                                    const toRevive = dead[Math.floor(Math.random() * dead.length)]
+                                    toRevive.hp = Math.round(toRevive.baseHp * skill.hpPct)
+                                    toRevive.debuffs = []
+                                }
+                            } else if (skill.type === 'crit_buff') {
+                                const allies = unit.side === 'p' ? this.playerUnits : this.enemyUnits
+                                allies.filter(a => a.hp > 0).forEach(ally => {
+                                    this.applyBuff(ally, {
+                                        duration: skill.duration,
+                                        critBonus: skill.critBonus
+                                    })
+                                })
                             }
                         }
-                        continue
                     }
 
-                    const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
-                    const effectiveDef = Math.max(0, target.def - unit.defReduce)
-                    let dmg = Math.max(1, unit.atk - effectiveDef)
-                    if (Math.random() < unit.critChance) {
-                        dmg = Math.round(dmg * 1.5)
+                    // Normal attack
+                    let target
+
+                    // Check for taunt targets
+                    const tauntTargets = aliveTargets.filter(t => t.tauntTurns > 0)
+                    if (tauntTargets.length > 0) {
+                        target = tauntTargets[Math.floor(Math.random() * tauntTargets.length)]
+                    } else {
+                        target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
                     }
+
+                    let dmg = this.calculateDamage(unit, target)
+
+                    // Execute passive check (skill with cooldown 0 is passive)
+                    if (unit.skills) {
+                        for (const skill of unit.skills) {
+                            if (skill && skill.type === 'execute' && skill.cooldown === 0) {
+                                const hpPct = target.hp / target.baseHp
+                                if (hpPct <= skill.hpThreshold) {
+                                    dmg = Math.round(dmg * skill.dmgMult)
+                                }
+                                break
+                            }
+                        }
+                    }
+
+                    // Apply shield
+                    if (target.shieldBlocks > 0) {
+                        target.shieldBlocks--
+                        dmg = 0
+                    }
+
                     target.hp -= dmg
                 }
 
-                this.playerUnits.forEach(unit => this.tickUnitBuffs(unit))
-                this.enemyUnits.forEach(unit => this.tickUnitBuffs(unit))
+                this.playerUnits.forEach(unit => {
+                    this.tickUnitBuffs(unit)
+                    this.tickUnitDebuffs(unit)
+                })
+                this.enemyUnits.forEach(unit => {
+                    this.tickUnitBuffs(unit)
+                    this.tickUnitDebuffs(unit)
+                })
 
                 this.turnNumber++
 
             }, 1000)
+        },
+
+        calculateDamage(attacker, defender) {
+            const effectiveDef = Math.max(0, defender.def - attacker.defReduce)
+            let dmg = Math.max(1, attacker.atk - effectiveDef)
+            if (Math.random() < attacker.critChance) {
+                dmg = Math.round(dmg * 1.5)
+            }
+            return dmg
+        },
+
+        dealDamage(attacker, defender) {
+            let dmg = this.calculateDamage(attacker, defender)
+
+            // Execute passive check
+            if (attacker.skills) {
+                for (const skill of attacker.skills) {
+                    if (skill && skill.type === 'execute' && skill.cooldown === 0) {
+                        const hpPct = defender.hp / defender.baseHp
+                        if (hpPct <= skill.hpThreshold) {
+                            dmg = Math.round(dmg * skill.dmgMult)
+                        }
+                        break
+                    }
+                }
+            }
+
+            // Apply shield
+            if (defender.shieldBlocks > 0) {
+                defender.shieldBlocks--
+                dmg = 0
+            }
+
+            defender.hp -= dmg
         },
 
         isAllDead(team) {

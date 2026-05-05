@@ -1,82 +1,121 @@
 export const STAGES = [
-  {
-    id: 1,
-    title: "Start Journey",
-    text: "A small slime patrol ambushes your party on the road.",
-    enemyTeamId: "1",
-    drops: { gold: 6, exp: 5, diamond: 0 },
-    afkGain: 1
-  },
-  {
-    id: 2,
-    title: "Whispering Woods",
-    text: "Forest creatures circle around your campfire.",
-    enemyTeamId: "2",
-    drops: { gold: 8, exp: 7, diamond: 0 },
-    afkGain: 1.1
-  },
-  {
-    id: 3,
-    title: "Bandit Ambush",
-    text: "A group of bandits demand your valuables on the trail.",
-    enemyTeamId: "3",
-    drops: { gold: 12, exp: 10, diamond: 0 },
-    afkGain: 1.2
-  },
-  {
-    id: 4,
-    title: "Foggy Marsh",
-    text: "The marsh hides hostile hunters in the mist.",
-    enemyTeamId: "4",
-    drops: { gold: 16, exp: 14, diamond: 0 },
-    afkGain: 1.3
-  },
-  {
-    id: 5,
-    title: "Ruined Outpost",
-    text: "A ruined outpost is occupied by desperate mercenaries.",
-    enemyTeamId: "5",
-    drops: { gold: 20, exp: 18, diamond: 1 },
-    afkGain: 1.5
-  },
-  {
-    id: 6,
-    title: "Crystal Cavern",
-    text: "Shimmering crystals glow as elemental beasts appear.",
-    enemyTeamId: "6",
-    drops: { gold: 24, exp: 20, diamond: 0 },
-    afkGain: 1.7
-  },
-  {
-    id: 7,
-    title: "Storm Ridge",
-    text: "The wind howls atop the ridge, where armored foes await.",
-    enemyTeamId: "7",
-    drops: { gold: 28, exp: 24, diamond: 0 },
-    afkGain: 1.9
-  },
-  {
-    id: 8,
-    title: "Knight's Gate",
-    text: "Elite knights defend the gate to the inner kingdom.",
-    enemyTeamId: "8",
-    drops: { gold: 32, exp: 26, diamond: 0 },
-    afkGain: 2.1
-  },
-  {
-    id: 9,
-    title: "Arcane Library",
-    text: "Mystic scholars unleash arcane guardians in the library.",
-    enemyTeamId: "9",
-    drops: { gold: 36, exp: 28, diamond: 0 },
-    afkGain: 2.4
-  },
-  {
-    id: 10,
-    title: "Dragon's Lair",
-    text: "You face the dragon and its fiercest servants in the final chamber.",
-    enemyTeamId: "10",
-    drops: { gold: 45, exp: 35, diamond: 2 },
-    afkGain: 3
-  }
+  // Stage 1-10: Beginning Journey
+  { id: 1, title: "Slime Patrol", text: "A small slime patrol ambushes your party on the road.", enemyTeamId: "1", drops: { gold: 6, exp: 5, diamond: 0 }, afkGain: 1, isBoss: false },
+  { id: 2, title: "Forest Wolves", text: "Hungry wolves emerge from the forest shadows.", enemyTeamId: "2", drops: { gold: 8, exp: 7, diamond: 0 }, afkGain: 1.1, isBoss: false },
+  { id: 3, title: "Goblin Camp", text: "A goblin camp blocks your path through the woods.", enemyTeamId: "3", drops: { gold: 10, exp: 9, diamond: 0 }, afkGain: 1.2, isBoss: false },
+  { id: 4, title: "Bandit Ambush", text: "Bandits demand your valuables on the trail.", enemyTeamId: "4", drops: { gold: 12, exp: 11, diamond: 0 }, afkGain: 1.3, isBoss: false },
+  { id: 5, title: "Forest Spider Nest", text: "Giant spiders guard their web-covered territory.", enemyTeamId: "5", drops: { gold: 14, exp: 13, diamond: 1 }, afkGain: 1.5, isBoss: false },
+  { id: 6, title: "Orc Raiders", text: "A band of orcs challenges your passage.", enemyTeamId: "6", drops: { gold: 16, exp: 15, diamond: 0 }, afkGain: 1.6, isBoss: false },
+  { id: 7, title: "Dark Forest", text: "The forest grows darker with each step.", enemyTeamId: "7", drops: { gold: 18, exp: 17, diamond: 0 }, afkGain: 1.7, isBoss: false },
+  { id: 8, title: "Mushroom Grove", text: "Enchanted mushrooms release toxic spores.", enemyTeamId: "8", drops: { gold: 20, exp: 19, diamond: 0 }, afkGain: 1.8, isBoss: false },
+  { id: 9, title: "Hermit Witch", text: "A hermit witch guards the forest's secrets.", enemyTeamId: "9", drops: { gold: 22, exp: 21, diamond: 0 }, afkGain: 1.9, isBoss: false },
+  { id: 10, title: "Forest Guardian", text: "The ancient guardian of the forest awakens!", enemyTeamId: "10", drops: { gold: 35, exp: 30, diamond: 2 }, afkGain: 2.0, isBoss: true },
+
+  // Stage 11-20: Ruined Kingdom
+  { id: 11, title: "Abandoned Village", text: "An empty village with eerie silence.", enemyTeamId: "11", drops: { gold: 24, exp: 23, diamond: 0 }, afkGain: 2.1, isBoss: false },
+  { id: 12, title: "Ghost Soldiers", text: "Spectral soldiers patrol the ruins.", enemyTeamId: "12", drops: { gold: 26, exp: 25, diamond: 0 }, afkGain: 2.2, isBoss: false },
+  { id: 13, title: "Skeleton Legion", text: "Skeletons rise from the ancient battlefield.", enemyTeamId: "13", drops: { gold: 28, exp: 27, diamond: 0 }, afkGain: 2.3, isBoss: false },
+  { id: 14, title: "Cursed Knight", text: "A cursed knight seeks redemption.", enemyTeamId: "14", drops: { gold: 30, exp: 29, diamond: 0 }, afkGain: 2.4, isBoss: false },
+  { id: 15, title: "Ruined Cathedral", text: "Fallen angels worship in the ruins.", enemyTeamId: "15", drops: { gold: 35, exp: 33, diamond: 1 }, afkGain: 2.6, isBoss: false },
+  { id: 16, title: "Crypt Horror", text: "Something stirs deep within the crypt.", enemyTeamId: "16", drops: { gold: 38, exp: 36, diamond: 0 }, afkGain: 2.7, isBoss: false },
+  { id: 17, title: "Wraith Swarm", text: "Wraiths drift through the ancient halls.", enemyTeamId: "17", drops: { gold: 40, exp: 38, diamond: 0 }, afkGain: 2.8, isBoss: false },
+  { id: 18, title: "Bone Golem", text: "An ancient golem guards the throne room.", enemyTeamId: "18", drops: { gold: 42, exp: 40, diamond: 0 }, afkGain: 2.9, isBoss: false },
+  { id: 19, title: "Undead King", text: "The undead king rises from his throne.", enemyTeamId: "19", drops: { gold: 45, exp: 43, diamond: 0 }, afkGain: 3.0, isBoss: false },
+  { id: 20, title: "Lich Lord", text: "The Lich Lord commands the fallen kingdom!", enemyTeamId: "20", drops: { gold: 60, exp: 55, diamond: 3 }, afkGain: 3.5, isBoss: true },
+
+  // Stage 21-30: Mountain Pass
+  { id: 21, title: "Mountain Trail", text: "A treacherous path up the mountain.", enemyTeamId: "21", drops: { gold: 48, exp: 46, diamond: 0 }, afkGain: 3.6, isBoss: false },
+  { id: 22, title: "Stone Golems", text: "Mountain golems block the narrow path.", enemyTeamId: "22", drops: { gold: 50, exp: 48, diamond: 0 }, afkGain: 3.7, isBoss: false },
+  { id: 23, title: "Harpy Nest", text: "Harpies attack from the cliffs above.", enemyTeamId: "23", drops: { gold: 52, exp: 50, diamond: 0 }, afkGain: 3.8, isBoss: false },
+  { id: 24, title: "Minotaur Pack", text: "Minotaurs charge through the mountain caves.", enemyTeamId: "24", drops: { gold: 54, exp: 52, diamond: 0 }, afkGain: 3.9, isBoss: false },
+  { id: 25, title: "Ice Cave", text: "Frozen creatures guard ancient treasures.", enemyTeamId: "25", drops: { gold: 60, exp: 56, diamond: 1 }, afkGain: 4.1, isBoss: false },
+  { id: 26, title: "Basilisk Lair", text: "Petrifying basilisks slither in the depths.", enemyTeamId: "26", drops: { gold: 62, exp: 58, diamond: 0 }, afkGain: 4.2, isBoss: false },
+  { id: 27, title: "Cyclops Den", text: "A cyclops guards the mountain peak.", enemyTeamId: "27", drops: { gold: 64, exp: 60, diamond: 0 }, afkGain: 4.3, isBoss: false },
+  { id: 28, title: "Thunder Elementals", text: "Lightning crackles through the summit.", enemyTeamId: "28", drops: { gold: 66, exp: 62, diamond: 0 }, afkGain: 4.4, isBoss: false },
+  { id: 29, title: "Giant Eagles", text: "Giant eagles defend their aerial territory.", enemyTeamId: "29", drops: { gold: 68, exp: 64, diamond: 0 }, afkGain: 4.5, isBoss: false },
+  { id: 30, title: "Ancient Dragon", text: "An ancient dragon guards the mountain's heart!", enemyTeamId: "30", drops: { gold: 90, exp: 80, diamond: 4 }, afkGain: 5.0, isBoss: true },
+
+  // Stage 31-40: Desert Wastes
+  { id: 31, title: "Sandstorm", text: "A fierce sandstorm reveals hidden dangers.", enemyTeamId: "31", drops: { gold: 72, exp: 68, diamond: 0 }, afkGain: 5.1, isBoss: false },
+  { id: 32, title: "Scorpion Colony", text: "Giant scorpions lurk beneath the dunes.", enemyTeamId: "32", drops: { gold: 74, exp: 70, diamond: 0 }, afkGain: 5.2, isBoss: false },
+  { id: 33, title: "Mummy Pharaohs", text: "Ancient pharaohs rise from their tombs.", enemyTeamId: "33", drops: { gold: 76, exp: 72, diamond: 0 }, afkGain: 5.3, isBoss: false },
+  { id: 34, title: "Sand Wraiths", text: "Deceptive spirits lead travelers astray.", enemyTeamId: "34", drops: { gold: 78, exp: 74, diamond: 0 }, afkGain: 5.4, isBoss: false },
+  { id: 35, title: "Anubis Guardians", text: "Anubis statues come to life to protect the tombs.", enemyTeamId: "35", drops: { gold: 85, exp: 78, diamond: 1 }, afkGain: 5.6, isBoss: false },
+  { id: 36, title: "Sphinx Riddle", text: "A sphinx demands answers before passage.", enemyTeamId: "36", drops: { gold: 88, exp: 80, diamond: 0 }, afkGain: 5.7, isBoss: false },
+  { id: 37, title: "Desert Djinn", text: "Wind spirits swirl through the oasis.", enemyTeamId: "37", drops: { gold: 90, exp: 82, diamond: 0 }, afkGain: 5.8, isBoss: false },
+  { id: 38, title: "Camel Knights", text: "Desert knights mounted on armored camels.", enemyTeamId: "38", drops: { gold: 92, exp: 84, diamond: 0 }, afkGain: 5.9, isBoss: false },
+  { id: 39, title: "Sand Titan", text: "A titan made of sand threatens the horizon.", enemyTeamId: "39", drops: { gold: 95, exp: 86, diamond: 0 }, afkGain: 6.0, isBoss: false },
+  { id: 40, title: "Desert Dragon", text: "A dragon of flame and sand awakens!", enemyTeamId: "40", drops: { gold: 120, exp: 100, diamond: 5 }, afkGain: 6.5, isBoss: true },
+
+  // Stage 41-50: Swamp Depths
+  { id: 41, title: "Murky Waters", text: "The swamp waters seem to grip your feet.", enemyTeamId: "41", drops: { gold: 98, exp: 90, diamond: 0 }, afkGain: 6.6, isBoss: false },
+  { id: 42, title: "Will-o'-Wisps", text: "Ghostly lights lead you into danger.", enemyTeamId: "42", drops: { gold: 100, exp: 92, diamond: 0 }, afkGain: 6.7, isBoss: false },
+  { id: 43, title: "Bog Witch", text: "A swamp witch conjures dark magic.", enemyTeamId: "43", drops: { gold: 102, exp: 94, diamond: 0 }, afkGain: 6.8, isBoss: false },
+  { id: 44, title: "Crocodile Pack", text: "Huge crocodiles circle beneath the surface.", enemyTeamId: "44", drops: { gold: 104, exp: 96, diamond: 0 }, afkGain: 6.9, isBoss: false },
+  { id: 45, title: "Swamp Hydra", text: "A multi-headed hydra blocks the path.", enemyTeamId: "45", drops: { gold: 110, exp: 100, diamond: 1 }, afkGain: 7.1, isBoss: false },
+  { id: 46, title: "Venomous Plants", text: "Carnivorous plants snap at every move.", enemyTeamId: "46", drops: { gold: 112, exp: 102, diamond: 0 }, afkGain: 7.2, isBoss: false },
+  { id: 47, title: "Lizard Shamans", text: "Shamans command the swamp's dark power.", enemyTeamId: "47", drops: { gold: 114, exp: 104, diamond: 0 }, afkGain: 7.3, isBoss: false },
+  { id: 48, title: "Ghost Pirate Ship", text: "A phantom ship emerges from the mist.", enemyTeamId: "48", drops: { gold: 116, exp: 106, diamond: 0 }, afkGain: 7.4, isBoss: false },
+  { id: 49, title: "Swamp Dragon", text: "A dragon steeped in toxic swamp water.", enemyTeamId: "49", drops: { gold: 118, exp: 108, diamond: 0 }, afkGain: 7.5, isBoss: false },
+  { id: 50, title: "Lord of the Swamp", text: "The ancient Lord of the Swamp reveals itself!", enemyTeamId: "50", drops: { gold: 150, exp: 130, diamond: 6 }, afkGain: 8.0, isBoss: true },
+
+  // Stage 51-60: Volcanic Lands
+  { id: 51, title: "Lava Fields", text: "Molten rock flows everywhere around you.", enemyTeamId: "51", drops: { gold: 125, exp: 115, diamond: 0 }, afkGain: 8.1, isBoss: false },
+  { id: 52, title: "Fire Imps", text: "Fire imps throw molten rocks.", enemyTeamId: "52", drops: { gold: 128, exp: 118, diamond: 0 }, afkGain: 8.2, isBoss: false },
+  { id: 53, title: "Magma Golems", text: "Golems forged in fire stand guard.", enemyTeamId: "53", drops: { gold: 130, exp: 120, diamond: 0 }, afkGain: 8.3, isBoss: false },
+  { id: 54, title: "Fire Elementals", text: "Pure fire beings roam the volcanic plains.", enemyTeamId: "54", drops: { gold: 132, exp: 122, diamond: 0 }, afkGain: 8.4, isBoss: false },
+  { id: 55, title: "Phoenix Nest", text: "Young phoenixes guard their volcanic home.", enemyTeamId: "55", drops: { gold: 140, exp: 128, diamond: 1 }, afkGain: 8.6, isBoss: false },
+  { id: 56, title: "Demon Forge", text: "Demons work the eternal forges.", enemyTeamId: "56", drops: { gold: 142, exp: 130, diamond: 0 }, afkGain: 8.7, isBoss: false },
+  { id: 57, title: "Inferno Knights", text: "Knights wreathed in hellfire challenge you.", enemyTeamId: "57", drops: { gold: 145, exp: 132, diamond: 0 }, afkGain: 8.8, isBoss: false },
+  { id: 58, title: "Hell Hounds", text: "Dogs of flame hunt in packs.", enemyTeamId: "58", drops: { gold: 148, exp: 135, diamond: 0 }, afkGain: 8.9, isBoss: false },
+  { id: 59, title: "Volcanic Titan", text: "A titan of fire and magma blocks the path.", enemyTeamId: "59", drops: { gold: 150, exp: 138, diamond: 0 }, afkGain: 9.0, isBoss: false },
+  { id: 60, title: "Inferno Wyrm", text: "A dragon of pure lava descends!", enemyTeamId: "60", drops: { gold: 180, exp: 160, diamond: 7 }, afkGain: 9.5, isBoss: true },
+
+  // Stage 61-70: Frozen Tundra
+  { id: 61, title: "Frozen Plains", text: "Endless ice stretches before you.", enemyTeamId: "61", drops: { gold: 155, exp: 145, diamond: 0 }, afkGain: 9.6, isBoss: false },
+  { id: 62, title: "Ice Wolves", text: "Frost wolves hunt in the bitter cold.", enemyTeamId: "62", drops: { gold: 158, exp: 148, diamond: 0 }, afkGain: 9.7, isBoss: false },
+  { id: 63, title: "Polar Bears", text: "Massive polar bears protect their territory.", enemyTeamId: "63", drops: { gold: 160, exp: 150, diamond: 0 }, afkGain: 9.8, isBoss: false },
+  { id: 64, title: "Frost Giants", text: "Giants of ice tower over the tundra.", enemyTeamId: "64", drops: { gold: 162, exp: 152, diamond: 0 }, afkGain: 9.9, isBoss: false },
+  { id: 65, title: "Ice Cathedral", text: "A frozen cathedral holds ancient secrets.", enemyTeamId: "65", drops: { gold: 170, exp: 158, diamond: 1 }, afkGain: 10.1, isBoss: false },
+  { id: 66, title: "Snow Elementals", text: "Blizzards take physical form.", enemyTeamId: "66", drops: { gold: 172, exp: 160, diamond: 0 }, afkGain: 10.2, isBoss: false },
+  { id: 67, title: "Ice Dragons", text: "Young ice dragons challenge your presence.", enemyTeamId: "67", drops: { gold: 175, exp: 162, diamond: 0 }, afkGain: 10.3, isBoss: false },
+  { id: 68, title: "Frozen Monks", text: "Monks frozen in meditation awaken.", enemyTeamId: "68", drops: { gold: 178, exp: 165, diamond: 0 }, afkGain: 10.4, isBoss: false },
+  { id: 69, title: "Yeti Pack", text: "A family of yetis guards the mountain pass.", enemyTeamId: "69", drops: { gold: 180, exp: 168, diamond: 0 }, afkGain: 10.5, isBoss: false },
+  { id: 70, title: "Ice Dragon Queen", text: "The Ice Dragon Queen awakens from her slumber!", enemyTeamId: "70", drops: { gold: 220, exp: 200, diamond: 8 }, afkGain: 11.0, isBoss: true },
+
+  // Stage 71-80: Shadow Realm
+  { id: 71, title: "Dark Portal", text: "A portal to the shadow realm opens before you.", enemyTeamId: "71", drops: { gold: 185, exp: 175, diamond: 0 }, afkGain: 11.1, isBoss: false },
+  { id: 72, title: "Shadow Assassins", text: "Shadows with blades strike from darkness.", enemyTeamId: "72", drops: { gold: 188, exp: 178, diamond: 0 }, afkGain: 11.2, isBoss: false },
+  { id: 73, title: "Nightmare Spirits", text: "Dreams and nightmares manifest as enemies.", enemyTeamId: "73", drops: { gold: 190, exp: 180, diamond: 0 }, afkGain: 11.3, isBoss: false },
+  { id: 74, title: "Void Walkers", text: "Creatures from the void hunt through shadows.", enemyTeamId: "74", drops: { gold: 192, exp: 182, diamond: 0 }, afkGain: 11.4, isBoss: false },
+  { id: 75, title: "Shadow Cathedral", text: "A cathedral of darkness pulses with power.", enemyTeamId: "75", drops: { gold: 200, exp: 190, diamond: 1 }, afkGain: 11.6, isBoss: false },
+  { id: 76, title: "Demon Lords", text: "Lesser demon lords vie for control.", enemyTeamId: "76", drops: { gold: 202, exp: 192, diamond: 0 }, afkGain: 11.7, isBoss: false },
+  { id: 77, title: "Soul Reapers", text: "Harvesters of souls patrol the realm.", enemyTeamId: "77", drops: { gold: 205, exp: 195, diamond: 0 }, afkGain: 11.8, isBoss: false },
+  { id: 78, title: "Chaos Beasts", text: "Creatures of pure chaos roam free.", enemyTeamId: "78", drops: { gold: 208, exp: 198, diamond: 0 }, afkGain: 11.9, isBoss: false },
+  { id: 79, title: "Shadow Dragon", text: "A dragon of pure shadow blocks your path.", enemyTeamId: "79", drops: { gold: 210, exp: 200, diamond: 0 }, afkGain: 12.0, isBoss: false },
+  { id: 80, title: "Shadow Emperor", text: "The Shadow Emperor rises from his throne!", enemyTeamId: "80", drops: { gold: 250, exp: 230, diamond: 10 }, afkGain: 12.5, isBoss: true },
+
+  // Stage 81-90: Celestial Heights
+  { id: 81, title: "Cloud Kingdom", text: "Floating islands above the clouds.", enemyTeamId: "81", drops: { gold: 215, exp: 205, diamond: 0 }, afkGain: 12.6, isBoss: false },
+  { id: 82, title: "Angel Guards", text: "Celestial guardians challenge intruders.", enemyTeamId: "82", drops: { gold: 218, exp: 208, diamond: 0 }, afkGain: 12.7, isBoss: false },
+  { id: 83, title: "Storm Seraphs", text: "Seraphs wielding lightning and wind.", enemyTeamId: "83", drops: { gold: 220, exp: 210, diamond: 0 }, afkGain: 12.8, isBoss: false },
+  { id: 84, title: "Light Elementals", text: "Beings of pure divine light.", enemyTeamId: "84", drops: { gold: 222, exp: 212, diamond: 0 }, afkGain: 12.9, isBoss: false },
+  { id: 85, title: "Heavenly Knights", text: "The knights of heaven charge forth.", enemyTeamId: "85", drops: { gold: 230, exp: 220, diamond: 1 }, afkGain: 13.1, isBoss: false },
+  { id: 86, title: "Archangels", text: "Powerful archangels test your worth.", enemyTeamId: "86", drops: { gold: 232, exp: 222, diamond: 0 }, afkGain: 13.2, isBoss: false },
+  { id: 87, title: "Divine Beasts", text: "Mythical beasts blessed by the gods.", enemyTeamId: "87", drops: { gold: 235, exp: 225, diamond: 0 }, afkGain: 13.3, isBoss: false },
+  { id: 88, title: "Celestial Wyverns", text: "Winged serpents of the heavens.", enemyTeamId: "88", drops: { gold: 238, exp: 228, diamond: 0 }, afkGain: 13.4, isBoss: false },
+  { id: 89, title: "Guardian Seraph", text: "The great guardian of the celestial realm.", enemyTeamId: "89", drops: { gold: 240, exp: 230, diamond: 0 }, afkGain: 13.5, isBoss: false },
+  { id: 90, title: "Divine Dragon", text: "A dragon blessed by the gods themselves!", enemyTeamId: "90", drops: { gold: 280, exp: 260, diamond: 12 }, afkGain: 14.0, isBoss: true },
+
+  // Stage 91-99: Final Challenge
+  { id: 91, title: "Gate of Worlds", text: "The gate connecting all realms trembles.", enemyTeamId: "91", drops: { gold: 290, exp: 270, diamond: 0 }, afkGain: 14.1, isBoss: false },
+  { id: 92, title: "Realm Champions", text: "Champions from every realm gather.", enemyTeamId: "92", drops: { gold: 295, exp: 275, diamond: 0 }, afkGain: 14.2, isBoss: false },
+  { id: 93, title: "Time Guardians", text: "Guardians of time itself appear.", enemyTeamId: "93", drops: { gold: 300, exp: 280, diamond: 0 }, afkGain: 14.3, isBoss: false },
+  { id: 94, title: "Reality Breakers", text: "Entities that shatter reality.", enemyTeamId: "94", drops: { gold: 305, exp: 285, diamond: 0 }, afkGain: 14.4, isBoss: false },
+  { id: 95, title: "Dimension Rift", text: "A rift between dimensions opens wide.", enemyTeamId: "95", drops: { gold: 320, exp: 300, diamond: 2 }, afkGain: 14.6, isBoss: false },
+  { id: 96, title: "Eternal Warriors", text: "Warriors who never truly die.", enemyTeamId: "96", drops: { gold: 330, exp: 310, diamond: 0 }, afkGain: 14.7, isBoss: false },
+  { id: 97, title: "Primordial Dragons", text: "Dragons from the world's first age.", enemyTeamId: "97", drops: { gold: 340, exp: 320, diamond: 0 }, afkGain: 14.8, isBoss: false },
+  { id: 98, title: "Chaos Titan", text: "A titan born of primordial chaos.", enemyTeamId: "98", drops: { gold: 350, exp: 330, diamond: 0 }, afkGain: 14.9, isBoss: false },
+  { id: 99, title: "World Serpent", text: "The ancient serpent that encircles the world.", enemyTeamId: "99", drops: { gold: 400, exp: 380, diamond: 0 }, afkGain: 15.0, isBoss: false },
+  { id: 100, title: "The Void Emperor", text: "The master of all darkness reveals itself!", enemyTeamId: "100", drops: { gold: 500, exp: 500, diamond: 20 }, afkGain: 16.0, isBoss: true }
 ]
