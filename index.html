@@ -274,6 +274,30 @@
         .stat-current {
             color: #888;
         }
+
+        .upgrade-btn-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .upgrade-btn-wrap:hover .upgrade-preview {
+            display: block;
+        }
+
+        .upgrade-preview {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 8px 12px;
+            z-index: 100;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -321,7 +345,8 @@
                 <div v-if="getChar(selectedChar)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
                         <span style="grid-column: 1 / -1;">Name: {{ getChar(selectedChar).name }}</span>
-                        <span>Lv: {{ getChar(selectedChar).level }}</span>
+                        <span v-if="!showLevelUpPreview">Lv: {{ getChar(selectedChar).level }}</span>
+                        <span v-else>Lv: <span class="stat-current">{{ getChar(selectedChar).level }}</span> → <span class="stat-up">{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).level : 'Max' }}</span></span>
                         <span></span>
                         <span v-if="!showLevelUpPreview">HP: {{ getCharEffective(getChar(selectedChar)).hp }}</span>
                         <span v-else>HP: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
@@ -365,28 +390,30 @@
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
                         <h4 style="margin: 5px 0;">Equipment</h4>
                         <div class="equipment-grid">
-                            <button v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
-                                :key="slot"
-                                @click="selectEquipment(slot)"
-                                :class="['equipment-button', { selected: selectedEquipment === slot }]">
-                                {{ EQUIPMENT_UPGRADES && EQUIPMENT_UPGRADES[slot] ? EQUIPMENT_UPGRADES[slot].name : slot }}<br>
-                                +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>
-                                Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}
-                            </button>
+                            <div v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
+                                :key="slot" style="width: 100%;">
+                                <button @click="selectEquipment(slot)"
+                                    :class="['equipment-button', { selected: selectedEquipment === slot }]"
+                                    style="width: 100%;">
+                                    {{ equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].name : slot }}<br>
+                                    <span v-if="!hoveredEquipUpgrade || selectedEquipment !== slot || !getEquipUpgradePreview(getChar(selectedChar), slot)">
+                                        +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}
+                                    </span>
+                                    <span v-else>
+                                        <span class="stat-current">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}</span> → <span class="stat-up">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) + (getEquipUpgradePreview(getChar(selectedChar), slot)?.bonus || 0) }}</span><br>
+                                        <span class="stat-current">Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}</span> → <span class="stat-up">Lv.{{ (getChar(selectedChar).equipment[slot] || 0) + 1 }}</span>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                         <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
-                            <div class="upgrade-btn-wrap" v-if="getEquipmentUpgrade(getChar(selectedChar), selectedEquipment)">
-                                <button @click="upgradeEquipment(selectedChar, selectedEquipment)"
-                                    :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)">
-                                    +{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}G
-                                </button>
-                                <div class="upgrade-preview">
-                                    <div>
-                                        <span class="stat-current">{{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).label }}:</span>
-                                        {{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).currentVal }} → <span class="stat-up">{{ getEquipUpgradePreview(getChar(selectedChar), selectedEquipment).newVal }}</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <button v-if="getEquipmentUpgrade(getChar(selectedChar), selectedEquipment)"
+                                @click="upgradeEquipment(selectedChar, selectedEquipment)"
+                                @mouseenter="hoveredEquipUpgrade = true" @mouseleave="hoveredEquipUpgrade = false"
+                                :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)"
+                                style="padding: 3px 10px;">
+                                +{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}G
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -488,6 +515,7 @@ createApp({
             stages: STAGES,
             levels: LEVELS,
             skills: SKILLS,
+            equipmentUpgrades: EQUIPMENT_UPGRADES,
 
             team: [null, null, null, null, null],
             currentStage: 0,
@@ -497,6 +525,7 @@ createApp({
             saveFileName: 'voyager_save.txt',
             turnNumber: 0,
             showLevelUpPreview: false,
+            hoveredEquipUpgrade: false,
 
             inBattle: false,
             playerUnits: [],
@@ -509,7 +538,8 @@ createApp({
         this.loadAutoSave()
 
         setInterval(() => {
-            const multiplier = 1 + this.currentStage * 0.1
+            const stage = this.stages[this.currentStage] || { afkGain: 1 }
+            const multiplier = stage.afkGain || 1
             this.gold += Math.floor(multiplier)
             this.exp += Math.floor(multiplier)
 
@@ -694,6 +724,23 @@ createApp({
                 newVal = Math.round((effective[stat] + upgrade.bonus / 100) * 100) + '%'
             }
             return { label, bonus: upgrade.bonus, currentVal, newVal, stat }
+        },
+
+        getEquipUpgradeCharStats(char, slot) {
+            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+            const currentLevel = char.equipment[slot] || 0
+            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
+            if (!upgrade) return null
+            const stat = EQUIPMENT_UPGRADES[slot].stat
+            const newChar = JSON.parse(JSON.stringify(char))
+            newChar.equipment[slot] = currentLevel + 1
+            const newEffective = this.getCharEffective(newChar)
+            return {
+                hp: newEffective.hp,
+                atk: newEffective.atk,
+                def: newEffective.def,
+                spd: newEffective.spd
+            }
         },
 
         getEquipCurrentBonus(char, slot) {
