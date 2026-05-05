@@ -691,7 +691,7 @@ createApp({
             equipmentUpgrades: EQUIPMENT_UPGRADES,
 
             team: [null, null, null, null, null],
-            currentStage: 0, // Force reset to 0
+            currentStage: 0,
             selectedStage: 0,
             maxStage: 30, // Maximum stage available
             battleStatus: null, // 'win', 'lose', or null
@@ -1085,11 +1085,6 @@ createApp({
         },
 
         loadAutoSave() {
-            // TEMP: Force reset currentStage for testing
-            this.currentStage = 0
-            this.selectedStage = 0
-            return
-
             const saved = localStorage.getItem('voyager_autosave')
             if (saved) {
                 try {
