@@ -751,12 +751,14 @@ createApp({
             const index = this.team.indexOf(id)
             if (index !== -1) {
                 this.team[index] = null
+                this.autoSaveGame()
                 return
             }
             const empty = this.team.indexOf(null)
             if (empty !== -1) {
                 this.team[empty] = id
             }
+            this.autoSaveGame()
         },
 
         selectChar(id) {
@@ -781,6 +783,7 @@ createApp({
             if (this.exp < next.exp) return
             this.exp -= next.exp
             char.level = Math.min(char.level + 1, this.levels[this.levels.length - 1].level)
+            this.autoSaveGame()
         },
 
         selectEquipment(slot) {
@@ -823,6 +826,7 @@ createApp({
             if (this.gold < upgrade.cost) return
             this.gold -= upgrade.cost
             char.equipment[slot] = (char.equipment[slot] || 0) + 1
+            this.autoSaveGame()
         },
 
         getSkillUpgradeInfo(char, slot = 1) {
@@ -845,6 +849,7 @@ createApp({
             if (this.diamond < upgrade.cost) return
             this.diamond -= upgrade.cost
             char['skill' + slot + 'Level'] = (char['skill' + slot + 'Level'] || 1) + 1
+            this.autoSaveGame()
         },
 
         getLevelUpPreview(char) {
@@ -1288,6 +1293,7 @@ createApp({
                     }
                     // Clamp selectedStage to valid range after stage progression
                     self.selectedStage = Math.min(self.selectedStage, self.currentStage)
+                    self.autoSaveGame()
                     self.actingUnit = null
                     document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
                         el.classList.remove('unit-acting')
