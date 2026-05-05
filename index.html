@@ -606,10 +606,6 @@
 
                 <div v-if="inBattle" class="battle-area">
                     <div class="units">
-                        <!-- Debug info -->
-                        <div style="background: #333; padding: 5px; margin-bottom: 10px; font-size: 0.8rem;">
-                            Turn: {{ turnNumber }} | Acting: {{ actingUnit ? (actingUnit.side === 'player' ? 'Player ' + (actingUnit.index + 1) : 'Enemy ' + (actingUnit.index + 1)) : 'None' }}
-                        </div>
                         <div class="teams-row">
                             <!-- Player Side -->
                             <div class="player-column">
