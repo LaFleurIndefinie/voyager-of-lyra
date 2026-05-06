@@ -75,6 +75,27 @@
             overflow-y: auto;
         }
 
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 25px 30px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            min-width: 300px;
+        }
+
         .right-panel {
             flex: 1;
             display: flex;
@@ -119,6 +140,41 @@
 
         .slot:hover {
             background: #333;
+        }
+
+        .team-panel .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .team-panel h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .team-bf-total {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            font-size: 1rem;
+        }
+
+        .team-bf-total span:first-child {
+            font-weight: normal;
+        }
+
+        .team-bf-value {
+            font-weight: bold;
+            color: #ffd700;
+            font-size: 1rem;
+        }
+
+        .slot-bf {
+            color: #ffd700;
+            font-size: 0.8rem;
+            margin-left: 8px;
         }
 
         .equipment-grid {
@@ -255,11 +311,6 @@
             min-height: 0;
         }
 
-        .player-column .unit-slot,
-        .enemy-column .unit-slot {
-            flex: 1;
-        }
-
         .player-column h4 {
             color: #7cff7c;
         }
@@ -278,6 +329,15 @@
             border-color: #9f2d2d;
         }
 
+        .player-units,
+        .enemy-units {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            flex: 1;
+        }
+
         .unit-slot.unit-acting {
             border: 2px solid #ffd700 !important;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
@@ -294,15 +354,15 @@
         .unit-slot {
             border: 1px solid #555;
             padding: 8px;
-            margin: 6px 0;
             background: #1a1a1a;
             border-radius: 3px;
-            min-height: 120px;
+            height: 120px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .unit-slot .unit-name {
@@ -318,6 +378,23 @@
             font-size: 0.7rem;
             min-height: 16px;
             margin-bottom: 2px;
+        }
+
+        .unit-slot .skill-used {
+            color: #ff69b4;
+            font-size: 0.8rem;
+            font-weight: normal;
+            margin-left: 6px;
+        }
+
+        .hp-gain {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .hp-loss {
+            color: #ff4444;
+            font-weight: bold;
         }
 
         .unit-slot .unit-stats {
@@ -511,23 +588,42 @@
     <header class="header">
         <div class="title-stats">
             <h1>{{ t('Voyager of Lyra') }}</h1>
-            <div class="stats">{{ t('Gold') }}: {{ gold }} | {{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}: {{ diamond }}</div>
+            <div class="stats">💰{{ t('Gold') }}: {{ gold }} | 📖{{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}: {{ diamond }}</div>
         </div>
         <div class="header-actions">
             <button @click="toggleLang">{{ t('ToggleLang') }}</button>
             <button @click="saveGame">{{ t('Save Game') }}</button>
             <button @click="triggerLoad">{{ t('Load Game') }}</button>
+            <button @click="showResetModal = true" style="color: #ff6b6b;">{{ t('Reset Game') }}</button>
             <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
         </div>
     </header>
 
+    <!-- Reset Confirmation Modal -->
+    <div v-if="showResetModal" class="modal-overlay" @click.self="showResetModal = false">
+        <div class="modal-content">
+            <p style="text-align: center; margin-bottom: 20px;">{{ t('Reset Confirm') }}</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button @click="confirmReset" style="background: #d32f2f;">{{ t('Yes') }}</button>
+                <button @click="showResetModal = false">{{ t('No') }}</button>
+            </div>
+        </div>
+    </div>
+
     <div class="main-content">
         <aside class="left-panel">
             <!-- 队伍 -->
-            <div class="panel">
-                <h3>{{ t('Team') }}</h3>
+            <div class="panel team-panel">
+                <div class="team-header">
+                    <h3>{{ t('Team') }}</h3>
+                    <div class="team-bf-total">
+                        <span>{{ t('Total Battle Force') }}:</span>
+                        <span class="team-bf-value">{{ team.filter(Boolean).reduce((sum, id) => sum + this.getBattleForce(this.getChar(id)), 0) }}</span>
+                    </div>
+                </div>
                 <div v-for="(slot, i) in team" :key="i" class="slot" @click="removeFromTeam(i)">
                     {{ t('Slot') }} {{ i+1 }}: {{ getCharName(slot) || t('Empty') }}
+                    <span v-if="slot" class="slot-bf">{{ t('Battle Force') }}: {{ getBattleForce(getChar(slot)) }}</span>
                 </div>
             </div>
 
@@ -550,8 +646,14 @@
             </div>
 
             <!-- Character Info -->
-            <div v-if="selectedChar" class="panel">
-                <h3>{{ t('Character Info') }}</h3>
+            <div v-if="selectedChar" class="panel team-panel">
+                <div class="team-header">
+                    <h3>{{ t('Character Info') }}</h3>
+                    <div class="team-bf-total">
+                        <span>{{ t('Battle Force') }}:</span>
+                        <span class="team-bf-value">{{ getBattleForce(getChar(selectedChar)) }}</span>
+                    </div>
+                </div>
                 <div v-if="getChar(selectedChar)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
                         <span style="grid-column: 1 / -1;">{{ t('Name') }}: {{ getCharName(selectedChar) }}</span>
@@ -566,8 +668,8 @@
                         <span v-else>{{ t('DEF') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
                         <span v-if="!showLevelUpPreview">{{ t('SPD') }}: {{ getCharEffective(getChar(selectedChar)).spd }}</span>
                         <span v-else>{{ t('SPD') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
-                        <span>{{ t('Crit') }}: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
-                        <span>{{ t('DefR') }}: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
+                        <span>{{ t('CRITCHANCE') }}: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
+                        <span>{{ t('DEFREDUCE') }}: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
                     </div>
                     <div style="margin-top: 8px;">
                         <span>{{ t('EXP') }}: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}</span>
@@ -580,7 +682,7 @@
                         <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
                             @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
                             style="padding: 2px 8px; white-space: nowrap;">
-                            {{ t('Level Up') }} ({{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}{{ t('EXP') }})
+                            {{ t('Level Up') }} 📖{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}
                         </button>
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
@@ -604,7 +706,7 @@
                                 @mouseleave="hoveringSkillUpgrade = null"
                                 :disabled="!canUpgradeSkill(getChar(selectedChar), s)"
                                 style="padding: 2px 8px; font-size: 0.8rem;">
-                                {{ t('Upgrade Skill') }}({{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}💎)
+                                {{ t('Upgrade Skill') }} 💎{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}
                             </button>
                             <span v-else style="color: #888; padding: 5px;">{{ t('MAX') }}</span>
                         </div>
@@ -634,7 +736,7 @@
                                 @mouseenter="hoveredEquipUpgrade = true" @mouseleave="hoveredEquipUpgrade = false"
                                 :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)"
                                 style="padding: 3px 10px;">
-                                {{ t('Upgrade') }}({{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}{{ t('G') }})
+                                {{ t('Upgrade') }} 💰{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}
                             </button>
                         </div>
                     </div>
@@ -683,49 +785,55 @@
                     <p>{{ t('All stages completed!') }}</p>
                 </div>
 
-                <div v-if="inBattle" class="battle-area">
+                <div v-if="inBattle || battleStatus" class="battle-area">
                     <div class="units">
                         <div class="teams-row">
                             <!-- Player Side -->
                             <div class="player-column">
                                 <h4>{{ t('Player Team') }}</h4>
-                                <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot player-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
+                                <div class="player-units" :class="'player-count-' + playerUnits.length">
+                                    <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot player-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
                                     <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
                                         <div class="unit-name">
                                             <b>{{ unit.displayName }}</b>
+                                            <span v-if="getSkillDisplay('p', i)" class="skill-used">{{ getSkillDisplay('p', i) }}</span>
                                         </div>
                                         <div class="unit-tags">
                                             <span v-if="unit.tauntTurns > 0" style="color: #ffa500;">[{{ t('TAUNT') }}]</span>
                                             <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
                                         </div>
                                         <div class="unit-stats">
-                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}</span>
+                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('p', i)" :class="getHpChange('p', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('p', i) > 0 ? '+' : '' }}{{ getHpChange('p', i) }})</span></span>
                                             <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
                                             <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
                                             <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
-                                            <span>{{ t('Crit') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
-                                            <span>{{ t('DefR') }}: {{ unit.defReduce }}</span>
+                                            <span>{{ t('CRITCHANCE') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
+                                            <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
                                         </div>
                                     </div>
                                     <div v-else class="unit-name">
                                         {{ t('Empty') }}
                                     </div>
                                 </div>
+                                </div>
                             </div>
 
                             <!-- Enemy Side -->
                             <div class="enemy-column">
                                 <h4>{{ t('Enemies') }}</h4>
+                                <div class="enemy-units">
                                 <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot enemy-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
                                     <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
                                         <div class="unit-name">
                                             <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name }}</b>
+                                            <span v-if="getSkillDisplay('e', i)" class="skill-used">{{ getSkillDisplay('e', i) }}</span>
                                         </div>
                                         <div class="unit-tags">
                                             <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                            <span v-if="unit.stunnedTurns > 0" style="color: #ff6b6b;">[{{ t('STUN') }}x{{ unit.stunnedTurns }}]</span>
                                         </div>
                                         <div class="unit-stats">
-                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}</span>
+                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('e', i)" :class="getHpChange('e', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('e', i) > 0 ? '+' : '' }}{{ getHpChange('e', i) }})</span></span>
                                             <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
                                             <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
                                             <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
@@ -734,6 +842,7 @@
                                     <div v-else class="unit-name">
                                         {{ t('Empty') }}
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -769,10 +878,23 @@ createApp({
             // Language system
             currentLang: localStorage.getItem('voyager_lang') || 'en',
 
+            // Battle Force calculation weights
+            BF_HP: 1,
+            BF_ATK: 10,
+            BF_DEF: 10,
+            BF_SPD: 20,
+            BF_CRIT: 50,
+            BF_DEFR: 30,
+
             gold: 0,
             exp: 0,
+            afkGold: 0,
+            afkExp: 0,
             diamond: 0,
             diamondTimer: 0,
+            showResetModal: false,
+            skillDisplays: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
+            hpChanges: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
 
             characters: CHARACTERS,
             enemies: ENEMIES,
@@ -812,8 +934,10 @@ createApp({
             // Use currentStage (last completed) for AFK gain rate, not selectedStage
             const stage = this.stages[this.currentStage] || { afkGain: 1 }
             const multiplier = stage.afkGain || 1
-            this.gold += Math.floor(multiplier)
-            this.exp += Math.floor(multiplier)
+            this.afkGold += multiplier
+            this.afkExp += multiplier
+            this.gold = Math.floor(this.afkGold)
+            this.exp = Math.floor(this.afkExp)
 
             this.diamondTimer++
             if (this.diamondTimer >= 60) {
@@ -1076,6 +1200,26 @@ createApp({
             return this.t(stat.toUpperCase())
         },
 
+        getBattleForce(char) {
+            if (!char) return 0
+            const effective = this.getCharEffective(char)
+            return Math.round(
+                effective.hp * this.BF_HP +
+                effective.atk * this.BF_ATK +
+                effective.def * this.BF_DEF +
+                effective.spd * this.BF_SPD +
+                effective.critChance * 100 * this.BF_CRIT +
+                effective.defReduce * this.BF_DEFR
+            )
+        },
+
+        getSkillDisplay(side, index) {
+            return this.skillDisplays[side + index] || null
+        },
+        getHpChange(side, index) {
+            return this.hpChanges[side + index] || null
+        },
+
         getCharEffective(char) {
             if (!char) return null
             const level = char.level || 1
@@ -1191,6 +1335,8 @@ createApp({
             const saveData = {
                 gold: this.gold,
                 exp: this.exp,
+                afkGold: this.afkGold,
+                afkExp: this.afkExp,
                 diamond: this.diamond,
                 currentStage: this.currentStage,
                 selectedStage: this.selectedStage,
@@ -1212,6 +1358,8 @@ createApp({
             const saveData = {
                 gold: this.gold,
                 exp: this.exp,
+                afkGold: this.afkGold,
+                afkExp: this.afkExp,
                 diamond: this.diamond,
                 currentStage: this.currentStage,
                 selectedStage: this.selectedStage,
@@ -1235,6 +1383,8 @@ createApp({
         applySaveData(data) {
             if (typeof data.gold === 'number') this.gold = data.gold
             if (typeof data.exp === 'number') this.exp = data.exp
+            if (typeof data.afkGold === 'number') this.afkGold = data.afkGold
+            if (typeof data.afkExp === 'number') this.afkExp = data.afkExp
             if (typeof data.diamond === 'number') this.diamond = data.diamond
             if (typeof data.currentStage === 'number') {
                 // Clamp currentStage to valid range (0 to maxStage - 1)
@@ -1274,6 +1424,41 @@ createApp({
 
         triggerLoad() {
             this.$refs.saveInput.click()
+        },
+
+        confirmReset() {
+            // Reset all game state to initial values
+            this.gold = 0
+            this.exp = 0
+            this.afkGold = 0
+            this.afkExp = 0
+            this.diamond = 0
+            this.diamondTimer = 0
+            this.currentStage = 0
+            this.selectedStage = 0
+            this.team = [null, null, null, null, null]
+
+            // Reset all characters to initial state
+            this.characters.forEach(char => {
+                char.level = 1
+                char.skill1Level = 1
+                char.skill2Level = 1
+                char.equipment = {
+                    weapon: 0,
+                    helmet: 0,
+                    armor: 0,
+                    vambraces: 0,
+                    boots: 0,
+                    accessories: 0
+                }
+            })
+
+            this.selectedChar = null
+            this.selectedEquipment = null
+            this.showResetModal = false
+
+            // Clear localStorage autosave
+            localStorage.removeItem('voyager_autosave')
         },
 
         loadGameFile(event) {
@@ -1340,6 +1525,7 @@ createApp({
                         tauntTurns: 0,
                         shieldBlocks: 0,
                         debuffs: [],
+                        currentSkill: null,
                         side: 'p'
                     }
                 })
@@ -1360,6 +1546,7 @@ createApp({
                 tauntTurns: 0,
                 shieldBlocks: 0,
                 debuffs: [],
+                currentSkill: null,
                 skillCooldowns: [0, 0],
                 side: 'e'
             }))
@@ -1369,6 +1556,8 @@ createApp({
             this.actingUnit = null
             this.battleActionOrder = null
             this.battleActionIndex = 0
+            this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+            this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
             this.inBattle = true
 
             this.runBattle()
@@ -1394,57 +1583,56 @@ createApp({
                 clearInterval(this.battleLoop)
             }
 
-            const self = this // Store Vue instance reference
-            this.battleLoop = setInterval(function() {
+            this.battleLoop = setInterval(() => {
+                // Exit early if battle already ended
+                if (this.battleStatus) {
+                    if (this.battleLoop) {
+                        clearInterval(this.battleLoop)
+                        this.battleLoop = null
+                    }
+                    return
+                }
+
                 // Clear battle loop reference when loop ends
-                if (!self.inBattle) {
-                    clearInterval(self.battleLoop)
-                    self.battleLoop = null
+                if (!this.inBattle) {
+                    clearInterval(this.battleLoop)
+                    this.battleLoop = null
                     return
                 }
 
-                if (self.isAllDead(self.playerUnits)) {
-                    self.battleStatus = 'lose'
-                    self.actingUnit = null
-                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                        el.classList.remove('unit-acting')
-                    })
-                    clearInterval(self.battleLoop)
-                    self.battleLoop = null
+                if (this.isAllDead(this.playerUnits)) {
+                    this.battleStatus = 'lose'
+                    this.clearBattleHighlight()
                     return
                 }
 
-                if (self.isAllDead(self.enemyUnits)) {
-                    self.battleStatus = 'win'
-                    const drop = self.stages[self.selectedStage].drops || { gold: 10, exp: 5, diamond: 0 }
-                    self.gold += drop.gold
-                    self.exp += drop.exp
+                if (this.isAllDead(this.enemyUnits)) {
+                    this.battleStatus = 'win'
+                    const drop = this.stages[this.selectedStage].drops || { gold: 10, exp: 5, diamond: 0 }
+                    this.gold += drop.gold
+                    this.exp += drop.exp
                     if (drop.diamond) {
-                        self.diamond += drop.diamond
+                        this.diamond += drop.diamond
                     }
                     // Only unlock next stage if clearing the highest unlocked stage
-                    if (self.selectedStage === self.currentStage && self.currentStage < self.maxStage - 1) {
-                        self.currentStage++
-                        self.selectedStage = self.currentStage
+                    if (this.selectedStage === this.currentStage && this.currentStage < this.maxStage - 1) {
+                        this.currentStage++
+                        this.selectedStage = this.currentStage
                     }
                     // Clamp selectedStage to valid range after stage progression
-                    self.selectedStage = Math.min(self.selectedStage, self.currentStage)
-                    self.autoSaveGame()
-                    self.actingUnit = null
-                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                        el.classList.remove('unit-acting')
-                    })
-                    clearInterval(self.battleLoop)
-                    self.battleLoop = null
+                    this.selectedStage = Math.min(this.selectedStage, this.currentStage)
+                    this.autoSaveGame()
+                    this.clearBattleHighlight()
                     return
                 }
 
                 // Build action order only when turnNumber changes
-                if (!self.battleActionOrder || self.battleActionIndex >= self.battleActionOrder.length) {
+                if (!this.battleActionOrder || this.battleActionIndex >= this.battleActionOrder.length) {
                     // Create new action order for this "turn" - keep references to original units
+                    // Only include living units
                     let all = [
-                        ...self.playerUnits.map((u, idx) => ({ unitRef: u, side: "p", unitIndex: idx })),
-                        ...self.enemyUnits.map((u, idx) => ({ unitRef: u, side: "e", unitIndex: idx }))
+                        ...this.playerUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "p", unitIndex: this.playerUnits.indexOf(u) })),
+                        ...this.enemyUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "e", unitIndex: this.enemyUnits.indexOf(u) }))
                     ]
 
                     // Sort by speed
@@ -1456,33 +1644,62 @@ createApp({
                     })
 
                     // Store the action order with unit references
-                    self.battleActionOrder = all
-                    self.battleActionIndex = 0
-                    self.turnNumber++
+                    this.battleActionOrder = all
+                    this.battleActionIndex = 0
+                    this.turnNumber++
                 }
 
                 // Get the next living unit to act
                 let action = null
-                while (self.battleActionIndex < self.battleActionOrder.length) {
-                    const potentialAction = self.battleActionOrder[self.battleActionIndex]
-                    self.battleActionIndex++
+                while (this.battleActionIndex < this.battleActionOrder.length) {
+                    const potentialAction = this.battleActionOrder[this.battleActionIndex]
                     // Only accept living units (check unitRef for current HP)
                     if (potentialAction.unitRef.hp > 0) {
                         action = potentialAction
+                        this.battleActionIndex++
                         break
+                    } else {
+                        // Remove dead unit from action order and move to next
+                        this.battleActionOrder.splice(this.battleActionIndex, 1)
                     }
                 }
 
                 // No living units left
                 if (!action) {
+                    // Check if battle ended
+                    if (this.isAllDead(this.enemyUnits)) {
+                        this.battleStatus = 'win'
+                        this.clearBattleHighlight()
+                    } else if (this.isAllDead(this.playerUnits)) {
+                        this.battleStatus = 'lose'
+                        this.clearBattleHighlight()
+                    } else {
+                        // No living units but battle not over - rebuild action order
+                        this.battleActionOrder = null
+                    }
                     return
                 }
 
                 const unit = action.unitRef
 
-                // Handle stunned units
+                // Clear previous skill display
+                this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+                this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+
+                // Handle stunned units - still show highlight but skip action
                 if (unit.stunnedTurns > 0) {
                     unit.stunnedTurns--
+                    // Mark this unit as acting (stunned)
+                    this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
+                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                        el.classList.remove('unit-acting')
+                    })
+                    const actingSide = action.side === "p" ? "player" : "enemy"
+                    const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
+                    const actingEl = document.querySelector(selector)
+                    if (actingEl) {
+                        actingEl.classList.add('unit-acting')
+                    }
                     return
                 }
 
@@ -1492,7 +1709,7 @@ createApp({
                 }
 
                 // Mark this unit as acting
-                self.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
+                this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
 
                 // Directly update DOM for highlight (bypass Vue reactivity issues)
                 document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
@@ -1507,9 +1724,19 @@ createApp({
 
                 // Execute unit action
                 {
-                    const targets = action.side === "p" ? self.enemyUnits : self.playerUnits
+                    const targets = action.side === "p" ? this.enemyUnits : this.playerUnits
                     let aliveTargets = targets.filter(t => t.hp > 0)
-                    if (!aliveTargets.length) return
+                    if (!aliveTargets.length) {
+                        // Check for battle end
+                        if (this.isAllDead(this.enemyUnits)) {
+                            this.battleStatus = 'win'
+                            this.clearBattleHighlight()
+                        } else if (this.isAllDead(this.playerUnits)) {
+                            this.battleStatus = 'lose'
+                            this.clearBattleHighlight()
+                        }
+                        return
+                    }
 
                     // Check skills - find skills with cooldown 0 (ready to use)
                     let usedSkill = false
@@ -1528,6 +1755,10 @@ createApp({
                             usedSkillSlot = readySkillIndices[Math.floor(Math.random() * readySkillIndices.length)]
                             const skill = unit.skills[usedSkillSlot]
                             usedSkill = true
+                            // Track skill name for display
+                            const skillName = this.currentLang === 'zh' ? (skill.nameZh || skill.name) : skill.name
+                            const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
+                            this.skillDisplays[key] = skillName
 
                             // Set cooldown after using
                             if (skill.cooldown > 0) {
@@ -1537,16 +1768,38 @@ createApp({
                             if (skill.type === 'multi_attack') {
                                 const strikeTargets = aliveTargets.slice(0, skill.targets)
                                 strikeTargets.forEach(target => {
-                                    self.dealDamage(unit, target)
+                                    this.dealDamage(unit, target)
                                 })
+                                // Check if battle ended after skill
+                                if (this.isAllDead(this.enemyUnits)) {
+                                    this.battleStatus = 'win'
+                                    this.clearBattleHighlight()
+                                    return
+                                } else if (this.isAllDead(this.playerUnits)) {
+                                    this.battleStatus = 'lose'
+                                    this.clearBattleHighlight()
+                                    return
+                                }
                             } else if (skill.type === 'multi_attack_random') {
                                 for (let i = 0; i < skill.hits; i++) {
                                     const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
                                     if (target) {
                                         const randomDmgPct = skill.minDmgPct + Math.random() * (skill.maxDmgPct - skill.minDmgPct)
                                         const dmg = Math.max(1, Math.round(unit.atk * randomDmgPct))
+                                        const oldHp = target.hp
                                         target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
                                     }
+                                }
+                                // Check if battle ended after skill
+                                if (this.isAllDead(this.enemyUnits)) {
+                                    this.battleStatus = 'win'
+                                    this.clearBattleHighlight()
+                                    return
+                                } else if (this.isAllDead(this.playerUnits)) {
+                                    this.battleStatus = 'lose'
+                                    this.clearBattleHighlight()
+                                    return
                                 }
                             } else if (skill.type === 'stun') {
                                 const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
@@ -1554,16 +1807,16 @@ createApp({
                             } else if (skill.type === 'taunt') {
                                 unit.tauntTurns = skill.duration
                             } else if (skill.type === 'buff') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 allies.filter(a => a.hp > 0).forEach(ally => {
                                     const buff = { duration: skill.duration }
                                     if (skill.atkMult) buff.atkMult = skill.atkMult
                                     if (skill.defMult) buff.defMult = skill.defMult
                                     if (skill.spdMult) buff.spdMult = skill.spdMult
-                                    self.applyBuff(ally, buff)
+                                    this.applyBuff(ally, buff)
                                 })
                             } else if (skill.type === 'multi_buff') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 allies.filter(a => a.hp > 0).forEach(ally => {
                                     const buff = {
                                         duration: skill.duration,
@@ -1571,60 +1824,66 @@ createApp({
                                         defMult: skill.defMult,
                                         spdMult: skill.spdMult
                                     }
-                                    self.applyBuff(ally, buff)
+                                    this.applyBuff(ally, buff)
                                 })
                             } else if (skill.type === 'heal') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 const healTarget = allies
                                     .filter(a => a.hp > 0)
                                     .sort((a, b) => a.hp - b.hp)[0]
                                 if (healTarget) {
+                                    const oldHp = healTarget.hp
                                     healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + skill.amount)
+                                    this.trackHpChange(healTarget, healTarget.hp - oldHp)
                                 }
                             } else if (skill.type === 'heal_percent') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
                                 const targetsToHeal = injured.slice(0, skill.targets)
                                 targetsToHeal.forEach(ally => {
                                     const lostHp = ally.baseHp - ally.hp
                                     const healAmount = Math.round(lostHp * skill.pct)
+                                    const oldHp = ally.hp
                                     ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
+                                    this.trackHpChange(ally, ally.hp - oldHp)
                                 })
                             } else if (skill.type === 'shield') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
                                 alive.forEach(ally => {
                                     ally.shieldBlocks += skill.blocks
                                 })
                             } else if (skill.type === 'debuff') {
-                                const enemies = action.side === 'p' ? self.enemyUnits : self.playerUnits
+                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
                                 enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    self.applyDebuff(enemy, {
+                                    this.applyDebuff(enemy, {
                                         duration: skill.duration,
                                         atkMult: skill.atkMult,
                                         defMult: skill.defMult
                                     })
                                 })
                             } else if (skill.type === 'slow') {
-                                const enemies = action.side === 'p' ? self.enemyUnits : self.playerUnits
+                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
                                 enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    self.applyDebuff(enemy, {
+                                    this.applyDebuff(enemy, {
                                         duration: skill.duration,
                                         spdMult: skill.spdMult
                                     })
                                 })
                             } else if (skill.type === 'resurrect') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 const dead = allies.filter(a => a.hp <= 0)
                                 if (dead.length > 0) {
                                     const toRevive = dead[Math.floor(Math.random() * dead.length)]
+                                    const oldHp = toRevive.hp
                                     toRevive.hp = Math.round(toRevive.baseHp * skill.hpPct)
                                     toRevive.debuffs = []
+                                    this.trackHpChange(toRevive, toRevive.hp - oldHp)
                                 }
                             } else if (skill.type === 'crit_buff') {
-                                const allies = action.side === 'p' ? self.playerUnits : self.enemyUnits
+                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
                                 allies.filter(a => a.hp > 0).forEach(ally => {
-                                    self.applyBuff(ally, {
+                                    this.applyBuff(ally, {
                                         duration: skill.duration,
                                         critBonus: skill.critBonus
                                     })
@@ -1644,7 +1903,7 @@ createApp({
                         target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
                     }
 
-                    let dmg = self.calculateDamage(unit, target)
+                    let dmg = this.calculateDamage(unit, target)
 
                     // Execute passive check (skill with cooldown 0 is passive)
                     if (unit.skills) {
@@ -1665,14 +1924,25 @@ createApp({
                         dmg = 0
                     }
 
+                    const oldHp = target.hp
                     target.hp -= dmg
+                    this.trackHpChange(target, target.hp - oldHp)
 
                     // Decrement buffs for unit that acted
-                    self.tickUnitBuffs(unit)
-                    self.tickUnitDebuffs(unit)
+                    this.tickUnitBuffs(unit)
+                    this.tickUnitDebuffs(unit)
                     // Decrement skill cooldowns
                     if (unit.skillCooldowns) {
                         unit.skillCooldowns = unit.skillCooldowns.map(cd => Math.max(0, cd - 1))
+                    }
+
+                    // Check if battle ended mid-action
+                    if (this.isAllDead(this.enemyUnits)) {
+                        this.battleStatus = 'win'
+                        this.clearBattleHighlight()
+                    } else if (this.isAllDead(this.playerUnits)) {
+                        this.battleStatus = 'lose'
+                        this.clearBattleHighlight()
                     }
                 }
 
@@ -1710,7 +1980,34 @@ createApp({
                 dmg = 0
             }
 
+            const oldHp = defender.hp
             defender.hp -= dmg
+            const change = defender.hp - oldHp
+            this.trackHpChange(defender, change)
+        },
+
+        trackHpChange(unit, change) {
+            if (change === 0) return
+            let index = this.enemyUnits.indexOf(unit)
+            let key = index !== -1 ? 'e' + index : null
+            if (!key) {
+                index = this.playerUnits.indexOf(unit)
+                key = index !== -1 ? 'p' + index : null
+            }
+            if (key) {
+                this.hpChanges[key] = (this.hpChanges[key] || 0) + change
+            }
+        },
+
+        clearBattleHighlight() {
+            this.actingUnit = null
+            document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                el.classList.remove('unit-acting')
+            })
+            if (this.battleLoop) {
+                clearInterval(this.battleLoop)
+                this.battleLoop = null
+            }
         },
 
         isAllDead(team) {

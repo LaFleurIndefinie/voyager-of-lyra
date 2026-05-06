@@ -9,10 +9,14 @@ export const UI_TRANSLATIONS = {
   'Diamond': { en: 'Diamond', zh: '钻石' },
   'Save Game': { en: 'Save Game', zh: '保存游戏' },
   'Load Game': { en: 'Load Game', zh: '读取存档' },
+  'Reset Game': { en: 'Reset Game', zh: '重置游戏' },
+  'Reset Confirm': { en: 'Are you sure you want to reset? All progress will be lost!', zh: '确定要重置游戏吗？所有进度将丢失！' },
+  'Yes': { en: 'Yes', zh: '是' },
+  'No': { en: 'No', zh: '否' },
 
   // Left Panel - Team
   'Team': { en: 'Team', zh: '队伍' },
-  'Slot': { en: 'Slot', zh: '槽位' },
+  'Slot': { en: 'Slot', zh: '队员' },
   'Empty': { en: 'Empty', zh: '空' },
   'Characters': { en: 'Characters', zh: '角色' },
   'Add to Team': { en: 'Add to Team', zh: '加入队伍' },
@@ -23,6 +27,8 @@ export const UI_TRANSLATIONS = {
   'Background': { en: 'Background', zh: '背景故事' },
   'Name': { en: 'Name', zh: '名称' },
   'Lv': { en: 'Lv', zh: '等级' },
+  'Battle Force': { en: 'Battle Force', zh: '战斗力' },
+  'Total Battle Force': { en: 'Total Battle Force', zh: '总战斗力' },
   'HP': { en: 'HP', zh: '生命' },
   'ATK': { en: 'ATK', zh: '攻击' },
   'DEF': { en: 'DEF', zh: '防御' },
@@ -69,6 +75,7 @@ export const UI_TRANSLATIONS = {
   // Buff/Debuff Tags
   'TAUNT': { en: 'TAUNT', zh: '嘲讽' },
   'SHIELD': { en: 'SHIELD', zh: '护盾' },
+  'STUN': { en: 'STUN', zh: '眩晕' },
 
   // Language Toggle
   'ToggleLang': { en: '中文', zh: 'EN' },
