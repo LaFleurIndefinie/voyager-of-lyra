@@ -444,12 +444,13 @@
 
     <header class="header">
         <div class="title-stats">
-            <h1>Voyager of Lyra</h1>
-            <div class="stats">Gold: {{ gold }} | Exp: {{ exp }} | Diamond: {{ diamond }}</div>
+            <h1>{{ t('Voyager of Lyra') }}</h1>
+            <div class="stats">{{ t('Gold') }}: {{ gold }} | {{ t('Exp') }}: {{ exp }} | {{ t('Diamond') }}: {{ diamond }}</div>
         </div>
         <div class="header-actions">
-            <button @click="saveGame">Save Game</button>
-            <button @click="triggerLoad">Load Game</button>
+            <button @click="toggleLang">{{ currentLang === 'en' ? '中' : 'EN' }}</button>
+            <button @click="saveGame">{{ t('Save Game') }}</button>
+            <button @click="triggerLoad">{{ t('Load Game') }}</button>
             <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
         </div>
     </header>
@@ -458,72 +459,72 @@
         <aside class="left-panel">
             <!-- 队伍 -->
             <div class="panel">
-                <h3>Team</h3>
+                <h3>{{ t('Team') }}</h3>
                 <div v-for="(slot, i) in team" :key="i" class="slot" @click="removeFromTeam(i)">
-                    Slot {{ i+1 }}: {{ getCharName(slot) || "Empty" }}
+                    {{ t('Slot') }} {{ i+1 }}: {{ getCharName(slot) || t('Empty') }}
                 </div>
             </div>
 
             <!-- 仓库 -->
             <div class="panel">
-                <h3>Characters</h3>
+                <h3>{{ t('Characters') }}</h3>
                 <button v-for="char in characters" :key="char.id"
                     @click="selectChar(char.id)"
                     :style="{
                         background: selectedChar === char.id ? '#ffa500' : team.includes(char.id) ? '#4caf50' : '#333',
                         color: '#fff'
                     }">
-                    {{ char.name }}
+                    {{ getCharName(char.id) }}
                 </button>
             </div>
 
             <!-- Character Info -->
             <div v-if="selectedChar" class="panel">
-                <h3>Character Info</h3>
+                <h3>{{ t('Character Info') }}</h3>
                 <div v-if="getChar(selectedChar)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                        <span style="grid-column: 1 / -1;">Name: {{ getChar(selectedChar).name }}</span>
-                        <span v-if="!showLevelUpPreview">Lv: {{ getChar(selectedChar).level }}</span>
-                        <span v-else>Lv: <span class="stat-current">{{ getChar(selectedChar).level }}</span> → <span class="stat-up">{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).level : 'Max' }}</span></span>
+                        <span style="grid-column: 1 / -1;">{{ t('Name') }}: {{ getCharName(selectedChar) }}</span>
+                        <span v-if="!showLevelUpPreview">{{ t('Lv') }}: {{ getChar(selectedChar).level }}</span>
+                        <span v-else>{{ t('Lv') }}: <span class="stat-current">{{ getChar(selectedChar).level }}</span> → <span class="stat-up">{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).level : t('Max') }}</span></span>
                         <span></span>
-                        <span v-if="!showLevelUpPreview">HP: {{ getCharEffective(getChar(selectedChar)).hp }}</span>
-                        <span v-else>HP: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">ATK: {{ getCharEffective(getChar(selectedChar)).atk }}</span>
-                        <span v-else>ATK: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).atk }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[1]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">DEF: {{ getCharEffective(getChar(selectedChar)).def }}</span>
-                        <span v-else>DEF: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">SPD: {{ getCharEffective(getChar(selectedChar)).spd }}</span>
-                        <span v-else>SPD: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
-                        <span>Crit: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
-                        <span>DefR: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
+                        <span v-if="!showLevelUpPreview">{{ t('HP') }}: {{ getCharEffective(getChar(selectedChar)).hp }}</span>
+                        <span v-else>{{ t('HP') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">{{ t('ATK') }}: {{ getCharEffective(getChar(selectedChar)).atk }}</span>
+                        <span v-else>{{ t('ATK') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).atk }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[1]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">{{ t('DEF') }}: {{ getCharEffective(getChar(selectedChar)).def }}</span>
+                        <span v-else>{{ t('DEF') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
+                        <span v-if="!showLevelUpPreview">{{ t('SPD') }}: {{ getCharEffective(getChar(selectedChar)).spd }}</span>
+                        <span v-else>{{ t('SPD') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
+                        <span>{{ t('Crit') }}: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
+                        <span>{{ t('DefR') }}: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
                     </div>
                     <div style="margin-top: 8px;">
-                        <span>EXP: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : 'Max' }}</span>
+                        <span>{{ t('EXP') }}: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}</span>
                     </div>
                     <div style="display: flex; gap: 8px; margin-top: 8px;">
                         <button @click="toggleTeam(selectedChar)" style="flex: 1;"
                             :disabled="team.filter(Boolean).length >= 5 && !team.includes(selectedChar)">
-                            {{ team.includes(selectedChar) ? 'Remove' : 'Add to Team' }}
+                            {{ team.includes(selectedChar) ? t('Remove') : t('Add to Team') }}
                         </button>
                         <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
                             @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
                             style="padding: 2px 8px; white-space: nowrap;">
-                            +Lv ({{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : 'Max' }})
+                            +{{ t('Lv') }} ({{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }})
                         </button>
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">Skills</h4>
+                        <h4 style="margin: 5px 0;">{{ t('Skills') }}</h4>
                         <div v-for="s in [1, 2]" :key="s" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <div>
                                 <span v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s">
-                                    <strong>{{ skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || 'None' }}</strong> Lv.{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}
+                                    <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s + 'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) }}</strong> {{ t('Lv') }}.{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}
                                 </span>
                                 <span v-else>
-                                    <strong>{{ skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || 'None' }}</strong> Lv.<span class="stat-current">{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}</span> → <span class="stat-up">{{ (getChar(selectedChar)['skill' + s + 'Level'] || 1) + 1 }}</span>
+                                    <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s + 'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) }}</strong> {{ t('Lv') }}.<span class="stat-current">{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}</span> → <span class="stat-up">{{ (getChar(selectedChar)['skill' + s + 'Level'] || 1) + 1 }}</span>
                                 </span>
-                                <div v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s" style="font-size: 0.8rem; color: #aaa;">{{ getSkillEffect(getChar(selectedChar), s) }}</div>
+                                <div v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s" style="font-size: 0.8rem; color: #aaa;">{{ getSkillDesc(getChar(selectedChar), s) }}</div>
                                 <div v-else style="font-size: 0.8rem; color: #aaa;">
-                                    <span class="stat-current">{{ getSkillEffect(getChar(selectedChar), s) }}</span> → <span class="stat-up">{{ getSkillUpgradePreview(getChar(selectedChar), s) }}</span>
+                                    <span class="stat-current">{{ getSkillDesc(getChar(selectedChar), s) }}</span> → <span class="stat-up">{{ getSkillNextDesc(getChar(selectedChar), s) }}</span>
                                 </div>
                             </div>
                             <button v-if="getSkillUpgradeInfo(getChar(selectedChar), s)"
@@ -534,24 +535,24 @@
                                 style="padding: 2px 8px; font-size: 0.8rem;">
                                 +{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}💎
                             </button>
-                            <span v-else style="color: #888; padding: 5px;">MAX</span>
+                            <span v-else style="color: #888; padding: 5px;">{{ t('MAX') }}</span>
                         </div>
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">Equipment</h4>
+                        <h4 style="margin: 5px 0;">{{ t('Equipment') }}</h4>
                         <div class="equipment-grid">
                             <div v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
                                 :key="slot" style="width: 100%;">
                                 <button @click="selectEquipment(slot)"
                                     :class="['equipment-button', { selected: selectedEquipment === slot }]"
                                     style="width: 100%;">
-                                    {{ equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].name : slot }}<br>
+                                    {{ currentLang === 'zh' ? (equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].nameZh : t(slot)) : (equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].name : t(slot)) }}<br>
                                     <span v-if="!hoveredEquipUpgrade || selectedEquipment !== slot || !getEquipUpgradePreview(getChar(selectedChar), slot)">
-                                        +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}
+                                        +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>{{ t('Lv') }}.{{ getChar(selectedChar).equipment[slot] || 0 }}
                                     </span>
                                     <span v-else>
                                         <span class="stat-current">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}</span> → <span class="stat-up">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) + (getEquipUpgradePreview(getChar(selectedChar), slot)?.bonus || 0) }}</span><br>
-                                        <span class="stat-current">Lv.{{ getChar(selectedChar).equipment[slot] || 0 }}</span> → <span class="stat-up">Lv.{{ (getChar(selectedChar).equipment[slot] || 0) + 1 }}</span>
+                                        <span class="stat-current">{{ t('Lv') }}.{{ getChar(selectedChar).equipment[slot] || 0 }}</span> → <span class="stat-up">{{ t('Lv') }}.{{ (getChar(selectedChar).equipment[slot] || 0) + 1 }}</span>
                                     </span>
                                 </button>
                             </div>
@@ -566,6 +567,13 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Story Section -->
+                    <div v-if="getChar(selectedChar) && (getChar(selectedChar).story || getChar(selectedChar).storyZh)" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                        <h4 style="margin: 5px 0;">{{ t('Background') }}</h4>
+                        <p style="font-size: 0.85rem; color: #ccc; line-height: 1.5; margin: 0;">
+                            {{ currentLang === 'zh' ? (getChar(selectedChar).storyZh || getChar(selectedChar).story) : (getChar(selectedChar).story || '') }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -573,7 +581,7 @@
         <section class="right-panel">
             <!-- Stages -->
             <div class="panel">
-                <h3>Stages{{ battleLoop ? ' (In Battle)' : '' }}</h3>
+                <h3>{{ t('Stages') }}{{ battleLoop ? ' (' + t('In Battle') + ')' : '' }}</h3>
                 <div class="stages-grid">
                     <button v-for="(stage, i) in stages" :key="stage.id"
                         class="stage-btn"
@@ -592,16 +600,16 @@
 
             <!-- 战斗 -->
             <div class="panel">
-                <h3>Battle</h3>
+                <h3>{{ t('Battle') }}</h3>
 
                 <div v-if="selectedStage !== null && selectedStage < stages.length">
-                    <h4>{{ stages[selectedStage].isBoss ? '👑 ' : '' }}Stage {{ stages[selectedStage].id }}: {{ stages[selectedStage].title }}</h4>
-                    <p>{{ stages[selectedStage].text }}</p>
-                    <p style="font-size: 0.85rem; color: #aaa;">AFK: {{ stages[selectedStage].afkGain }}x</p>
-                    <button @click="startBattle" :disabled="battleLoop">Start Battle</button>
+                    <h4>{{ stages[selectedStage].isBoss ? '👑 ' : '' }}{{ t('Stage') }} {{ stages[selectedStage].id }}: {{ currentLang === 'zh' ? (stages[selectedStage].titleZh || stages[selectedStage].title) : stages[selectedStage].title }}</h4>
+                    <p>{{ currentLang === 'zh' ? (stages[selectedStage].textZh || stages[selectedStage].text) : stages[selectedStage].text }}</p>
+                    <p style="font-size: 0.85rem; color: #aaa;">{{ t('AFK') }}: {{ stages[selectedStage].afkGain }}x</p>
+                    <button @click="startBattle" :disabled="battleLoop">{{ t('Start Battle') }}</button>
                 </div>
                 <div v-else>
-                    <p>All stages completed!</p>
+                    <p>{{ t('All stages completed!') }}</p>
                 </div>
 
                 <div v-if="inBattle" class="battle-area">
@@ -609,39 +617,39 @@
                         <div class="teams-row">
                             <!-- Player Side -->
                             <div class="player-column">
-                                <h4>Player Team</h4>
+                                <h4>{{ t('Player Team') }}</h4>
                                 <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
                                     <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ unit.name }}</b>
-                                        <span v-if="unit.tauntTurns > 0" style="color: #ffa500;"> [TAUNT]</span>
-                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [SHIELD x{{ unit.shieldBlocks }}]</span><br>
-                                        HP: {{ unit.hp }}/{{ unit.baseHp }}<br>
-                                        ATK: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
-                                        DEF: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
-                                        SPD: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span><br>
-                                        Crit: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span><br>
-                                        DefR: {{ unit.defReduce }}
+                                        <b>{{ unit.displayName }}</b>
+                                        <span v-if="unit.tauntTurns > 0" style="color: #ffa500;"> [{{ t('TAUNT') }}]</span>
+                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [{{ t('SHIELD') }} x{{ unit.shieldBlocks }}]</span><br>
+                                        {{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<br>
+                                        {{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
+                                        {{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
+                                        {{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span><br>
+                                        {{ t('Crit') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span><br>
+                                        {{ t('DefR') }}: {{ unit.defReduce }}
                                     </div>
                                     <div v-else>
-                                        Empty
+                                        {{ t('Empty') }}
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Enemy Side -->
                             <div class="enemy-column">
-                                <h4>Enemies</h4>
+                                <h4>{{ t('Enemies') }}</h4>
                                 <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
                                     <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
                                         <b>{{ unit.name }}</b>
-                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [SHIELD x{{ unit.shieldBlocks }}]</span><br>
-                                        HP: {{ unit.hp }}/{{ unit.baseHp }}<br>
-                                        ATK: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
-                                        DEF: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
-                                        SPD: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span>
+                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [{{ t('SHIELD') }} x{{ unit.shieldBlocks }}]</span><br>
+                                        {{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<br>
+                                        {{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
+                                        {{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
+                                        {{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span>
                                     </div>
                                     <div v-else>
-                                        Empty
+                                        {{ t('Empty') }}
                                     </div>
                                 </div>
                             </div>
@@ -649,8 +657,8 @@
                     </div>
                     <!-- Battle Result Overlay -->
                     <div v-if="battleStatus" class="battle-result-overlay" :class="battleStatus">
-                        <div class="result-text">{{ battleStatus === 'win' ? 'VICTORY' : 'DEFEAT' }}</div>
-                        <button @click="closeBattle" class="continue-btn">Continue</button>
+                        <div class="result-text">{{ battleStatus === 'win' ? t('VICTORY') : t('DEFEAT') }}</div>
+                        <button @click="closeBattle" class="continue-btn">{{ t('Continue') }}</button>
                     </div>
                 </div>
             </div>
@@ -667,6 +675,7 @@ import { STAGES } from "./data/stages.js"
 import { LEVELS } from "./data/levels.js"
 import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
 import { SKILLS, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription, getCharSkill, getCharSkillEffect, getCharSkillInfo, getCharNextSkillEffect, getSkillType } from "./data/skills.js"
+import { UI_TRANSLATIONS, getSkillDescription as getTranslatedSkillDescription } from "./data/translations.js"
 
 const { createApp } = Vue
 
@@ -674,6 +683,9 @@ createApp({
 
     data() {
         return {
+            // Language system
+            currentLang: localStorage.getItem('voyager_lang') || 'en',
+
             gold: 0,
             exp: 0,
             diamond: 0,
@@ -730,17 +742,63 @@ createApp({
         setInterval(() => {
             this.autoSaveGame()
         }, 60000)
+
+        // Update document title when language changes
+        document.title = this.t('Voyager of Lyra')
+    },
+
+    watch: {
+        currentLang() {
+            document.title = this.t('Voyager of Lyra')
+        }
     },
 
     methods: {
 
-        getChar(id) {
-            return this.characters.find(c => c.id === id)
+        // Language system
+        t(key) {
+            const translation = UI_TRANSLATIONS[key]
+            if (!translation) return key
+            return translation[this.currentLang] || key
+        },
+
+        toggleLang() {
+            this.currentLang = this.currentLang === 'en' ? 'zh' : 'en'
+            localStorage.setItem('voyager_lang', this.currentLang)
+        },
+
+        getSkillDesc(char, slot = 1) {
+            const skillId = slot === 1 ? char.skill1Id : char.skill2Id
+            const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
+            if (!skillId) return this.t('None')
+            const skill = SKILLS[skillId]
+            if (!skill) return ''
+            const data = skill.levels[skillLevel]
+            if (!data) return ''
+            return getTranslatedSkillDescription(skill.type, data, this.currentLang)
+        },
+
+        getSkillNextDesc(char, slot = 1) {
+            const skillId = slot === 1 ? char.skill1Id : char.skill2Id
+            const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
+            if (!skillId) return ''
+            const skill = SKILLS[skillId]
+            if (!skill) return ''
+            const nextLevel = skillLevel + 1
+            if (nextLevel > 10) return ''
+            const data = skill.levels[nextLevel]
+            if (!data) return ''
+            return getTranslatedSkillDescription(skill.type, data, this.currentLang)
         },
 
         getCharName(id) {
             const c = this.getChar(id)
-            return c ? c.name : null
+            if (!c) return null
+            return this.currentLang === 'zh' ? (c.nameZh || c.name) : c.name
+        },
+
+        getChar(id) {
+            return this.characters.find(c => c.id === id)
         },
 
         toggleTeam(id) {
@@ -1152,7 +1210,7 @@ createApp({
                     this.inBattle = false
                     this.battleStatus = null
                 } catch (error) {
-                    alert('Failed to load save file. Please pick a valid game save.')
+                    alert(this.t('Failed to load save file. Please pick a valid game save.'))
                 }
             }
             reader.readAsText(file)
@@ -1180,9 +1238,11 @@ createApp({
                     const effective = this.getCharEffective(char)
                     const skill1 = getCharSkill(char, 1)
                     const skill2 = getCharSkill(char, 2)
+                    const displayName = this.currentLang === 'zh' ? (char.nameZh || char.name) : char.name
                     return {
                         id: char.id,
                         name: char.name,
+                        displayName: displayName,
                         skills: [skill1, skill2].filter(Boolean),
                         baseAtk: effective.atk,
                         baseDef: effective.def,

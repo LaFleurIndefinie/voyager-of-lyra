@@ -2,6 +2,7 @@ export const SKILLS = {
   whirlwind: {
     id: 'whirlwind',
     name: 'Whirlwind',
+    nameZh: '旋风斩',
     type: 'multi_attack',
     cooldown: 3,
     levels: {
@@ -20,6 +21,7 @@ export const SKILLS = {
   stunning_strike: {
     id: 'stunning_strike',
     name: 'Stunning Strike',
+    nameZh: '重击眩晕',
     type: 'stun',
     cooldown: 4,
     levels: {
@@ -38,6 +40,7 @@ export const SKILLS = {
   inspiring_chant: {
     id: 'inspiring_chant',
     name: 'Inspiring Chant',
+    nameZh: '振奋之歌',
     type: 'buff',
     cooldown: 4,
     levels: {
@@ -56,6 +59,7 @@ export const SKILLS = {
   healing_light: {
     id: 'healing_light',
     name: 'Healing Light',
+    nameZh: '治愈之光',
     type: 'heal',
     cooldown: 3,
     levels: {
@@ -74,6 +78,7 @@ export const SKILLS = {
   haste_aura: {
     id: 'haste_aura',
     name: 'Haste Aura',
+    nameZh: '急速光环',
     type: 'buff',
     cooldown: 4,
     levels: {
@@ -93,6 +98,7 @@ export const SKILLS = {
   scatter_shot: {
     id: 'scatter_shot',
     name: 'Scatter Shot',
+    nameZh: '散射',
     type: 'multi_attack_random',
     cooldown: 3,
     levels: {
@@ -112,6 +118,7 @@ export const SKILLS = {
   iron_will: {
     id: 'iron_will',
     name: 'Iron Will',
+    nameZh: '钢铁意志',
     type: 'taunt',
     cooldown: 5,
     levels: {
@@ -131,6 +138,7 @@ export const SKILLS = {
   blessing: {
     id: 'blessing',
     name: 'Blessing',
+    nameZh: '祝福',
     type: 'heal_percent',
     cooldown: 4,
     levels: {
@@ -150,6 +158,7 @@ export const SKILLS = {
   battle_cry: {
     id: 'battle_cry',
     name: 'Battle Cry',
+    nameZh: '战吼',
     type: 'multi_buff',
     cooldown: 5,
     levels: {
@@ -169,6 +178,7 @@ export const SKILLS = {
   barrier: {
     id: 'barrier',
     name: 'Barrier',
+    nameZh: '护盾',
     type: 'shield',
     cooldown: 5,
     levels: {
@@ -188,6 +198,7 @@ export const SKILLS = {
   weaken: {
     id: 'weaken',
     name: 'Weaken',
+    nameZh: '虚弱',
     type: 'debuff',
     cooldown: 4,
     levels: {
@@ -207,6 +218,7 @@ export const SKILLS = {
   slow: {
     id: 'slow',
     name: 'Slow',
+    nameZh: '减速',
     type: 'slow',
     cooldown: 4,
     levels: {
@@ -226,6 +238,7 @@ export const SKILLS = {
   revive: {
     id: 'revive',
     name: 'Revive',
+    nameZh: '复活',
     type: 'resurrect',
     cooldown: 10,
     levels: {
@@ -245,6 +258,7 @@ export const SKILLS = {
   focus: {
     id: 'focus',
     name: 'Focus',
+    nameZh: '专注',
     type: 'crit_buff',
     cooldown: 4,
     levels: {
@@ -264,6 +278,7 @@ export const SKILLS = {
   execute: {
     id: 'execute',
     name: 'Execute',
+    nameZh: '处决',
     type: 'execute',
     cooldown: 0,
     levels: {

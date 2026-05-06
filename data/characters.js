@@ -2,6 +2,9 @@ export const CHARACTERS = [
   {
     id: 1,
     name: "Lily",
+    nameZh: "莉莉",
+    story: "Born in the coastal village of Solhaven, Lily grew up watching her grandfather repair ships. His stories of distant lands sparked her wanderlust. When pirates burned Solhaven to the ground, Lily swore to explore every corner of Lyra and beyond, seeking both adventure and the truth behind the celestial harmony that governs their world.",
+    storyZh: "莉莉出生于海滨村庄索尔黑文，在祖父修船的时光中长大。祖父讲述的遥远国度的故事点燃了她对旅行的渴望。当海盗将索尔黑文烧成灰烬时，莉莉发誓要踏遍天琴星的每一个角落，寻找冒险，也寻找支配这个世界的天体和谐的真相。",
     atk: 25,
     def: 15,
     hp: 250,
@@ -25,6 +28,9 @@ export const CHARACTERS = [
   {
     id: 2,
     name: "Estelle",
+    nameZh: "艾斯特尔",
+    story: "",
+    storyZh: "",
     atk: 20,
     def: 20,
     hp: 280,
@@ -48,6 +54,9 @@ export const CHARACTERS = [
   {
     id: 3,
     name: "Elena",
+    nameZh: "艾莲娜",
+    story: "",
+    storyZh: "",
     atk: 30,
     def: 12,
     hp: 220,
@@ -71,6 +80,9 @@ export const CHARACTERS = [
   {
     id: 4,
     name: "Iris",
+    nameZh: "艾丽丝",
+    story: "",
+    storyZh: "",
     atk: 35,
     def: 10,
     hp: 200,
@@ -94,6 +106,9 @@ export const CHARACTERS = [
   {
     id: 5,
     name: "Lilia",
+    nameZh: "莉莉亚",
+    story: "",
+    storyZh: "",
     atk: 18,
     def: 25,
     hp: 320,
@@ -118,6 +133,9 @@ export const CHARACTERS = [
   {
     id: 6,
     name: "Raven",
+    nameZh: "瑞文",
+    story: "",
+    storyZh: "",
     atk: 38,
     def: 12,
     hp: 210,
@@ -141,6 +159,9 @@ export const CHARACTERS = [
   {
     id: 7,
     name: "Vera",
+    nameZh: "薇拉",
+    story: "",
+    storyZh: "",
     atk: 15,
     def: 30,
     hp: 380,
@@ -164,6 +185,9 @@ export const CHARACTERS = [
   {
     id: 8,
     name: "Maya",
+    nameZh: "玛雅",
+    story: "",
+    storyZh: "",
     atk: 20,
     def: 15,
     hp: 250,
@@ -187,6 +211,9 @@ export const CHARACTERS = [
   {
     id: 9,
     name: "Sonia",
+    nameZh: "索尼亚",
+    story: "",
+    storyZh: "",
     atk: 28,
     def: 15,
     hp: 240,
@@ -210,6 +237,9 @@ export const CHARACTERS = [
   {
     id: 10,
     name: "Aria",
+    nameZh: "艾莉亚",
+    story: "",
+    storyZh: "",
     atk: 22,
     def: 18,
     hp: 260,
@@ -233,6 +263,9 @@ export const CHARACTERS = [
   {
     id: 11,
     name: "Nora",
+    nameZh: "诺拉",
+    story: "",
+    storyZh: "",
     atk: 35,
     def: 12,
     hp: 200,
@@ -256,6 +289,9 @@ export const CHARACTERS = [
   {
     id: 12,
     name: "Frost",
+    nameZh: "弗罗斯特",
+    story: "",
+    storyZh: "",
     atk: 25,
     def: 15,
     hp: 220,
@@ -279,6 +315,9 @@ export const CHARACTERS = [
   {
     id: 13,
     name: "Helena",
+    nameZh: "海伦娜",
+    story: "",
+    storyZh: "",
     atk: 18,
     def: 18,
     hp: 280,
@@ -302,6 +341,9 @@ export const CHARACTERS = [
   {
     id: 14,
     name: "Kira",
+    nameZh: "基拉",
+    story: "",
+    storyZh: "",
     atk: 28,
     def: 12,
     hp: 210,
@@ -325,6 +367,9 @@ export const CHARACTERS = [
   {
     id: 15,
     name: "Zara",
+    nameZh: "扎拉",
+    story: "",
+    storyZh: "",
     atk: 40,
     def: 10,
     hp: 190,
