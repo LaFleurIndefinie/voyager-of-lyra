@@ -641,7 +641,7 @@
                                 <h4>{{ t('Enemies') }}</h4>
                                 <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
                                     <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ unit.name }}</b>
+                                        <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name }}</b>
                                         <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [{{ t('SHIELD') }} x{{ unit.shieldBlocks }}]</span><br>
                                         {{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<br>
                                         {{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
