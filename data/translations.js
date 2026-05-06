@@ -16,7 +16,7 @@ export const UI_TRANSLATIONS = {
   'Empty': { en: 'Empty', zh: '空' },
   'Characters': { en: 'Characters', zh: '角色' },
   'Add to Team': { en: 'Add to Team', zh: '加入队伍' },
-  'Remove': { en: 'Remove', zh: '移除' },
+  'Remove': { en: 'Remove from Team', zh: '移出队伍' },
 
   // Character Info Panel
   'Character Info': { en: 'Character Info', zh: '角色信息' },
