@@ -3,7 +3,7 @@
 
 export const UI_TRANSLATIONS = {
   // Header
-  'Voyager of Lyra': { en: 'Voyager of Lyra', zh: '天琴旅人' },
+  'Voyager of Lyra': { en: 'Voyager of Lyra: 2157', zh: '天琴旅人：2157' },
   'Gold': { en: 'Gold', zh: '金币' },
   'Exp': { en: 'Exp', zh: '经验' },
   'Diamond': { en: 'Diamond', zh: '钻石' },
@@ -27,14 +27,18 @@ export const UI_TRANSLATIONS = {
   'ATK': { en: 'ATK', zh: '攻击' },
   'DEF': { en: 'DEF', zh: '防御' },
   'SPD': { en: 'SPD', zh: '速度' },
-  'Crit': { en: 'Crit', zh: '暴击' },
-  'DefR': { en: 'DefR', zh: '破防' },
+  'CRITCHANCE': { en: 'CRIT', zh: '暴击' },
+  'DEFREDUCE': { en: 'DEF REDUCE', zh: '破防' },
   'EXP': { en: 'EXP', zh: '经验' },
   'Max': { en: 'Max', zh: '满级' },
   'None': { en: 'None', zh: '无' },
   'MAX': { en: 'MAX', zh: '满级' },
   'Skills': { en: 'Skills', zh: '技能' },
   'Equipment': { en: 'Equipment', zh: '装备' },
+  'Level Up': { en: 'Level Up', zh: '升级' },
+  'Upgrade': { en: 'Upgrade', zh: '升级' },
+  'Upgrade Skill': { en: 'Upgrade Skill', zh: '升级技能' },
+  'G': { en: 'G', zh: '金币' },
 
   // Equipment Slots
   'weapon': { en: 'Weapon', zh: '武器' },
@@ -67,8 +71,7 @@ export const UI_TRANSLATIONS = {
   'SHIELD': { en: 'SHIELD', zh: '护盾' },
 
   // Language Toggle
-  '中文': { en: 'EN', zh: 'EN' },
-  'EN': { en: 'EN', zh: 'EN' },
+  'ToggleLang': { en: '中文', zh: 'EN' },
 
   // Error Messages
   'Failed to load save file. Please pick a valid game save.': { en: 'Failed to load save file. Please pick a valid game save.', zh: '读取存档失败，请选择有效的游戏存档。' },

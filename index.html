@@ -271,16 +271,54 @@
 
         .unit-slot {
             border: 1px solid #555;
-            padding: 10px;
+            padding: 8px;
             margin: 6px 0;
             background: #1a1a1a;
             border-radius: 3px;
             min-height: 120px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             text-align: center;
+        }
+
+        .unit-slot .unit-name {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .unit-slot .unit-tags {
+            font-size: 0.7rem;
+            min-height: 16px;
+            margin-bottom: 2px;
+        }
+
+        .unit-slot .unit-stats {
+            display: grid;
+            gap: 2px 6px;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .unit-slot.player-unit .unit-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .unit-slot.enemy-unit .unit-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .unit-slot .stat-row {
+            display: contents;
+        }
+
+        .unit-slot .stat-row span {
+            white-space: nowrap;
         }
 
         .log {
@@ -445,10 +483,10 @@
     <header class="header">
         <div class="title-stats">
             <h1>{{ t('Voyager of Lyra') }}</h1>
-            <div class="stats">{{ t('Gold') }}: {{ gold }} | {{ t('Exp') }}: {{ exp }} | {{ t('Diamond') }}: {{ diamond }}</div>
+            <div class="stats">{{ t('Gold') }}: {{ gold }} | {{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}: {{ diamond }}</div>
         </div>
         <div class="header-actions">
-            <button @click="toggleLang">{{ currentLang === 'en' ? '中' : 'EN' }}</button>
+            <button @click="toggleLang">{{ t('ToggleLang') }}</button>
             <button @click="saveGame">{{ t('Save Game') }}</button>
             <button @click="triggerLoad">{{ t('Load Game') }}</button>
             <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
@@ -509,7 +547,7 @@
                         <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
                             @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
                             style="padding: 2px 8px; white-space: nowrap;">
-                            +{{ t('Lv') }} ({{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }})
+                            {{ t('Level Up') }} ({{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}{{ t('EXP') }})
                         </button>
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
@@ -533,7 +571,7 @@
                                 @mouseleave="hoveringSkillUpgrade = null"
                                 :disabled="!canUpgradeSkill(getChar(selectedChar), s)"
                                 style="padding: 2px 8px; font-size: 0.8rem;">
-                                +{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}💎
+                                {{ t('Upgrade Skill') }}({{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}💎)
                             </button>
                             <span v-else style="color: #888; padding: 5px;">{{ t('MAX') }}</span>
                         </div>
@@ -563,7 +601,7 @@
                                 @mouseenter="hoveredEquipUpgrade = true" @mouseleave="hoveredEquipUpgrade = false"
                                 :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)"
                                 style="padding: 3px 10px;">
-                                +{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}G
+                                {{ t('Upgrade') }}({{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}{{ t('G') }})
                             </button>
                         </div>
                     </div>
@@ -618,19 +656,25 @@
                             <!-- Player Side -->
                             <div class="player-column">
                                 <h4>{{ t('Player Team') }}</h4>
-                                <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
-                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ unit.displayName }}</b>
-                                        <span v-if="unit.tauntTurns > 0" style="color: #ffa500;"> [{{ t('TAUNT') }}]</span>
-                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [{{ t('SHIELD') }} x{{ unit.shieldBlocks }}]</span><br>
-                                        {{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<br>
-                                        {{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
-                                        {{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
-                                        {{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span><br>
-                                        {{ t('Crit') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span><br>
-                                        {{ t('DefR') }}: {{ unit.defReduce }}
+                                <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot player-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
+                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
+                                        <div class="unit-name">
+                                            <b>{{ unit.displayName }}</b>
+                                        </div>
+                                        <div class="unit-tags">
+                                            <span v-if="unit.tauntTurns > 0" style="color: #ffa500;">[{{ t('TAUNT') }}]</span>
+                                            <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                        </div>
+                                        <div class="unit-stats">
+                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}</span>
+                                            <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
+                                            <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
+                                            <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
+                                            <span>{{ t('Crit') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
+                                            <span>{{ t('DefR') }}: {{ unit.defReduce }}</span>
+                                        </div>
                                     </div>
-                                    <div v-else>
+                                    <div v-else class="unit-name">
                                         {{ t('Empty') }}
                                     </div>
                                 </div>
@@ -639,16 +683,22 @@
                             <!-- Enemy Side -->
                             <div class="enemy-column">
                                 <h4>{{ t('Enemies') }}</h4>
-                                <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
-                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
-                                        <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name }}</b>
-                                        <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;"> [{{ t('SHIELD') }} x{{ unit.shieldBlocks }}]</span><br>
-                                        {{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<br>
-                                        {{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span><br>
-                                        {{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span><br>
-                                        {{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span>
+                                <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot enemy-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
+                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
+                                        <div class="unit-name">
+                                            <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name }}</b>
+                                        </div>
+                                        <div class="unit-tags">
+                                            <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                        </div>
+                                        <div class="unit-stats">
+                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}</span>
+                                            <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
+                                            <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
+                                            <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
+                                        </div>
                                     </div>
-                                    <div v-else>
+                                    <div v-else class="unit-name">
                                         {{ t('Empty') }}
                                     </div>
                                 </div>
@@ -854,16 +904,8 @@ createApp({
             if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
             const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
             if (!upgrade) return ''
-            const labelMap = {
-                atk: 'attack',
-                def: 'defense',
-                hp: 'health',
-                spd: 'speed',
-                critChance: 'critical chance',
-                defReduce: 'defense reduction'
-            }
             const stat = EQUIPMENT_UPGRADES[slot].stat
-            const label = labelMap[stat] || stat
+            const label = this.t(stat.toUpperCase())
             return `+${upgrade.bonus} ${label}`
         },
 
@@ -875,11 +917,15 @@ createApp({
         upgradeEquipment(charId, slot) {
             const char = this.getChar(charId)
             if (!char || !char.equipment) return
+            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return
+            const currentLevel = char.equipment[slot] || 0
+            const maxLevel = EQUIPMENT_UPGRADES[slot].upgrades.length
+            if (currentLevel >= maxLevel) return
             const upgrade = this.getEquipmentUpgrade(char, slot)
             if (!upgrade) return
             if (this.gold < upgrade.cost) return
             this.gold -= upgrade.cost
-            char.equipment[slot] = (char.equipment[slot] || 0) + 1
+            char.equipment[slot] = currentLevel + 1
             this.autoSaveGame()
         },
 
@@ -943,8 +989,7 @@ createApp({
             const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
             if (!upgrade) return null
             const stat = EQUIPMENT_UPGRADES[slot].stat
-            const labelMap = { atk: 'ATK', def: 'DEF', hp: 'HP', spd: 'SPD', critChance: 'Crit', defReduce: 'DefR' }
-            const label = labelMap[stat] || stat
+            const label = this.t(stat.toUpperCase())
             const effective = this.getCharEffective(char)
             let currentVal = effective[stat]
             let newVal = currentVal + upgrade.bonus
@@ -994,8 +1039,8 @@ createApp({
 
         getEquipStatLabel(slot) {
             if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
-            const labelMap = { atk: 'ATK', def: 'DEF', hp: 'HP', spd: 'SPD', critChance: 'Crit', defReduce: 'DefR' }
-            return labelMap[EQUIPMENT_UPGRADES[slot].stat] || ''
+            const stat = EQUIPMENT_UPGRADES[slot].stat
+            return this.t(stat.toUpperCase())
         },
 
         getCharEffective(char) {
@@ -1244,6 +1289,7 @@ createApp({
                         name: char.name,
                         displayName: displayName,
                         skills: [skill1, skill2].filter(Boolean),
+                        skillCooldowns: [0, 0], // Track cooldown for each skill slot (0 = ready)
                         baseAtk: effective.atk,
                         baseDef: effective.def,
                         baseSpd: effective.spd,
@@ -1281,6 +1327,7 @@ createApp({
                 tauntTurns: 0,
                 shieldBlocks: 0,
                 debuffs: [],
+                skillCooldowns: [0, 0],
                 side: 'e'
             }))
 
@@ -1431,15 +1478,29 @@ createApp({
                     let aliveTargets = targets.filter(t => t.hp > 0)
                     if (!aliveTargets.length) return
 
-                    // Check skills - randomly use one if multiple are available
+                    // Check skills - find skills with cooldown 0 (ready to use)
                     let usedSkill = false
-                    if (unit.skills && action.side === 'p') {
-                        // Find all skills ready to use
-                        const readySkills = unit.skills.filter(s => s && s.cooldown > 0 && self.turnNumber % s.cooldown === 0)
-                        if (readySkills.length > 0) {
+                    let usedSkillSlot = -1
+                    if (unit.skills) {
+                        // Find all skills with cooldown === 0 (ready)
+                        const readySkillIndices = []
+                        unit.skills.forEach((skill, index) => {
+                            if (skill && unit.skillCooldowns[index] === 0) {
+                                readySkillIndices.push(index)
+                            }
+                        })
+
+                        if (readySkillIndices.length > 0) {
                             // Randomly pick one skill to use
-                            const skill = readySkills[Math.floor(Math.random() * readySkills.length)]
+                            usedSkillSlot = readySkillIndices[Math.floor(Math.random() * readySkillIndices.length)]
+                            const skill = unit.skills[usedSkillSlot]
                             usedSkill = true
+
+                            // Set cooldown after using
+                            if (skill.cooldown > 0) {
+                                unit.skillCooldowns[usedSkillSlot] = skill.cooldown
+                            }
+
                             if (skill.type === 'multi_attack') {
                                 const strikeTargets = aliveTargets.slice(0, skill.targets)
                                 strikeTargets.forEach(target => {
@@ -1576,6 +1637,10 @@ createApp({
                     // Decrement buffs for unit that acted
                     self.tickUnitBuffs(unit)
                     self.tickUnitDebuffs(unit)
+                    // Decrement skill cooldowns
+                    if (unit.skillCooldowns) {
+                        unit.skillCooldowns = unit.skillCooldowns.map(cd => Math.max(0, cd - 1))
+                    }
                 }
 
             }, 1000)
