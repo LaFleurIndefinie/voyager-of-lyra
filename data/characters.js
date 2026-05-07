@@ -3,8 +3,16 @@ export const CHARACTERS = [
     id: 1,
     name: "Lily",
     nameZh: "莉莉",
-    story: "Born in the coastal village of Solhaven, Lily grew up watching her grandfather repair ships. His stories of distant lands sparked her wanderlust. When pirates burned Solhaven to the ground, Lily swore to explore every corner of Lyra and beyond, seeking both adventure and the truth behind the celestial harmony that governs their world.",
-    storyZh: "莉莉出生于海滨村庄索尔黑文，在祖父修船的时光中长大。祖父讲述的遥远国度的故事点燃了她对旅行的渴望。当海盗将索尔黑文烧成灰烬时，莉莉发誓要踏遍天琴星的每一个角落，寻找冒险，也寻找支配这个世界的天体和谐的真相。",
+    image: "assets/characters/001_Lily.png",
+    story: "Lily Astesia Born in the coastal village of Solhaven, Lily grew up watching her grandfather repair ships. His stories of distant lands sparked her wanderlust. When pirates burned Solhaven to the ground, Lily swore to explore every corner of Lyra and beyond, seeking both adventure and the truth behind the celestial harmony that governs their world.",
+    storyZh: "莉莉·埃斯特西亚出生于海滨村庄埃斯特西亚，在祖父修船的时光中长大。祖父讲述的遥远国度的故事点燃了她对旅行的渴望。当海盗将埃斯特西亚烧成灰烬时，莉莉发誓要踏遍天琴星的每一个角落，寻找冒险，也寻找支配这个世界的天体和谐的真相。",
+    basicInfo: {
+      birthday: { year: 1157, month: 4, day: 23 },
+      birthPlace: "Astesia",
+      birthPlaceZh: "埃斯特西亚",
+      height: 173,
+      weight: 69
+    },
     atk: 25,
     def: 15,
     hp: 250,
@@ -28,7 +36,7 @@ export const CHARACTERS = [
   {
     id: 2,
     name: "Estelle",
-    nameZh: "艾斯特尔",
+    nameZh: "艾丝黛尔",
     story: "",
     storyZh: "",
     atk: 20,
@@ -54,7 +62,7 @@ export const CHARACTERS = [
   {
     id: 3,
     name: "Elena",
-    nameZh: "艾莲娜",
+    nameZh: "伊莲娜",
     story: "",
     storyZh: "",
     atk: 30,
