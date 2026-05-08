@@ -1994,13 +1994,11 @@
                             if (drop.diamond) {
                                 this.diamond += drop.diamond
                             }
-                            // Only unlock next stage if clearing the highest unlocked stage
-                            if (this.selectedStage === this.currentStage && this.currentStage < this.maxStage - 1) {
+                            // Unlock next stage if we just cleared the current highest unlocked stage
+                            if (this.currentStage < this.maxStage - 1) {
                                 this.currentStage++
                                 this.selectedStage = this.currentStage
                             }
-                            // Clamp selectedStage to valid range after stage progression
-                            this.selectedStage = Math.min(this.selectedStage, this.currentStage)
                             this.autoSaveGame()
                             this.clearBattleHighlight()
                             return
