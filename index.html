@@ -299,12 +299,15 @@
 
         .chars-panel-layout {
             display: flex;
+            flex-direction: row;
             gap: 10px;
             min-height: 300px;
+            align-items: flex-start;
         }
 
         .chars-grid-container {
-            width: calc(55% - 10px);
+            flex: 0 0 auto;
+            width: 200px;
             min-height: 300px;
             overflow-y: auto;
             scrollbar-width: none;
@@ -316,7 +319,8 @@
         }
 
         .char-illustration-container {
-            width: 45%;
+            flex: 1;
+            min-width: 0;
             display: flex;
             align-items: stretch;
             min-height: 300px;
@@ -849,8 +853,7 @@
                                     <button @click="isCharUnlocked(char.id) && selectChar(char.id)" :style="{
                                         background: team.includes(char.id) ? '#2196f3' : (isCharUnlocked(char.id) ? '#333' : '#1a1a1a'),
                                         color: isCharUnlocked(char.id) ? '#fff' : '#666',
-                                        outline: selectedChar === char.id ? '2px solid #ffd700' : 'none',
-                                        outlineOffset: '-2px',
+                                        border: selectedChar === char.id ? '2px solid #ffd700' : '2px solid transparent',
                                         boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none',
                                         cursor: isCharUnlocked(char.id) ? 'pointer' : 'not-allowed',
                                         opacity: isCharUnlocked(char.id) ? 1 : 0.5
