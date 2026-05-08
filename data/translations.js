@@ -42,7 +42,7 @@ export const UI_TRANSLATIONS = {
   'DEF': { en: 'DEF', zh: '防御' },
   'SPD': { en: 'SPD', zh: '速度' },
   'CRITCHANCE': { en: 'CRIT', zh: '暴击' },
-  'DEFREDUCE': { en: 'DEF REDUCE', zh: '破防' },
+  'DEFREDUCE': { en: 'DEF PEN', zh: '破防' },
   'EXP': { en: 'EXP', zh: '经验' },
   'Max': { en: 'Max', zh: '满级' },
   'None': { en: 'None', zh: '无' },

@@ -1945,6 +1945,9 @@
                 },
 
                 closeBattle() {
+                    // Track if we won before clearing battleStatus
+                    const wasWin = this.battleStatus === 'win'
+
                     this.inBattle = false
                     this.battleStatus = null
                     this.actingUnit = null
@@ -1953,8 +1956,16 @@
                         clearInterval(this.battleLoop)
                         this.battleLoop = null
                     }
+
+                    // Unlock next stage on victory
+                    if (wasWin && this.selectedStage === this.currentStage && this.currentStage < this.maxStage - 1) {
+                        this.currentStage++
+                    }
                     // Ensure selectedStage stays within unlocked stages
                     this.selectedStage = Math.min(this.selectedStage, this.currentStage)
+
+                    // Save progress
+                    this.autoSaveGame()
                 },
 
                 runBattle() {
@@ -1964,12 +1975,16 @@
                     }
 
                     this.battleLoop = setInterval(() => {
-                        // Exit early if battle already ended
+                        // Immediately clear highlight if battle ended
                         if (this.battleStatus) {
-                            if (this.battleLoop) {
-                                clearInterval(this.battleLoop)
-                                this.battleLoop = null
-                            }
+                            this.clearBattleHighlight()
+                            return
+                        }
+
+                        // Clear battle loop reference when loop ends
+                        if (!this.inBattle) {
+                            clearInterval(this.battleLoop)
+                            this.battleLoop = null
                             return
                         }
 
@@ -1994,15 +2009,13 @@
                             if (drop.diamond) {
                                 this.diamond += drop.diamond
                             }
-                            // Unlock next stage if we just cleared the current highest unlocked stage
-                            if (this.currentStage < this.maxStage - 1) {
-                                this.currentStage++
-                                this.selectedStage = this.currentStage
-                            }
                             this.autoSaveGame()
                             this.clearBattleHighlight()
                             return
                         }
+
+                        // Clear any highlights from dead units before starting new actions
+                        this.clearDeadUnitHighlights()
 
                         // Build action order only when turnNumber changes
                         if (!this.battleActionOrder || this.battleActionIndex >= this.battleActionOrder.length) {
@@ -2037,8 +2050,12 @@
                                 this.battleActionIndex++
                                 break
                             } else {
-                                // Remove dead unit from action order and move to next
+                                // Unit died from DOT before acting - clear highlight but keep battle running
+                                this.clearActingHighlight()
+                                // Remove dead unit from action order
                                 this.battleActionOrder.splice(this.battleActionIndex, 1)
+                                // Don't increment index - continue checking same position for next unit that shifted
+                                continue
                             }
                         }
 
@@ -2364,9 +2381,11 @@
                             if (this.isAllDead(this.enemyUnits)) {
                                 this.battleStatus = 'win'
                                 this.clearBattleHighlight()
+                                return
                             } else if (this.isAllDead(this.playerUnits)) {
                                 this.battleStatus = 'lose'
                                 this.clearBattleHighlight()
+                                return
                             }
                         }
 
@@ -2433,6 +2452,13 @@
                         clearInterval(this.battleLoop)
                         this.battleLoop = null
                     }
+                },
+
+                // Just clear the highlight without stopping battle loop
+                clearActingHighlight() {
+                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                        el.classList.remove('unit-acting')
+                    })
                 },
 
                 isAllDead(team) {
