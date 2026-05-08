@@ -863,7 +863,7 @@
                                         <span class="char-name"
                                             :class="{ 'long-name': getCharName(char.id).length > 6 }">{{
                                             getCharName(char.id) }}</span>
-                                        <span class="char-level">{{ isCharUnlocked(char.id) ? 'Lv.' + char.level : '🔒' }}</span>
+                                        <span class="char-level">Lv.{{ char.level }}</span>
                                     </button>
                                     <button
                                         v-if="hoveredCharId === char.id && isCharUnlocked(char.id) && (team.includes(char.id) || team.filter(Boolean).length < 5)"
@@ -872,7 +872,7 @@
                                         {{ team.includes(char.id) ? '−' : '+' }}
                                     </button>
                                     <div v-if="!isCharUnlocked(char.id)" class="char-lock-info">
-                                        <span>🔒 {{ getCharUnlockStage(char.id) }}</span>
+                                        <span>{{ getStageDisplayName(getCharUnlockStage(char.id)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1383,6 +1383,11 @@
                 getCharUnlockStage(charId) {
                     const info = getCharacterUnlockInfo(charId)
                     return info ? info.stageId : 0
+                },
+
+                getStageDisplayName(stageId) {
+                    const stage = this.stages.find(s => s.id === stageId)
+                    return stage ? stage.displayNo : stageId
                 },
 
                 toggleTeam(id) {
