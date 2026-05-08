@@ -1,5 +1,5 @@
 // Helper function to scale enemy stats based on stage
-function scaleEnemy(base, stage) {
+function scaleEnemy(base, stage = 1) {
   const multiplier = 1 + (stage - 1) * 0.12
   return {
     atk: Math.round(base.atk * multiplier),
@@ -34,8 +34,8 @@ const SKILL_SETS = {
   bandit: ['double_strike'],
   bandit_mage: ['weaken'],
   bandit_leader: ['battle_cry', 'power_strike'],
-  spider: ['poison'],
-  spider_queen: ['poison', 'slow'],
+  spider: ['venomous_strike'],
+  spider_queen: ['venomous_strike', 'slow'],
   orc: ['battle_cry', 'double_strike'],
   orc_shaman: ['weaken', 'group_heal'],
   orc_warchief: ['war_chant', 'triple_strike'],
@@ -48,7 +48,7 @@ const SKILL_SETS = {
   ghost: ['slow'],
   ghost_soldier: ['slow', 'double_strike'],
   skeleton: ['double_strike'],
-  skeleton_mage: ['weaken', 'group_heal'],
+  skeleton_mage: ['weaken', 'group_heal', 'curse_of_withering'],
   skeleton_champion: ['power_strike', 'fortify'],
   bone_golem: ['fortify', 'barrier'],
   lich: ['dark_healing', 'weaken', 'soul_revival', 'death_sentence'],

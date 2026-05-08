@@ -1023,6 +1023,8 @@
                                             <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
                                             <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
                                             <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
+                                            <span>{{ t('CRITCHANCE') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
+                                            <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
                                         </div>
                                     </div>
                                     <div v-else class="unit-name">
