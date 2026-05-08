@@ -76,6 +76,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
         .left-panel::-webkit-scrollbar {
             display: none;
         }
@@ -110,6 +111,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
         .right-panel::-webkit-scrollbar {
             display: none;
         }
@@ -244,11 +246,17 @@
 
         .team-toggle-btn {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
+            top: 0px;
+            right: 0px;
+            width: 18px !important;
+            height: 18px !important;
+
+            min-width: 18px;
+            min-height: 18px;
+
+            padding: 0 !important;
+            margin: 0;
+            border-radius: 50% !important;
             border: 1.5px solid #fff;
             color: #fff;
             font-size: 10px;
@@ -260,7 +268,7 @@
             cursor: pointer;
             z-index: 10;
             padding: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
 
         .team-toggle-btn:hover {
@@ -284,6 +292,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
         .chars-grid-container::-webkit-scrollbar {
             display: none;
         }
@@ -295,8 +304,8 @@
             min-height: 300px;
         }
 
-        .char-illustration-container > .char-illustration,
-        .char-illustration-container > .char-illustration-placeholder {
+        .char-illustration-container>.char-illustration,
+        .char-illustration-container>.char-illustration-placeholder {
             width: 100%;
             aspect-ratio: 9 / 16;
         }
@@ -347,12 +356,13 @@
         .equipment-button {
             padding: 8px;
             background: #444;
-            border: 1px solid #666;
+            border: 2px solid #666;
             border-radius: 3px;
             color: #fff;
             cursor: pointer;
             font-size: 0.85rem;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .equipment-button:hover {
@@ -360,7 +370,7 @@
         }
 
         .equipment-button.selected {
-            border: 2px solid #ffd700;
+            border-color: #ffd700;
             box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
         }
 
@@ -569,6 +579,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
         .log::-webkit-scrollbar {
             display: none;
         }
@@ -761,1468 +772,1627 @@
 </head>
 
 <body>
-<div id="app">
+    <div id="app">
 
-    <header class="header">
-        <div class="title-stats">
-            <h1>{{ t('Voyager of Lyra') }}</h1>
-            <div class="stats">💰{{ t('Gold') }}: {{ gold }} | 📖{{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}: {{ diamond }} | ⏱️{{ t('AFK') }}: {{ stages[selectedStage] ? stages[selectedStage].afkGain : 1 }}x</div>
-        </div>
-        <div class="header-actions">
-            <button @click="toggleLang">{{ t('ToggleLang') }}</button>
-            <button @click="saveGame">{{ t('Save Game') }}</button>
-            <button @click="triggerLoad">{{ t('Load Game') }}</button>
-            <button @click="showResetModal = true" style="color: #ff6b6b;">{{ t('Reset Game') }}</button>
-            <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
-        </div>
-    </header>
+        <header class="header">
+            <div class="title-stats">
+                <h1>{{ t('Voyager of Lyra') }}</h1>
+                <div class="stats">💰{{ t('Gold') }}: {{ gold }} | 📖{{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}:
+                    {{ diamond }} | ⏱️{{ t('AFK') }}: {{ stages[selectedStage] ? stages[selectedStage].afkGain : 1 }}x
+                </div>
+            </div>
+            <div class="header-actions">
+                <button @click="toggleLang">{{ t('ToggleLang') }}</button>
+                <button @click="saveGame">{{ t('Save Game') }}</button>
+                <button @click="triggerLoad">{{ t('Load Game') }}</button>
+                <button @click="showResetModal = true" style="color: #ff6b6b;">{{ t('Reset Game') }}</button>
+                <input type="file" ref="saveInput" style="display:none" @change="loadGameFile" accept=".txt,.json">
+            </div>
+        </header>
 
-    <!-- Reset Confirmation Modal -->
-    <div v-if="showResetModal" class="modal-overlay" @click.self="showResetModal = false">
-        <div class="modal-content">
-            <p style="text-align: center; margin-bottom: 20px;">{{ t('Reset Confirm') }}</p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
-                <button @click="confirmReset" style="background: #d32f2f;">{{ t('Yes') }}</button>
-                <button @click="showResetModal = false">{{ t('No') }}</button>
+        <!-- Reset Confirmation Modal -->
+        <div v-if="showResetModal" class="modal-overlay" @click.self="showResetModal = false">
+            <div class="modal-content">
+                <p style="text-align: center; margin-bottom: 20px;">{{ t('Reset Confirm') }}</p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button @click="confirmReset" style="background: #d32f2f;">{{ t('Yes') }}</button>
+                    <button @click="showResetModal = false">{{ t('No') }}</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="main-content">
-        <aside class="left-panel">
-            <!-- 队伍 -->
-            <div class="panel team-panel">
-                <div class="team-header">
-                    <h3>{{ t('Team') }}</h3>
-                    <div class="team-bf-total">
-                        <span>{{ t('Total Battle Force') }}:</span>
-                        <span class="team-bf-value">{{ team.filter(Boolean).reduce((sum, id) => sum + this.getBattleForce(this.getChar(id)), 0) }}</span>
+        <div class="main-content">
+            <aside class="left-panel">
+                <!-- 队伍 -->
+                <div class="panel team-panel">
+                    <div class="team-header">
+                        <h3>{{ t('Team') }}</h3>
+                        <div class="team-bf-total">
+                            <span>{{ t('Total Battle Force') }}:</span>
+                            <span class="team-bf-value">{{ team.filter(Boolean).reduce((sum, id) => sum +
+                                this.getBattleForce(this.getChar(id)), 0) }}</span>
+                        </div>
+                    </div>
+                    <div v-for="(slot, i) in team" :key="i" class="slot" @click="removeFromTeam(i)">
+                        {{ t('Slot') }} {{ i+1 }}: {{ getCharName(slot) || t('Empty') }}
+                        <span v-if="slot" class="slot-bf">{{ t('Battle Force') }}: {{ getBattleForce(getChar(slot))
+                            }}</span>
                     </div>
                 </div>
-                <div v-for="(slot, i) in team" :key="i" class="slot" @click="removeFromTeam(i)">
-                    {{ t('Slot') }} {{ i+1 }}: {{ getCharName(slot) || t('Empty') }}
-                    <span v-if="slot" class="slot-bf">{{ t('Battle Force') }}: {{ getBattleForce(getChar(slot)) }}</span>
-                </div>
-            </div>
 
-            <!-- Characters Panel with Illustration -->
-            <div class="panel">
-                <h3>{{ t('Characters') }}</h3>
-                <div class="chars-panel-layout">
-                    <div class="chars-grid-container">
-                        <div class="chars-grid">
-                            <div v-for="char in characters" :key="char.id" class="char-btn-wrapper"
-                                @mouseenter="hoveredCharId = char.id"
-                                @mouseleave="hoveredCharId = null">
-                                <button @click="selectChar(char.id)"
-                                    :style="{
+                <!-- Characters Panel with Illustration -->
+                <div class="panel">
+                    <h3>{{ t('Characters') }}</h3>
+                    <div class="chars-panel-layout">
+                        <div class="chars-grid-container">
+                            <div class="chars-grid">
+                                <div v-for="char in characters" :key="char.id" class="char-btn-wrapper"
+                                    @mouseenter="hoveredCharId = char.id" @mouseleave="hoveredCharId = null">
+                                    <button @click="selectChar(char.id)" :style="{
                                         background: team.includes(char.id) ? '#2196f3' : '#333',
                                         color: '#fff',
                                         outline: selectedChar === char.id ? '2px solid #ffd700' : 'none',
                                         outlineOffset: '-2px',
                                         boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none'
                                     }">
-                                    <span class="char-name" :class="{ 'long-name': getCharName(char.id).length > 6 }">{{ getCharName(char.id) }}</span>
-                                    <span class="char-level">Lv.{{ char.level }}</span>
-                                </button>
-                                <button v-if="hoveredCharId === char.id && (team.includes(char.id) || team.filter(Boolean).length < 5)"
-                                    @click.stop="toggleTeam(char.id)"
-                                    class="team-toggle-btn"
-                                    :style="{ background: team.includes(char.id) ? '#e53935' : '#4caf50' }">
-                                    {{ team.includes(char.id) ? '−' : '+' }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="char-illustration-container">
-                        <div v-if="selectedChar && getChar(selectedChar)" class="char-illustration">
-                            <img v-if="getChar(selectedChar).image"
-                                :src="getChar(selectedChar).image"
-                                :alt="getCharName(selectedChar)"
-                                class="char-portrait">
-                            <div v-else class="char-portrait-placeholder">
-                                <span>{{ getCharName(selectedChar) }}</span>
-                            </div>
-                        </div>
-                        <div v-else class="char-illustration-placeholder">
-                            <span>{{ t('Select a character') }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Character Info -->
-            <div v-if="selectedChar" class="panel team-panel">
-                <div class="team-header">
-                    <h3>{{ t('Character Info') }}</h3>
-                    <div class="team-bf-total">
-                        <span>{{ t('Battle Force') }}:</span>
-                        <span class="team-bf-value">{{ getBattleForce(getChar(selectedChar)) }}</span>
-                    </div>
-                </div>
-                <div v-if="getChar(selectedChar)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                        <span style="grid-column: 1 / -1;">{{ t('Name') }}: {{ getCharName(selectedChar) }}</span>
-                        <span v-if="!showLevelUpPreview">{{ t('Lv') }}: {{ getChar(selectedChar).level }}</span>
-                        <span v-else>{{ t('Lv') }}: <span class="stat-current">{{ getChar(selectedChar).level }}</span> → <span class="stat-up">{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).level : t('Max') }}</span></span>
-                        <span></span>
-                        <span v-if="!showLevelUpPreview">{{ t('HP') }}: {{ getCharEffective(getChar(selectedChar)).hp }}</span>
-                        <span v-else>{{ t('HP') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">{{ t('ATK') }}: {{ getCharEffective(getChar(selectedChar)).atk }}</span>
-                        <span v-else>{{ t('ATK') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).atk }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[1]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">{{ t('DEF') }}: {{ getCharEffective(getChar(selectedChar)).def }}</span>
-                        <span v-else>{{ t('DEF') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
-                        <span v-if="!showLevelUpPreview">{{ t('SPD') }}: {{ getCharEffective(getChar(selectedChar)).spd }}</span>
-                        <span v-else>{{ t('SPD') }}: <span class="stat-current">{{ getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{ getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
-                        <span>{{ t('CRITCHANCE') }}: {{ Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
-                        <span>{{ t('DEFREDUCE') }}: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <span>{{ t('EXP') }}: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}</span>
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
-                            @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
-                            style="width: 100%; padding: 6px;">
-                            {{ t('Level Up') }} 📖{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}
-                        </button>
-                    </div>
-                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">{{ t('Skills') }}</h4>
-                        <div v-for="s in [1, 2]" :key="s" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <div>
-                                <span v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s">
-                                    <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s + 'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) }}</strong> {{ t('Lv') }}.{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}
-                                </span>
-                                <span v-else>
-                                    <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s + 'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name || t('None')) }}</strong> {{ t('Lv') }}.<span class="stat-current">{{ getChar(selectedChar)['skill' + s + 'Level'] || 1 }}</span> → <span class="stat-up">{{ (getChar(selectedChar)['skill' + s + 'Level'] || 1) + 1 }}</span>
-                                </span>
-                                <div v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s" style="font-size: 0.8rem; color: #aaa;">{{ getSkillDesc(getChar(selectedChar), s) }}</div>
-                                <div v-else style="font-size: 0.8rem; color: #aaa;">
-                                    <span class="stat-current">{{ getSkillDesc(getChar(selectedChar), s) }}</span> → <span class="stat-up">{{ getSkillNextDesc(getChar(selectedChar), s) }}</span>
+                                        <span class="char-name"
+                                            :class="{ 'long-name': getCharName(char.id).length > 6 }">{{
+                                            getCharName(char.id) }}</span>
+                                        <span class="char-level">Lv.{{ char.level }}</span>
+                                    </button>
+                                    <button
+                                        v-if="hoveredCharId === char.id && (team.includes(char.id) || team.filter(Boolean).length < 5)"
+                                        @click.stop="toggleTeam(char.id)" class="team-toggle-btn"
+                                        :style="{ background: team.includes(char.id) ? '#e53935' : '#4caf50' }">
+                                        {{ team.includes(char.id) ? '−' : '+' }}
+                                    </button>
                                 </div>
                             </div>
-                            <button v-if="getSkillUpgradeInfo(getChar(selectedChar), s)"
-                                @click="upgradeSkill(selectedChar, s)"
-                                @mouseenter="hoveringSkillUpgrade = s"
-                                @mouseleave="hoveringSkillUpgrade = null"
-                                :disabled="!canUpgradeSkill(getChar(selectedChar), s)"
-                                style="padding: 2px 8px; font-size: 0.8rem;">
-                                {{ t('Upgrade Skill') }} 💎{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}
-                            </button>
-                            <span v-else style="color: #888; padding: 5px;">{{ t('MAX') }}</span>
+                        </div>
+                        <div class="char-illustration-container">
+                            <div v-if="selectedChar && getChar(selectedChar)" class="char-illustration">
+                                <img v-if="getChar(selectedChar).image" :src="getChar(selectedChar).image"
+                                    :alt="getCharName(selectedChar)" class="char-portrait">
+                                <div v-else class="char-portrait-placeholder">
+                                    <span>{{ getCharName(selectedChar) }}</span>
+                                </div>
+                            </div>
+                            <div v-else class="char-illustration-placeholder">
+                                <span>{{ t('Select a character') }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">{{ t('Equipment') }}</h4>
-                        <div class="equipment-grid">
-                            <div v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
-                                :key="slot" style="width: 100%;">
-                                <button @click="selectEquipment(slot)"
-                                    :class="['equipment-button', { selected: selectedEquipment === slot }]"
-                                    style="width: 100%;">
-                                    {{ currentLang === 'zh' ? (equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].nameZh : t(slot)) : (equipmentUpgrades && equipmentUpgrades[slot] ? equipmentUpgrades[slot].name : t(slot)) }}<br>
-                                    <span v-if="!hoveredEquipUpgrade || selectedEquipment !== slot || !getEquipUpgradePreview(getChar(selectedChar), slot)">
-                                        +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}<br>{{ t('Lv') }}.{{ getChar(selectedChar).equipment[slot] || 0 }}
+                </div>
+
+                <!-- Character Info -->
+                <div v-if="selectedChar" class="panel team-panel">
+                    <div class="team-header">
+                        <h3>{{ t('Character Info') }}</h3>
+                        <div class="team-bf-total">
+                            <span>{{ t('Battle Force') }}:</span>
+                            <span class="team-bf-value">{{ getBattleForce(getChar(selectedChar)) }}</span>
+                        </div>
+                    </div>
+                    <div v-if="getChar(selectedChar)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                            <span style="grid-column: 1 / -1;">{{ t('Name') }}: {{ getCharName(selectedChar) }}</span>
+                            <span v-if="!showLevelUpPreview">{{ t('Lv') }}: {{ getChar(selectedChar).level }}</span>
+                            <span v-else>{{ t('Lv') }}: <span class="stat-current">{{ getChar(selectedChar).level
+                                    }}</span> → <span class="stat-up">{{ getNextLevelInfo(getChar(selectedChar)) ?
+                                    getNextLevelInfo(getChar(selectedChar)).level : t('Max') }}</span></span>
+                            <span></span>
+                            <span v-if="!showLevelUpPreview">{{ t('HP') }}: {{
+                                getCharEffective(getChar(selectedChar)).hp }}</span>
+                            <span v-else>{{ t('HP') }}: <span class="stat-current">{{
+                                    getCharEffective(getChar(selectedChar)).hp }}</span> → <span class="stat-up">{{
+                                    getLevelUpPreview(getChar(selectedChar))[0]?.next }}</span></span>
+                            <span v-if="!showLevelUpPreview">{{ t('ATK') }}: {{
+                                getCharEffective(getChar(selectedChar)).atk }}</span>
+                            <span v-else>{{ t('ATK') }}: <span class="stat-current">{{
+                                    getCharEffective(getChar(selectedChar)).atk }}</span> → <span class="stat-up">{{
+                                    getLevelUpPreview(getChar(selectedChar))[1]?.next }}</span></span>
+                            <span v-if="!showLevelUpPreview">{{ t('DEF') }}: {{
+                                getCharEffective(getChar(selectedChar)).def }}</span>
+                            <span v-else>{{ t('DEF') }}: <span class="stat-current">{{
+                                    getCharEffective(getChar(selectedChar)).def }}</span> → <span class="stat-up">{{
+                                    getLevelUpPreview(getChar(selectedChar))[2]?.next }}</span></span>
+                            <span v-if="!showLevelUpPreview">{{ t('SPD') }}: {{
+                                getCharEffective(getChar(selectedChar)).spd }}</span>
+                            <span v-else>{{ t('SPD') }}: <span class="stat-current">{{
+                                    getCharEffective(getChar(selectedChar)).spd }}</span> → <span class="stat-up">{{
+                                    getLevelUpPreview(getChar(selectedChar))[3]?.next }}</span></span>
+                            <span>{{ t('CRITCHANCE') }}: {{
+                                Math.round(getCharEffective(getChar(selectedChar)).critChance * 100) }}%</span>
+                            <span>{{ t('DEFREDUCE') }}: {{ getCharEffective(getChar(selectedChar)).defReduce }}</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span>{{ t('EXP') }}: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ?
+                                getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
+                                @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
+                                style="width: 100%; padding: 6px;">
+                                {{ t('Level Up') }} 📖{{ getNextLevelInfo(getChar(selectedChar)) ?
+                                getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}
+                            </button>
+                        </div>
+                        <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                            <h4 style="margin: 5px 0;">{{ t('Skills') }}</h4>
+                            <div v-for="s in [1, 2]" :key="s"
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <span v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s">
+                                        <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s +
+                                            'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name ||
+                                            t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name ||
+                                            t('None')) }}</strong> {{ t('Lv') }}.{{ getChar(selectedChar)['skill' + s +
+                                        'Level'] || 1 }}
                                     </span>
                                     <span v-else>
-                                        <span class="stat-current">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{ getEquipStatLabel(slot) }}</span> → <span class="stat-up">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) + (getEquipUpgradePreview(getChar(selectedChar), slot)?.bonus || 0) }}</span><br>
-                                        <span class="stat-current">{{ t('Lv') }}.{{ getChar(selectedChar).equipment[slot] || 0 }}</span> → <span class="stat-up">{{ t('Lv') }}.{{ (getChar(selectedChar).equipment[slot] || 0) + 1 }}</span>
+                                        <strong>{{ currentLang === 'zh' ? (skills[getChar(selectedChar)['skill' + s +
+                                            'Id']]?.nameZh || skills[getChar(selectedChar)['skill' + s + 'Id']]?.name ||
+                                            t('None')) : (skills[getChar(selectedChar)['skill' + s + 'Id']]?.name ||
+                                            t('None')) }}</strong> {{ t('Lv') }}.<span class="stat-current">{{
+                                            getChar(selectedChar)['skill' + s + 'Level'] || 1 }}</span> → <span
+                                            class="stat-up">{{ (getChar(selectedChar)['skill' + s + 'Level'] || 1) + 1
+                                            }}</span>
                                     </span>
+                                    <div v-if="!hoveringSkillUpgrade || hoveringSkillUpgrade !== s"
+                                        style="font-size: 0.8rem; color: #aaa;">{{ getSkillDesc(getChar(selectedChar),
+                                        s) }}</div>
+                                    <div v-else style="font-size: 0.8rem; color: #aaa;">
+                                        <span class="stat-current">{{ getSkillDesc(getChar(selectedChar), s) }}</span> →
+                                        <span class="stat-up">{{ getSkillNextDesc(getChar(selectedChar), s) }}</span>
+                                    </div>
+                                </div>
+                                <button v-if="getSkillUpgradeInfo(getChar(selectedChar), s)"
+                                    @click="upgradeSkill(selectedChar, s)" @mouseenter="hoveringSkillUpgrade = s"
+                                    @mouseleave="hoveringSkillUpgrade = null"
+                                    :disabled="!canUpgradeSkill(getChar(selectedChar), s)"
+                                    style="padding: 2px 8px; font-size: 0.8rem;">
+                                    {{ t('Upgrade Skill') }} 💎{{ getSkillUpgradeInfo(getChar(selectedChar), s).cost }}
+                                </button>
+                                <span v-else style="color: #888; padding: 5px;">{{ t('MAX') }}</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                            <h4 style="margin: 5px 0;">{{ t('Equipment') }}</h4>
+                            <div class="equipment-grid">
+                                <div v-for="slot in ['weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories']"
+                                    :key="slot" style="width: 100%;">
+                                    <button @click="selectEquipment(slot)"
+                                        :class="['equipment-button', { selected: selectedEquipment === slot }]"
+                                        style="width: 100%;">
+                                        {{ currentLang === 'zh' ? (equipmentUpgrades && equipmentUpgrades[slot] ?
+                                        equipmentUpgrades[slot].nameZh : t(slot)) : (equipmentUpgrades &&
+                                        equipmentUpgrades[slot] ? equipmentUpgrades[slot].name : t(slot)) }}<br>
+                                        <span
+                                            v-if="!hoveredEquipUpgrade || selectedEquipment !== slot || !getEquipUpgradePreview(getChar(selectedChar), slot)">
+                                            +{{ getEquipCurrentBonus(getChar(selectedChar), slot) }} {{
+                                            getEquipStatLabel(slot) }}<br>{{ t('Lv') }}.{{
+                                            getChar(selectedChar).equipment[slot] || 0 }}
+                                        </span>
+                                        <span v-else>
+                                            <span class="stat-current">+{{ getEquipCurrentBonus(getChar(selectedChar),
+                                                slot) }} {{ getEquipStatLabel(slot) }}</span> → <span
+                                                class="stat-up">+{{ getEquipCurrentBonus(getChar(selectedChar), slot) +
+                                                (getEquipUpgradePreview(getChar(selectedChar), slot)?.bonus || 0)
+                                                }}</span><br>
+                                            <span class="stat-current">{{ t('Lv') }}.{{
+                                                getChar(selectedChar).equipment[slot] || 0 }}</span> → <span
+                                                class="stat-up">{{ t('Lv') }}.{{ (getChar(selectedChar).equipment[slot]
+                                                || 0) + 1 }}</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+                                <button v-if="getEquipmentUpgrade(getChar(selectedChar), selectedEquipment)"
+                                    @click="upgradeEquipment(selectedChar, selectedEquipment)"
+                                    @mouseenter="hoveredEquipUpgrade = true" @mouseleave="hoveredEquipUpgrade = false"
+                                    :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)"
+                                    style="padding: 3px 10px;">
+                                    {{ t('Upgrade') }} 💰{{ getEquipmentUpgrade(getChar(selectedChar),
+                                    selectedEquipment).cost }}
                                 </button>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
-                            <button v-if="getEquipmentUpgrade(getChar(selectedChar), selectedEquipment)"
-                                @click="upgradeEquipment(selectedChar, selectedEquipment)"
-                                @mouseenter="hoveredEquipUpgrade = true" @mouseleave="hoveredEquipUpgrade = false"
-                                :disabled="!canUpgradeEquipment(getChar(selectedChar), selectedEquipment)"
-                                style="padding: 3px 10px;">
-                                {{ t('Upgrade') }} 💰{{ getEquipmentUpgrade(getChar(selectedChar), selectedEquipment).cost }}
-                            </button>
+                        <!-- Basic Info Section -->
+                        <div v-if="getChar(selectedChar) && getChar(selectedChar).basicInfo"
+                            style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                            <h4 style="margin: 5px 0;">{{ t('Basic Info') }}</h4>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 15px; font-size: 0.8rem; color: #ccc;">
+                                <div><span style="color: #888;">{{ t('Birthday') }}:</span> {{
+                                    getChar(selectedChar).basicInfo.birthday.year }}/{{
+                                    getChar(selectedChar).basicInfo.birthday.month }}/{{
+                                    getChar(selectedChar).basicInfo.birthday.day }}</div>
+                                <div><span style="color: #888;">{{ t('Birth Place') }}:</span> {{ currentLang === 'zh' ?
+                                    (getChar(selectedChar).basicInfo.birthPlaceZh ||
+                                    getChar(selectedChar).basicInfo.birthPlace) :
+                                    getChar(selectedChar).basicInfo.birthPlace }}</div>
+                                <div><span style="color: #888;">{{ t('Height') }}:</span> {{
+                                    getChar(selectedChar).basicInfo.height }}{{ t('cm') }}</div>
+                                <div><span style="color: #888;">{{ t('Weight') }}:</span> {{
+                                    getChar(selectedChar).basicInfo.weight }}{{ t('kg') }}</div>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Basic Info Section -->
-                    <div v-if="getChar(selectedChar) && getChar(selectedChar).basicInfo" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">{{ t('Basic Info') }}</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 15px; font-size: 0.8rem; color: #ccc;">
-                            <div><span style="color: #888;">{{ t('Birthday') }}:</span> {{ getChar(selectedChar).basicInfo.birthday.year }}/{{ getChar(selectedChar).basicInfo.birthday.month }}/{{ getChar(selectedChar).basicInfo.birthday.day }}</div>
-                            <div><span style="color: #888;">{{ t('Birth Place') }}:</span> {{ currentLang === 'zh' ? (getChar(selectedChar).basicInfo.birthPlaceZh || getChar(selectedChar).basicInfo.birthPlace) : getChar(selectedChar).basicInfo.birthPlace }}</div>
-                            <div><span style="color: #888;">{{ t('Height') }}:</span> {{ getChar(selectedChar).basicInfo.height }}{{ t('cm') }}</div>
-                            <div><span style="color: #888;">{{ t('Weight') }}:</span> {{ getChar(selectedChar).basicInfo.weight }}{{ t('kg') }}</div>
+                        <!-- Story Section -->
+                        <div v-if="getChar(selectedChar) && (getChar(selectedChar).story || getChar(selectedChar).storyZh)"
+                            style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
+                            <h4 style="margin: 5px 0;">{{ t('Background') }}</h4>
+                            <p style="font-size: 0.85rem; color: #ccc; line-height: 1.5; margin: 0;">
+                                {{ currentLang === 'zh' ? (getChar(selectedChar).storyZh || getChar(selectedChar).story)
+                                : (getChar(selectedChar).story || '') }}
+                            </p>
                         </div>
-                    </div>
-                    <!-- Story Section -->
-                    <div v-if="getChar(selectedChar) && (getChar(selectedChar).story || getChar(selectedChar).storyZh)" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 8px;">
-                        <h4 style="margin: 5px 0;">{{ t('Background') }}</h4>
-                        <p style="font-size: 0.85rem; color: #ccc; line-height: 1.5; margin: 0;">
-                            {{ currentLang === 'zh' ? (getChar(selectedChar).storyZh || getChar(selectedChar).story) : (getChar(selectedChar).story || '') }}
-                        </p>
                     </div>
                 </div>
-            </div>
-        </aside>
+            </aside>
 
-        <section class="right-panel">
-            <!-- Stages -->
-            <div class="panel">
-                <h3>{{ t('Stages') }}{{ battleLoop ? ' (' + t('In Battle') + ')' : '' }}</h3>
-                <div class="stages-grid">
-                    <button v-for="(stage, i) in stages" :key="stage.id"
-                        class="stage-btn"
-                        :class="{
+            <section class="right-panel">
+                <!-- Stages -->
+                <div class="panel">
+                    <h3>{{ t('Stages') }}{{ battleLoop ? ' (' + t('In Battle') + ')' : '' }}</h3>
+                    <div class="stages-grid">
+                        <button v-for="(stage, i) in stages" :key="stage.id" class="stage-btn" :class="{
                             completed: i < currentStage,
                             selected: i === selectedStage,
                             current: i === currentStage,
                             boss: stage.isBoss
-                        }"
-                        :disabled="i > currentStage || i >= maxStage || battleLoop"
-                        @click="selectedStage = i">
-                        {{ stage.displayNo }}
-                    </button>
-                </div>
-            </div>
-
-            <!-- Story -->
-            <div class="panel story-panel" v-if="selectedStage !== null && selectedStage < stages.length">
-                <h3>{{ currentLang === 'zh' ? '故事' : 'Story' }}</h3>
-                <div class="story-content">
-                    <div class="story-date">{{ currentLang === 'zh' ? getStageStory(selectedStage).dateZh : getStageStory(selectedStage).date }}</div>
-                    <p class="story-text">{{ currentLang === 'zh' ? getStageStory(selectedStage).storyZh : getStageStory(selectedStage).story }}</p>
-                </div>
-            </div>
-
-            <!-- 战斗 -->
-            <div class="panel">
-                <h3>{{ t('Battle') }}</h3>
-
-                <div v-if="selectedStage !== null && selectedStage < stages.length">
-                    <h4>{{ stages[selectedStage].isBoss ? '👑 ' : '' }}{{ t('Stage') }} {{ stages[selectedStage].displayNo }}: {{ currentLang === 'zh' ? (stages[selectedStage].titleZh || stages[selectedStage].title) : stages[selectedStage].title }}</h4>
-                    <p>{{ currentLang === 'zh' ? (stages[selectedStage].textZh || stages[selectedStage].text) : stages[selectedStage].text }}</p>
-                    <button @click="startBattle" :disabled="battleLoop">{{ t('Start Battle') }}</button>
-                </div>
-                <div v-else>
-                    <p>{{ t('All stages completed!') }}</p>
+                        }" :disabled="i > currentStage || i >= maxStage || battleLoop" @click="selectedStage = i">
+                            {{ stage.displayNo }}
+                        </button>
+                    </div>
                 </div>
 
-                <div v-if="inBattle || battleStatus" class="battle-area">
-                    <div class="units">
-                        <div class="teams-row">
-                            <!-- Player Side -->
-                            <div class="player-column">
-                                <h4>{{ t('Player Team') }}</h4>
-                                <div class="player-units" :class="'player-count-' + playerUnits.length">
-                                    <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i" :data-unit-side="'player'" class="unit-slot player-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
-                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
-                                        <div class="unit-name">
-                                            <b>{{ unit.displayName }}</b>
-                                            <span v-if="getSkillDisplay('p', i)" class="skill-used">{{ getSkillDisplay('p', i) }}</span>
-                                        </div>
-                                        <div class="unit-tags">
-                                            <span v-if="unit.tauntTurns > 0" style="color: #ffa500;">[{{ t('TAUNT') }}]</span>
-                                            <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
-                                            <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{ t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
-                                            <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{ t('ANTIHEAL') }}]</span>
-                                        </div>
-                                        <div class="unit-stats">
-                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('p', i)" :class="getHpChange('p', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('p', i) > 0 ? '+' : '' }}{{ getHpChange('p', i) }})</span></span>
-                                            <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
-                                            <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
-                                            <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
-                                            <span>{{ t('CRITCHANCE') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
-                                            <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
-                                        </div>
-                                    </div>
-                                    <div v-else class="unit-name">
-                                        {{ t('Empty') }}
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
+                <!-- Story -->
+                <div class="panel story-panel" v-if="selectedStage !== null && selectedStage < stages.length">
+                    <h3>{{ currentLang === 'zh' ? '故事' : 'Story' }}</h3>
+                    <div class="story-content">
+                        <div class="story-date">{{ currentLang === 'zh' ? getStageStory(selectedStage).dateZh :
+                            getStageStory(selectedStage).date }}</div>
+                        <p class="story-text">{{ currentLang === 'zh' ? getStageStory(selectedStage).storyZh :
+                            getStageStory(selectedStage).story }}</p>
+                    </div>
+                </div>
 
-                            <!-- Enemy Side -->
-                            <div class="enemy-column">
-                                <h4>{{ t('Enemies') }}</h4>
-                                <div class="enemy-units">
-                                <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i" :data-unit-side="'enemy'" class="unit-slot enemy-unit" :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
-                                    <div v-if="unit" :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
-                                        <div class="unit-name">
-                                            <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name }}</b>
-                                            <span v-if="getSkillDisplay('e', i)" class="skill-used">{{ getSkillDisplay('e', i) }}</span>
+                <!-- 战斗 -->
+                <div class="panel">
+                    <h3>{{ t('Battle') }}</h3>
+
+                    <div v-if="selectedStage !== null && selectedStage < stages.length">
+                        <h4>{{ stages[selectedStage].isBoss ? '👑 ' : '' }}{{ t('Stage') }} {{
+                            stages[selectedStage].displayNo }}: {{ currentLang === 'zh' ? (stages[selectedStage].titleZh
+                            || stages[selectedStage].title) : stages[selectedStage].title }}</h4>
+                        <p>{{ currentLang === 'zh' ? (stages[selectedStage].textZh || stages[selectedStage].text) :
+                            stages[selectedStage].text }}</p>
+                        <button @click="startBattle" :disabled="battleLoop">{{ t('Start Battle') }}</button>
+                    </div>
+                    <div v-else>
+                        <p>{{ t('All stages completed!') }}</p>
+                    </div>
+
+                    <div v-if="inBattle || battleStatus" class="battle-area">
+                        <div class="units">
+                            <div class="teams-row">
+                                <!-- Player Side -->
+                                <div class="player-column">
+                                    <h4>{{ t('Player Team') }}</h4>
+                                    <div class="player-units" :class="'player-count-' + playerUnits.length">
+                                        <div v-for="(unit, i) in playerUnits" :key="'player-' + i" :data-unit-index="i"
+                                            :data-unit-side="'player'" class="unit-slot player-unit"
+                                            :class="{'unit-acting': actingUnit && actingUnit.side === 'player' && actingUnit.index === i}">
+                                            <div v-if="unit"
+                                                :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
+                                                <div class="unit-name">
+                                                    <b>{{ unit.displayName }}</b>
+                                                    <span v-if="getSkillDisplay('p', i)" class="skill-used">{{
+                                                        getSkillDisplay('p', i) }}</span>
+                                                </div>
+                                                <div class="unit-tags">
+                                                    <span v-if="unit.tauntTurns > 0" style="color: #ffa500;">[{{
+                                                        t('TAUNT') }}]</span>
+                                                    <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{
+                                                        t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                                    <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{
+                                                        t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
+                                                    <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{
+                                                        t('ANTIHEAL') }}]</span>
+                                                </div>
+                                                <div class="unit-stats">
+                                                    <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span
+                                                            v-if="getHpChange('p', i)"
+                                                            :class="getHpChange('p', i) > 0 ? 'hp-gain' : 'hp-loss'">({{
+                                                            getHpChange('p', i) > 0 ? '+' : '' }}{{ getHpChange('p', i)
+                                                            }})</span></span>
+                                                    <span>{{ t('ATK') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{
+                                                            unit.atk }}</span></span>
+                                                    <span>{{ t('DEF') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{
+                                                            unit.def }}</span></span>
+                                                    <span>{{ t('SPD') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{
+                                                            unit.spd }}</span></span>
+                                                    <span>{{ t('CRITCHANCE') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{
+                                                            Math.round(unit.critChance * 100) }}%</span></span>
+                                                    <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
+                                                </div>
+                                            </div>
+                                            <div v-else class="unit-name">
+                                                {{ t('Empty') }}
+                                            </div>
                                         </div>
-                                        <div class="unit-tags">
-                                            <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
-                                            <span v-if="unit.stunnedTurns > 0" style="color: #ff6b6b;">[{{ t('STUN') }}x{{ unit.stunnedTurns }}]</span>
-                                            <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{ t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
-                                            <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{ t('ANTIHEAL') }}]</span>
-                                        </div>
-                                        <div class="unit-stats">
-                                            <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('e', i)" :class="getHpChange('e', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('e', i) > 0 ? '+' : '' }}{{ getHpChange('e', i) }})</span></span>
-                                            <span>{{ t('ATK') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{ unit.atk }}</span></span>
-                                            <span>{{ t('DEF') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{ unit.def }}</span></span>
-                                            <span>{{ t('SPD') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{ unit.spd }}</span></span>
-                                            <span>{{ t('CRITCHANCE') }}: <span :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{ Math.round(unit.critChance * 100) }}%</span></span>
-                                            <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
-                                        </div>
-                                    </div>
-                                    <div v-else class="unit-name">
-                                        {{ t('Empty') }}
                                     </div>
                                 </div>
+
+                                <!-- Enemy Side -->
+                                <div class="enemy-column">
+                                    <h4>{{ t('Enemies') }}</h4>
+                                    <div class="enemy-units">
+                                        <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i"
+                                            :data-unit-side="'enemy'" class="unit-slot enemy-unit"
+                                            :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
+                                            <div v-if="unit"
+                                                :style="{ opacity: unit.hp <= 0 ? 0.3 : 1, width: '100%' }">
+                                                <div class="unit-name">
+                                                    <b>{{ currentLang === 'zh' && unit.nameZh ? unit.nameZh : unit.name
+                                                        }}</b>
+                                                    <span v-if="getSkillDisplay('e', i)" class="skill-used">{{
+                                                        getSkillDisplay('e', i) }}</span>
+                                                </div>
+                                                <div class="unit-tags">
+                                                    <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{
+                                                        t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                                    <span v-if="unit.stunnedTurns > 0" style="color: #ff6b6b;">[{{
+                                                        t('STUN') }}x{{ unit.stunnedTurns }}]</span>
+                                                    <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{
+                                                        t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
+                                                    <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{
+                                                        t('ANTIHEAL') }}]</span>
+                                                </div>
+                                                <div class="unit-stats">
+                                                    <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span
+                                                            v-if="getHpChange('e', i)"
+                                                            :class="getHpChange('e', i) > 0 ? 'hp-gain' : 'hp-loss'">({{
+                                                            getHpChange('e', i) > 0 ? '+' : '' }}{{ getHpChange('e', i)
+                                                            }})</span></span>
+                                                    <span>{{ t('ATK') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).atkDiff)">{{
+                                                            unit.atk }}</span></span>
+                                                    <span>{{ t('DEF') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).defDiff)">{{
+                                                            unit.def }}</span></span>
+                                                    <span>{{ t('SPD') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).spdDiff)">{{
+                                                            unit.spd }}</span></span>
+                                                    <span>{{ t('CRITCHANCE') }}: <span
+                                                            :class="getStatClass(getUnitStatBreakdown(unit).critDiff)">{{
+                                                            Math.round(unit.critChance * 100) }}%</span></span>
+                                                    <span>{{ t('DEFREDUCE') }}: {{ unit.defReduce }}</span>
+                                                </div>
+                                            </div>
+                                            <div v-else class="unit-name">
+                                                {{ t('Empty') }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Battle Result Overlay -->
-                    <div v-if="battleStatus" class="battle-result-overlay" :class="battleStatus">
-                        <div class="result-text">{{ battleStatus === 'win' ? t('VICTORY') : t('DEFEAT') }}</div>
-                        <button @click="closeBattle" class="continue-btn">{{ t('Continue') }}</button>
+                        <!-- Battle Result Overlay -->
+                        <div v-if="battleStatus" class="battle-result-overlay" :class="battleStatus">
+                            <div class="result-text">{{ battleStatus === 'win' ? t('VICTORY') : t('DEFEAT') }}</div>
+                            <button @click="closeBattle" class="continue-btn">{{ t('Continue') }}</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
+
     </div>
 
-</div>
+    <!-- 🔥 用 module -->
+    <script type="module">
+        import { CHARACTERS } from "./data/characters.js"
+        import { ENEMIES } from "./data/enemies.js"
+        import { STAGES } from "./data/stages.js"
+        import { LEVELS } from "./data/levels.js"
+        import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
+        import { SKILLS, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription, getCharSkill, getCharSkillEffect, getCharSkillInfo, getCharNextSkillEffect, getSkillType } from "./data/skills.js"
+        import { UI_TRANSLATIONS, getSkillDescription as getTranslatedSkillDescription } from "./data/translations.js"
+        import { getStageStory } from "./data/stageStories.js"
+        import { ENEMY_SKILLS, getEnemySkill } from "./data/enemySkills.js"
 
-<!-- 🔥 用 module -->
-<script type="module">
-import { CHARACTERS } from "./data/characters.js"
-import { ENEMIES } from "./data/enemies.js"
-import { STAGES } from "./data/stages.js"
-import { LEVELS } from "./data/levels.js"
-import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
-import { SKILLS, getSkillAtLevel, getSkillUpgradeCost, getSkillDescription, getCharSkill, getCharSkillEffect, getCharSkillInfo, getCharNextSkillEffect, getSkillType } from "./data/skills.js"
-import { UI_TRANSLATIONS, getSkillDescription as getTranslatedSkillDescription } from "./data/translations.js"
-import { getStageStory } from "./data/stageStories.js"
-import { ENEMY_SKILLS, getEnemySkill } from "./data/enemySkills.js"
+        const { createApp } = Vue
 
-const { createApp } = Vue
+        createApp({
 
-createApp({
+            data() {
+                return {
+                    // Language system
+                    currentLang: localStorage.getItem('voyager_lang') || 'en',
 
-    data() {
-        return {
-            // Language system
-            currentLang: localStorage.getItem('voyager_lang') || 'en',
+                    // Battle Force calculation weights
+                    BF_HP: 1,
+                    BF_ATK: 10,
+                    BF_DEF: 10,
+                    BF_SPD: 20,
+                    BF_CRIT: 50,
+                    BF_DEFR: 30,
 
-            // Battle Force calculation weights
-            BF_HP: 1,
-            BF_ATK: 10,
-            BF_DEF: 10,
-            BF_SPD: 20,
-            BF_CRIT: 50,
-            BF_DEFR: 30,
+                    gold: 0,
+                    exp: 0,
+                    afkGold: 0,
+                    afkExp: 0,
+                    diamond: 0,
+                    diamondTimer: 0,
+                    showResetModal: false,
+                    skillDisplays: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
+                    hpChanges: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
 
-            gold: 0,
-            exp: 0,
-            afkGold: 0,
-            afkExp: 0,
-            diamond: 0,
-            diamondTimer: 0,
-            showResetModal: false,
-            skillDisplays: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
-            hpChanges: { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null },
+                    characters: CHARACTERS,
+                    enemies: ENEMIES,
+                    stages: STAGES,
+                    levels: LEVELS,
+                    skills: SKILLS,
+                    equipmentUpgrades: EQUIPMENT_UPGRADES,
 
-            characters: CHARACTERS,
-            enemies: ENEMIES,
-            stages: STAGES,
-            levels: LEVELS,
-            skills: SKILLS,
-            equipmentUpgrades: EQUIPMENT_UPGRADES,
+                    team: [null, null, null, null, null],
+                    currentStage: 0,
+                    selectedStage: 0,
+                    maxStage: 101, // Maximum stage available
+                    battleStatus: null, // 'win', 'lose', or null
+                    selectedChar: null,
+                    hoveredCharId: null,
+                    selectedEquipment: null, // 'weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories'
+                    saveFileName: 'voyager_save.txt',
+                    turnNumber: 0,
+                    showLevelUpPreview: false,
+                    hoveredEquipUpgrade: false,
+                    hoveringSkillUpgrade: null,
 
-            team: [null, null, null, null, null],
-            currentStage: 0,
-            selectedStage: 0,
-            maxStage: 101, // Maximum stage available
-            battleStatus: null, // 'win', 'lose', or null
-            selectedChar: null,
-            hoveredCharId: null,
-            selectedEquipment: null, // 'weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories'
-            saveFileName: 'voyager_save.txt',
-            turnNumber: 0,
-            showLevelUpPreview: false,
-            hoveredEquipUpgrade: false,
-            hoveringSkillUpgrade: null,
-
-            inBattle: false,
-            playerUnits: [],
-            enemyUnits: [],
-            actingUnit: null, // { side: 'player'|'enemy', index: 0-4 }
-            battleLoop: null, // Store interval ID to prevent multiple loops
-            battleActionOrder: null, // Array of units in action order
-            battleActionIndex: 0 // Current index in action order
-        }
-    },
-
-    mounted() {
-        console.log('EQUIPMENT_UPGRADES loaded:', !!EQUIPMENT_UPGRADES)
-        this.loadAutoSave()
-
-        setInterval(() => {
-            // Use currentStage (last completed) for AFK gain rate, not selectedStage
-            const stage = this.stages[this.currentStage] || { afkGain: 1 }
-            const multiplier = stage.afkGain || 1
-            this.afkGold += multiplier
-            this.afkExp += multiplier
-            this.gold = Math.floor(this.afkGold)
-            this.exp = Math.floor(this.afkExp)
-
-            this.diamondTimer++
-            if (this.diamondTimer >= 60) {
-                this.diamond++
-                this.diamondTimer = 0
-            }
-        }, 1000)
-
-        setInterval(() => {
-            this.autoSaveGame()
-        }, 60000)
-
-        // Update document title when language changes
-        document.title = this.t('Voyager of Lyra')
-    },
-
-    watch: {
-        currentLang() {
-            document.title = this.t('Voyager of Lyra')
-        }
-    },
-
-    methods: {
-
-        // Language system
-        t(key) {
-            const translation = UI_TRANSLATIONS[key]
-            if (!translation) return key
-            return translation[this.currentLang] || key
-        },
-
-        toggleLang() {
-            this.currentLang = this.currentLang === 'en' ? 'zh' : 'en'
-            localStorage.setItem('voyager_lang', this.currentLang)
-        },
-
-        getSkillDesc(char, slot = 1) {
-            const skillId = slot === 1 ? char.skill1Id : char.skill2Id
-            const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
-            if (!skillId) return this.t('None')
-            const skill = SKILLS[skillId]
-            if (!skill) return ''
-            const data = skill.levels[skillLevel]
-            if (!data) return ''
-            return getTranslatedSkillDescription(skill.type, data, this.currentLang)
-        },
-
-        getSkillNextDesc(char, slot = 1) {
-            const skillId = slot === 1 ? char.skill1Id : char.skill2Id
-            const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
-            if (!skillId) return ''
-            const skill = SKILLS[skillId]
-            if (!skill) return ''
-            const nextLevel = skillLevel + 1
-            if (nextLevel > 10) return ''
-            const data = skill.levels[nextLevel]
-            if (!data) return ''
-            return getTranslatedSkillDescription(skill.type, data, this.currentLang)
-        },
-
-        getCharName(id) {
-            const c = this.getChar(id)
-            if (!c) return null
-            return this.currentLang === 'zh' ? (c.nameZh || c.name) : c.name
-        },
-
-        getChar(id) {
-            return this.characters.find(c => c.id === id)
-        },
-
-        toggleTeam(id) {
-            const index = this.team.indexOf(id)
-            if (index !== -1) {
-                this.team[index] = null
-                this.autoSaveGame()
-                return
-            }
-            const empty = this.team.indexOf(null)
-            if (empty !== -1) {
-                this.team[empty] = id
-            }
-            this.autoSaveGame()
-        },
-
-        selectChar(id) {
-            this.selectedChar = this.selectedChar === id ? null : id
-        },
-
-        getNextLevelInfo(char) {
-            if (!char) return null
-            return this.levels.find(level => level.level === char.level + 1) || null
-        },
-
-        canLevelUp(char) {
-            const next = this.getNextLevelInfo(char)
-            return next ? this.exp >= next.exp : false
-        },
-
-        levelUpChar(id) {
-            const char = this.getChar(id)
-            if (!char) return
-            const next = this.getNextLevelInfo(char)
-            if (!next) return
-            if (this.exp < next.exp) return
-            this.exp -= next.exp
-            char.level = Math.min(char.level + 1, this.levels[this.levels.length - 1].level)
-            this.autoSaveGame()
-        },
-
-        selectEquipment(slot) {
-            this.selectedEquipment = this.selectedEquipment === slot ? null : slot
-        },
-
-        getEquipmentUpgrade(char, slot) {
-            if (!char || !char.equipment || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
-            const currentLevel = char.equipment[slot] || 0
-            return EQUIPMENT_UPGRADES[slot].upgrades[currentLevel] || null
-        },
-
-        getEquipmentAttributeText(slot, level) {
-            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
-            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
-            if (!upgrade) return ''
-            const stat = EQUIPMENT_UPGRADES[slot].stat
-            const label = this.t(stat.toUpperCase())
-            return `+${upgrade.bonus} ${label}`
-        },
-
-        canUpgradeEquipment(char, slot) {
-            const upgrade = this.getEquipmentUpgrade(char, slot)
-            return upgrade ? this.gold >= upgrade.cost : false
-        },
-
-        upgradeEquipment(charId, slot) {
-            const char = this.getChar(charId)
-            if (!char || !char.equipment) return
-            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return
-            const currentLevel = char.equipment[slot] || 0
-            const maxLevel = EQUIPMENT_UPGRADES[slot].upgrades.length
-            if (currentLevel >= maxLevel) return
-            const upgrade = this.getEquipmentUpgrade(char, slot)
-            if (!upgrade) return
-            if (this.gold < upgrade.cost) return
-            this.gold -= upgrade.cost
-            char.equipment[slot] = currentLevel + 1
-            this.autoSaveGame()
-        },
-
-        getSkillUpgradeInfo(char, slot = 1) {
-            return getCharSkillInfo(char, slot)
-        },
-
-        canUpgradeSkill(char, slot = 1) {
-            const upgrade = getCharSkillInfo(char, slot)
-            return upgrade ? this.diamond >= upgrade.cost : false
-        },
-
-        getSkillEffect(char, slot = 1) {
-            return getCharSkillEffect(char, slot)
-        },
-
-        upgradeSkill(charId, slot = 1) {
-            const char = this.getChar(charId)
-            const upgrade = getCharSkillInfo(char, slot)
-            if (!upgrade) return
-            if (this.diamond < upgrade.cost) return
-            this.diamond -= upgrade.cost
-            char['skill' + slot + 'Level'] = (char['skill' + slot + 'Level'] || 1) + 1
-            this.autoSaveGame()
-        },
-
-        getLevelUpPreview(char) {
-            if (!char) return []
-            const next = this.getNextLevelInfo(char)
-            if (!next) return []
-            const currHp = this.getCharEffective(char).hp
-            const currAtk = this.getCharEffective(char).atk
-            const currDef = this.getCharEffective(char).def
-            const currSpd = this.getCharEffective(char).spd
-            const nextLevel = char.level + 1
-            const statMultiplier = 1 + 0.12 * (nextLevel - 1)
-            const speedMultiplier = 1 + 0.05 * (nextLevel - 1)
-            const baseHp = char.hp + this.getEquipBonusForStat(char, 'hp')
-            const baseAtk = char.atk + this.getEquipBonusForStat(char, 'atk')
-            const baseDef = char.def + this.getEquipBonusForStat(char, 'def')
-            const baseSpd = char.spd + this.getEquipBonusForStat(char, 'spd')
-            const newHp = Math.round(baseHp * statMultiplier)
-            const newAtk = Math.round(baseAtk * statMultiplier)
-            const newDef = Math.round(baseDef * statMultiplier)
-            const newSpd = Math.max(1, Math.round(baseSpd * speedMultiplier))
-            return [
-                { label: 'HP', curr: currHp, next: newHp },
-                { label: 'ATK', curr: currAtk, next: newAtk },
-                { label: 'DEF', curr: currDef, next: newDef },
-                { label: 'SPD', curr: currSpd, next: newSpd }
-            ]
-        },
-
-        getSkillUpgradePreview(char, slot = 1) {
-            return getCharNextSkillEffect(char, slot)
-        },
-
-        getEquipUpgradePreview(char, slot) {
-            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
-            const currentLevel = char.equipment[slot] || 0
-            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
-            if (!upgrade) return null
-            const stat = EQUIPMENT_UPGRADES[slot].stat
-            const label = this.t(stat.toUpperCase())
-            const effective = this.getCharEffective(char)
-            let currentVal = effective[stat]
-            let newVal = currentVal + upgrade.bonus
-            if (stat === 'critChance') {
-                currentVal = Math.round(effective[stat] * 100) + '%'
-                newVal = Math.round((effective[stat] + upgrade.bonus / 100) * 100) + '%'
-            }
-            return { label, bonus: upgrade.bonus, currentVal, newVal, stat }
-        },
-
-        getEquipUpgradeCharStats(char, slot) {
-            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
-            const currentLevel = char.equipment[slot] || 0
-            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
-            if (!upgrade) return null
-            const stat = EQUIPMENT_UPGRADES[slot].stat
-            const newChar = JSON.parse(JSON.stringify(char))
-            newChar.equipment[slot] = currentLevel + 1
-            const newEffective = this.getCharEffective(newChar)
-            return {
-                hp: newEffective.hp,
-                atk: newEffective.atk,
-                def: newEffective.def,
-                spd: newEffective.spd
-            }
-        },
-
-        getEquipCurrentBonus(char, slot) {
-            if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return 0
-            const level = char.equipment[slot] || 0
-            if (level === 0) return 0
-            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
-            return upgrade ? upgrade.bonus : 0
-        },
-
-        getEquipBonusForStat(char, statName) {
-            if (!char || !char.equipment || !EQUIPMENT_UPGRADES) return 0
-            let bonus = 0
-            Object.entries(char.equipment).forEach(([slot, level]) => {
-                if (level > 0 && EQUIPMENT_UPGRADES[slot] && EQUIPMENT_UPGRADES[slot].stat === statName) {
-                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
-                    if (upgrade) bonus += upgrade.bonus
+                    inBattle: false,
+                    playerUnits: [],
+                    enemyUnits: [],
+                    actingUnit: null, // { side: 'player'|'enemy', index: 0-4 }
+                    battleLoop: null, // Store interval ID to prevent multiple loops
+                    battleActionOrder: null, // Array of units in action order
+                    battleActionIndex: 0 // Current index in action order
                 }
-            })
-            return bonus
-        },
+            },
 
-        getEquipStatLabel(slot) {
-            if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
-            const stat = EQUIPMENT_UPGRADES[slot].stat
-            return this.t(stat.toUpperCase())
-        },
+            mounted() {
+                console.log('EQUIPMENT_UPGRADES loaded:', !!EQUIPMENT_UPGRADES)
+                this.loadAutoSave()
 
-        getBattleForce(char) {
-            if (!char) return 0
-            const effective = this.getCharEffective(char)
-            return Math.round(
-                effective.hp * this.BF_HP +
-                effective.atk * this.BF_ATK +
-                effective.def * this.BF_DEF +
-                effective.spd * this.BF_SPD +
-                effective.critChance * 100 * this.BF_CRIT +
-                effective.defReduce * this.BF_DEFR
-            )
-        },
+                setInterval(() => {
+                    // Use currentStage (last completed) for AFK gain rate, not selectedStage
+                    const stage = this.stages[this.currentStage] || { afkGain: 1 }
+                    const multiplier = stage.afkGain || 1
+                    this.afkGold += multiplier
+                    this.afkExp += multiplier
+                    this.gold = Math.floor(this.afkGold)
+                    this.exp = Math.floor(this.afkExp)
 
-        getSkillDisplay(side, index) {
-            return this.skillDisplays[side + index] || null
-        },
-        getHpChange(side, index) {
-            return this.hpChanges[side + index] || null
-        },
-        getStageStory(stageIndex) {
-            return getStageStory(this.stages[stageIndex].id)
-        },
-
-        getCharEffective(char) {
-            if (!char) return null
-            const level = char.level || 1
-            const statMultiplier = 1 + 0.12 * (level - 1)
-            const speedMultiplier = 1 + 0.06 * (level - 1)
-
-            // Calculate equipment bonuses
-            let equipmentBonus = { atk: 0, def: 0, hp: 0, spd: 0, critChance: 0, defReduce: 0 }
-            if (char.equipment && EQUIPMENT_UPGRADES) {
-                Object.entries(char.equipment).forEach(([slot, level]) => {
-                    if (level > 0 && EQUIPMENT_UPGRADES[slot]) {
-                        const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
-                        if (upgrade) {
-                            const stat = EQUIPMENT_UPGRADES[slot].stat
-                            if (equipmentBonus.hasOwnProperty(stat)) {
-                                equipmentBonus[stat] += upgrade.bonus
-                            }
-                        }
+                    this.diamondTimer++
+                    if (this.diamondTimer >= 60) {
+                        this.diamond++
+                        this.diamondTimer = 0
                     }
-                })
-            }
+                }, 1000)
 
-            return {
-                ...char,
-                atk: Math.round(char.atk * statMultiplier) + equipmentBonus.atk,
-                def: Math.round(char.def * statMultiplier) + equipmentBonus.def,
-                hp: Math.round(char.hp * statMultiplier) + equipmentBonus.hp,
-                spd: Math.max(1, Math.round(char.spd * speedMultiplier) + equipmentBonus.spd),
-                critChance: Math.min(1, (char.critChance || 0) + equipmentBonus.critChance / 100),
-                defReduce: (char.defReduce || 0) + equipmentBonus.defReduce
-            }
-        },
+                setInterval(() => {
+                    this.autoSaveGame()
+                }, 60000)
 
-        refreshUnitStats(unit) {
-            const atkMult = unit.buffs.reduce((mult, buff) => mult * (buff.atkMult || 1), 1)
-            const defMult = unit.buffs.reduce((mult, buff) => mult * (buff.defMult || 1), 1)
-            const spdMult = unit.buffs.reduce((mult, buff) => mult * (buff.spdMult || 1), 1)
+                // Update document title when language changes
+                document.title = this.t('Voyager of Lyra')
+            },
 
-            // Apply debuffs (enemy debuffs reduce stats)
-            const debuffAtkMult = unit.debuffs.reduce((mult, d) => mult * (d.atkMult || 1), 1)
-            const debuffDefMult = unit.debuffs.reduce((mult, d) => mult * (d.defMult || 1), 1)
-            const debuffSpdMult = unit.debuffs.reduce((mult, d) => mult * (d.spdMult || 1), 1)
-
-            unit.atk = Math.max(1, Math.round(unit.baseAtk * atkMult * debuffAtkMult))
-            unit.def = Math.max(0, Math.round(unit.baseDef * defMult * debuffDefMult))
-            unit.spd = Math.max(1, Math.round(unit.baseSpd * spdMult * debuffSpdMult))
-
-            // Apply crit buff
-            const critBonus = unit.buffs.reduce((bonus, buff) => bonus + (buff.critBonus || 0), 0)
-            unit.critChance = Math.min(1, unit.baseCritChance + critBonus)
-
-            unit.defReduce = unit.baseDefReduce
-        },
-
-        applyBuff(unit, buff) {
-            unit.buffs.push({ ...buff })
-            this.refreshUnitStats(unit)
-        },
-
-        applyDebuff(unit, debuff) {
-            unit.debuffs.push({ ...debuff })
-            this.refreshUnitStats(unit)
-        },
-
-        getUnitStatBreakdown(unit) {
-            // True base stats (no buffs/debuffs)
-            const trueBaseAtk = unit.baseAtk
-            const trueBaseDef = unit.baseDef
-            const trueBaseSpd = unit.baseSpd
-            const trueBaseCrit = unit.baseCritChance
-
-            // Calculate differences from true base
-            const atkDiff = unit.atk - trueBaseAtk
-            const defDiff = unit.def - trueBaseDef
-            const spdDiff = unit.spd - trueBaseSpd
-            const critDiff = Math.round((unit.critChance - trueBaseCrit) * 100)
-
-            // Check if any buffs/debuffs are active
-            const hasBuffs = unit.buffs && unit.buffs.length > 0
-            const hasDebuffs = unit.debuffs && unit.debuffs.length > 0
-
-            return {
-                hasBuffs,
-                hasDebuffs,
-                atkDiff,
-                defDiff,
-                spdDiff,
-                critDiff
-            }
-        },
-
-        getStatClass(diff) {
-            if (diff > 0) return 'stat-up'
-            if (diff < 0) return 'stat-down'
-            return ''
-        },
-
-        tickUnitBuffs(unit) {
-            unit.buffs = unit.buffs
-                .map(buff => ({ ...buff, duration: buff.duration - 1 }))
-                .filter(buff => buff.duration > 0)
-            this.refreshUnitStats(unit)
-        },
-
-        tickUnitDebuffs(unit) {
-            // Apply poison DOT damage before decrementing duration
-            this.applyPoisonDamage(unit)
-
-            unit.debuffs = unit.debuffs
-                .map(d => ({ ...d, duration: d.duration - 1 }))
-                .filter(d => d.duration > 0)
-            this.refreshUnitStats(unit)
-        },
-
-        getHealMultiplier(unit) {
-            const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
-            return antihealDebuff ? antihealDebuff.healMult : 1
-        },
-
-        applyPoisonDamage(unit) {
-            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
-            poisonDebuffs.forEach(poison => {
-                const dmg = Math.round(unit.baseHp * poison.dmgPct)
-                unit.hp = Math.max(0, unit.hp - dmg)
-            })
-        },
-
-        applyPoisonDamageWithDisplay(unit, action) {
-            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
-            poisonDebuffs.forEach(poison => {
-                const dmg = Math.round(unit.baseHp * poison.dmgPct)
-                const oldHp = unit.hp
-                unit.hp = Math.max(0, unit.hp - dmg)
-                const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
-                this.hpChanges[key] = unit.hp - oldHp
-            })
-        },
-
-        getPoisonTurns(unit) {
-            if (!unit.debuffs) return 0
-            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
-            return poisonDebuffs.reduce((sum, p) => sum + p.duration, 0)
-        },
-
-        getAntihealTurns(unit) {
-            if (!unit.debuffs) return 0
-            const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
-            return antihealDebuff ? antihealDebuff.duration : 0
-        },
-
-        saveGame() {
-            const saveData = {
-                gold: this.gold,
-                exp: this.exp,
-                afkGold: this.afkGold,
-                afkExp: this.afkExp,
-                diamond: this.diamond,
-                currentStage: this.currentStage,
-                selectedStage: this.selectedStage,
-                team: this.team,
-                characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
-            }
-            const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'text/plain;charset=utf-8' })
-            const url = URL.createObjectURL(blob)
-            const link = document.createElement('a')
-            link.href = url
-            link.download = this.saveFileName
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-            URL.revokeObjectURL(url)
-        },
-
-        autoSaveGame() {
-            const saveData = {
-                gold: this.gold,
-                exp: this.exp,
-                afkGold: this.afkGold,
-                afkExp: this.afkExp,
-                diamond: this.diamond,
-                currentStage: this.currentStage,
-                selectedStage: this.selectedStage,
-                team: this.team,
-                characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
-            }
-            localStorage.setItem('voyager_autosave', JSON.stringify(saveData))
-        },
-
-        loadAutoSave() {
-            const saved = localStorage.getItem('voyager_autosave')
-            if (saved) {
-                try {
-                    this.applySaveData(JSON.parse(saved))
-                } catch (error) {
-                    console.warn('Failed to parse autosave from localStorage:', error)
+            watch: {
+                currentLang() {
+                    document.title = this.t('Voyager of Lyra')
                 }
-            }
-        },
+            },
 
-        applySaveData(data) {
-            if (typeof data.gold === 'number') this.gold = data.gold
-            if (typeof data.exp === 'number') this.exp = data.exp
-            if (typeof data.afkGold === 'number') this.afkGold = data.afkGold
-            if (typeof data.afkExp === 'number') this.afkExp = data.afkExp
-            if (typeof data.diamond === 'number') this.diamond = data.diamond
-            if (typeof data.currentStage === 'number') {
-                // Clamp currentStage to valid range (0 to maxStage - 1)
-                this.currentStage = Math.max(0, Math.min(data.currentStage, this.maxStage - 1))
-            }
-            if (typeof data.selectedStage === 'number') {
-                // Clamp selectedStage to valid range (0 to currentStage)
-                this.selectedStage = Math.max(0, Math.min(data.selectedStage, this.currentStage))
-            }
-            if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
-            if (Array.isArray(data.characters)) {
-                data.characters.forEach(saved => {
-                    const char = this.getChar(saved.id)
-                    if (char) {
-                        if (typeof saved.level === 'number') {
-                            char.level = Math.max(1, saved.level)
-                        }
-                        // Handle both old (skillLevel) and new (skill1Level, skill2Level) formats
-                        if (typeof saved.skill1Level === 'number') {
-                            char.skill1Level = Math.max(1, saved.skill1Level)
-                        }
-                        if (typeof saved.skill2Level === 'number') {
-                            char.skill2Level = Math.max(1, saved.skill2Level)
-                        }
-                        // Legacy support for old saves
-                        if (typeof saved.skillLevel === 'number') {
-                            if (!char.skill1Level) char.skill1Level = Math.max(1, saved.skillLevel)
-                            else if (!char.skill2Level) char.skill2Level = Math.max(1, saved.skillLevel)
-                        }
-                        if (saved.equipment && typeof saved.equipment === 'object') {
-                            char.equipment = { ...char.equipment, ...saved.equipment }
-                        }
+            methods: {
+
+                // Language system
+                t(key) {
+                    const translation = UI_TRANSLATIONS[key]
+                    if (!translation) return key
+                    return translation[this.currentLang] || key
+                },
+
+                toggleLang() {
+                    this.currentLang = this.currentLang === 'en' ? 'zh' : 'en'
+                    localStorage.setItem('voyager_lang', this.currentLang)
+                },
+
+                getSkillDesc(char, slot = 1) {
+                    const skillId = slot === 1 ? char.skill1Id : char.skill2Id
+                    const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
+                    if (!skillId) return this.t('None')
+                    const skill = SKILLS[skillId]
+                    if (!skill) return ''
+                    const data = skill.levels[skillLevel]
+                    if (!data) return ''
+                    return getTranslatedSkillDescription(skill.type, data, this.currentLang)
+                },
+
+                getSkillNextDesc(char, slot = 1) {
+                    const skillId = slot === 1 ? char.skill1Id : char.skill2Id
+                    const skillLevel = slot === 1 ? (char.skill1Level || 1) : (char.skill2Level || 1)
+                    if (!skillId) return ''
+                    const skill = SKILLS[skillId]
+                    if (!skill) return ''
+                    const nextLevel = skillLevel + 1
+                    if (nextLevel > 10) return ''
+                    const data = skill.levels[nextLevel]
+                    if (!data) return ''
+                    return getTranslatedSkillDescription(skill.type, data, this.currentLang)
+                },
+
+                getCharName(id) {
+                    const c = this.getChar(id)
+                    if (!c) return null
+                    return this.currentLang === 'zh' ? (c.nameZh || c.name) : c.name
+                },
+
+                getChar(id) {
+                    return this.characters.find(c => c.id === id)
+                },
+
+                toggleTeam(id) {
+                    const index = this.team.indexOf(id)
+                    if (index !== -1) {
+                        this.team[index] = null
+                        this.autoSaveGame()
+                        return
                     }
-                })
-            }
-        },
+                    const empty = this.team.indexOf(null)
+                    if (empty !== -1) {
+                        this.team[empty] = id
+                    }
+                    this.autoSaveGame()
+                },
 
-        triggerLoad() {
-            this.$refs.saveInput.click()
-        },
+                selectChar(id) {
+                    this.selectedChar = this.selectedChar === id ? null : id
+                },
 
-        confirmReset() {
-            // Reset all game state to initial values
-            this.gold = 0
-            this.exp = 0
-            this.afkGold = 0
-            this.afkExp = 0
-            this.diamond = 0
-            this.diamondTimer = 0
-            this.currentStage = 0
-            this.selectedStage = 0
-            this.team = [null, null, null, null, null]
+                getNextLevelInfo(char) {
+                    if (!char) return null
+                    return this.levels.find(level => level.level === char.level + 1) || null
+                },
 
-            // Reset all characters to initial state
-            this.characters.forEach(char => {
-                char.level = 1
-                char.skill1Level = 1
-                char.skill2Level = 1
-                char.equipment = {
-                    weapon: 0,
-                    helmet: 0,
-                    armor: 0,
-                    vambraces: 0,
-                    boots: 0,
-                    accessories: 0
-                }
-            })
+                canLevelUp(char) {
+                    const next = this.getNextLevelInfo(char)
+                    return next ? this.exp >= next.exp : false
+                },
 
-            this.selectedChar = null
-            this.selectedEquipment = null
-            this.showResetModal = false
-
-            // Clear localStorage autosave
-            localStorage.removeItem('voyager_autosave')
-        },
-
-        loadGameFile(event) {
-            const file = event.target.files[0]
-            if (!file) return
-            const reader = new FileReader()
-            reader.onload = () => {
-                try {
-                    const data = JSON.parse(reader.result)
-                    this.applySaveData(data)
-                    this.selectedChar = null
-                    this.inBattle = false
-                    this.battleStatus = null
-                } catch (error) {
-                    alert(this.t('Failed to load save file. Please pick a valid game save.'))
-                }
-            }
-            reader.readAsText(file)
-            event.target.value = ''
-        },
-
-        startBattle() {
-            // Prevent starting battle if in progress or stage is locked
-            if (this.battleLoop) return
-            // Validate selected stage is within unlocked range
-            if (this.selectedStage === null || this.selectedStage > this.currentStage || this.selectedStage >= this.maxStage) {
-                return
-            }
-
-            // Clear any existing battle loop
-            if (this.battleLoop) {
-                clearInterval(this.battleLoop)
-                this.battleLoop = null
-            }
-
-            this.playerUnits = this.team
-                .filter(Boolean)
-                .map(id => {
+                levelUpChar(id) {
                     const char = this.getChar(id)
+                    if (!char) return
+                    const next = this.getNextLevelInfo(char)
+                    if (!next) return
+                    if (this.exp < next.exp) return
+                    this.exp -= next.exp
+                    char.level = Math.min(char.level + 1, this.levels[this.levels.length - 1].level)
+                    this.autoSaveGame()
+                },
+
+                selectEquipment(slot) {
+                    this.selectedEquipment = this.selectedEquipment === slot ? null : slot
+                },
+
+                getEquipmentUpgrade(char, slot) {
+                    if (!char || !char.equipment || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+                    const currentLevel = char.equipment[slot] || 0
+                    return EQUIPMENT_UPGRADES[slot].upgrades[currentLevel] || null
+                },
+
+                getEquipmentAttributeText(slot, level) {
+                    if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
+                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
+                    if (!upgrade) return ''
+                    const stat = EQUIPMENT_UPGRADES[slot].stat
+                    const label = this.t(stat.toUpperCase())
+                    return `+${upgrade.bonus} ${label}`
+                },
+
+                canUpgradeEquipment(char, slot) {
+                    const upgrade = this.getEquipmentUpgrade(char, slot)
+                    return upgrade ? this.gold >= upgrade.cost : false
+                },
+
+                upgradeEquipment(charId, slot) {
+                    const char = this.getChar(charId)
+                    if (!char || !char.equipment) return
+                    if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return
+                    const currentLevel = char.equipment[slot] || 0
+                    const maxLevel = EQUIPMENT_UPGRADES[slot].upgrades.length
+                    if (currentLevel >= maxLevel) return
+                    const upgrade = this.getEquipmentUpgrade(char, slot)
+                    if (!upgrade) return
+                    if (this.gold < upgrade.cost) return
+                    this.gold -= upgrade.cost
+                    char.equipment[slot] = currentLevel + 1
+                    this.autoSaveGame()
+                },
+
+                getSkillUpgradeInfo(char, slot = 1) {
+                    return getCharSkillInfo(char, slot)
+                },
+
+                canUpgradeSkill(char, slot = 1) {
+                    const upgrade = getCharSkillInfo(char, slot)
+                    return upgrade ? this.diamond >= upgrade.cost : false
+                },
+
+                getSkillEffect(char, slot = 1) {
+                    return getCharSkillEffect(char, slot)
+                },
+
+                upgradeSkill(charId, slot = 1) {
+                    const char = this.getChar(charId)
+                    const upgrade = getCharSkillInfo(char, slot)
+                    if (!upgrade) return
+                    if (this.diamond < upgrade.cost) return
+                    this.diamond -= upgrade.cost
+                    char['skill' + slot + 'Level'] = (char['skill' + slot + 'Level'] || 1) + 1
+                    this.autoSaveGame()
+                },
+
+                getLevelUpPreview(char) {
+                    if (!char) return []
+                    const next = this.getNextLevelInfo(char)
+                    if (!next) return []
+                    const currHp = this.getCharEffective(char).hp
+                    const currAtk = this.getCharEffective(char).atk
+                    const currDef = this.getCharEffective(char).def
+                    const currSpd = this.getCharEffective(char).spd
+                    const nextLevel = char.level + 1
+                    const statMultiplier = 1 + 0.12 * (nextLevel - 1)
+                    const speedMultiplier = 1 + 0.05 * (nextLevel - 1)
+                    const baseHp = char.hp + this.getEquipBonusForStat(char, 'hp')
+                    const baseAtk = char.atk + this.getEquipBonusForStat(char, 'atk')
+                    const baseDef = char.def + this.getEquipBonusForStat(char, 'def')
+                    const baseSpd = char.spd + this.getEquipBonusForStat(char, 'spd')
+                    const newHp = Math.round(baseHp * statMultiplier)
+                    const newAtk = Math.round(baseAtk * statMultiplier)
+                    const newDef = Math.round(baseDef * statMultiplier)
+                    const newSpd = Math.max(1, Math.round(baseSpd * speedMultiplier))
+                    return [
+                        { label: 'HP', curr: currHp, next: newHp },
+                        { label: 'ATK', curr: currAtk, next: newAtk },
+                        { label: 'DEF', curr: currDef, next: newDef },
+                        { label: 'SPD', curr: currSpd, next: newSpd }
+                    ]
+                },
+
+                getSkillUpgradePreview(char, slot = 1) {
+                    return getCharNextSkillEffect(char, slot)
+                },
+
+                getEquipUpgradePreview(char, slot) {
+                    if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+                    const currentLevel = char.equipment[slot] || 0
+                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
+                    if (!upgrade) return null
+                    const stat = EQUIPMENT_UPGRADES[slot].stat
+                    const label = this.t(stat.toUpperCase())
                     const effective = this.getCharEffective(char)
-                    const skill1 = getCharSkill(char, 1)
-                    const skill2 = getCharSkill(char, 2)
-                    const displayName = this.currentLang === 'zh' ? (char.nameZh || char.name) : char.name
+                    let currentVal = effective[stat]
+                    let newVal = currentVal + upgrade.bonus
+                    if (stat === 'critChance') {
+                        currentVal = Math.round(effective[stat] * 100) + '%'
+                        newVal = Math.round((effective[stat] + upgrade.bonus / 100) * 100) + '%'
+                    }
+                    return { label, bonus: upgrade.bonus, currentVal, newVal, stat }
+                },
+
+                getEquipUpgradeCharStats(char, slot) {
+                    if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return null
+                    const currentLevel = char.equipment[slot] || 0
+                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[currentLevel]
+                    if (!upgrade) return null
+                    const stat = EQUIPMENT_UPGRADES[slot].stat
+                    const newChar = JSON.parse(JSON.stringify(char))
+                    newChar.equipment[slot] = currentLevel + 1
+                    const newEffective = this.getCharEffective(newChar)
                     return {
-                        id: char.id,
-                        name: char.name,
-                        displayName: displayName,
-                        skills: [skill1, skill2].filter(Boolean),
-                        skillCooldowns: [0, 0], // Track cooldown for each skill slot (0 = ready)
-                        baseAtk: effective.atk,
-                        baseDef: effective.def,
-                        baseSpd: effective.spd,
-                        baseHp: effective.hp,
-                        baseCritChance: effective.critChance,
-                        baseDefReduce: effective.defReduce,
-                        atk: effective.atk,
-                        def: effective.def,
-                        spd: effective.spd,
-                        hp: effective.hp,
-                        critChance: effective.critChance,
-                        defReduce: effective.defReduce,
+                        hp: newEffective.hp,
+                        atk: newEffective.atk,
+                        def: newEffective.def,
+                        spd: newEffective.spd
+                    }
+                },
+
+                getEquipCurrentBonus(char, slot) {
+                    if (!char || !slot || !EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return 0
+                    const level = char.equipment[slot] || 0
+                    if (level === 0) return 0
+                    const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
+                    return upgrade ? upgrade.bonus : 0
+                },
+
+                getEquipBonusForStat(char, statName) {
+                    if (!char || !char.equipment || !EQUIPMENT_UPGRADES) return 0
+                    let bonus = 0
+                    Object.entries(char.equipment).forEach(([slot, level]) => {
+                        if (level > 0 && EQUIPMENT_UPGRADES[slot] && EQUIPMENT_UPGRADES[slot].stat === statName) {
+                            const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level]
+                            if (upgrade) bonus += upgrade.bonus
+                        }
+                    })
+                    return bonus
+                },
+
+                getEquipStatLabel(slot) {
+                    if (!EQUIPMENT_UPGRADES || !EQUIPMENT_UPGRADES[slot]) return ''
+                    const stat = EQUIPMENT_UPGRADES[slot].stat
+                    return this.t(stat.toUpperCase())
+                },
+
+                getBattleForce(char) {
+                    if (!char) return 0
+                    const effective = this.getCharEffective(char)
+                    return Math.round(
+                        effective.hp * this.BF_HP +
+                        effective.atk * this.BF_ATK +
+                        effective.def * this.BF_DEF +
+                        effective.spd * this.BF_SPD +
+                        effective.critChance * 100 * this.BF_CRIT +
+                        effective.defReduce * this.BF_DEFR
+                    )
+                },
+
+                getSkillDisplay(side, index) {
+                    return this.skillDisplays[side + index] || null
+                },
+                getHpChange(side, index) {
+                    return this.hpChanges[side + index] || null
+                },
+                getStageStory(stageIndex) {
+                    return getStageStory(this.stages[stageIndex].id)
+                },
+
+                getCharEffective(char) {
+                    if (!char) return null
+                    const level = char.level || 1
+                    const statMultiplier = 1 + 0.12 * (level - 1)
+                    const speedMultiplier = 1 + 0.06 * (level - 1)
+
+                    // Calculate equipment bonuses
+                    let equipmentBonus = { atk: 0, def: 0, hp: 0, spd: 0, critChance: 0, defReduce: 0 }
+                    if (char.equipment && EQUIPMENT_UPGRADES) {
+                        Object.entries(char.equipment).forEach(([slot, level]) => {
+                            if (level > 0 && EQUIPMENT_UPGRADES[slot]) {
+                                const upgrade = EQUIPMENT_UPGRADES[slot].upgrades[level - 1]
+                                if (upgrade) {
+                                    const stat = EQUIPMENT_UPGRADES[slot].stat
+                                    if (equipmentBonus.hasOwnProperty(stat)) {
+                                        equipmentBonus[stat] += upgrade.bonus
+                                    }
+                                }
+                            }
+                        })
+                    }
+
+                    return {
+                        ...char,
+                        atk: Math.round(char.atk * statMultiplier) + equipmentBonus.atk,
+                        def: Math.round(char.def * statMultiplier) + equipmentBonus.def,
+                        hp: Math.round(char.hp * statMultiplier) + equipmentBonus.hp,
+                        spd: Math.max(1, Math.round(char.spd * speedMultiplier) + equipmentBonus.spd),
+                        critChance: Math.min(1, (char.critChance || 0) + equipmentBonus.critChance / 100),
+                        defReduce: (char.defReduce || 0) + equipmentBonus.defReduce
+                    }
+                },
+
+                refreshUnitStats(unit) {
+                    const atkMult = unit.buffs.reduce((mult, buff) => mult * (buff.atkMult || 1), 1)
+                    const defMult = unit.buffs.reduce((mult, buff) => mult * (buff.defMult || 1), 1)
+                    const spdMult = unit.buffs.reduce((mult, buff) => mult * (buff.spdMult || 1), 1)
+
+                    // Apply debuffs (enemy debuffs reduce stats)
+                    const debuffAtkMult = unit.debuffs.reduce((mult, d) => mult * (d.atkMult || 1), 1)
+                    const debuffDefMult = unit.debuffs.reduce((mult, d) => mult * (d.defMult || 1), 1)
+                    const debuffSpdMult = unit.debuffs.reduce((mult, d) => mult * (d.spdMult || 1), 1)
+
+                    unit.atk = Math.max(1, Math.round(unit.baseAtk * atkMult * debuffAtkMult))
+                    unit.def = Math.max(0, Math.round(unit.baseDef * defMult * debuffDefMult))
+                    unit.spd = Math.max(1, Math.round(unit.baseSpd * spdMult * debuffSpdMult))
+
+                    // Apply crit buff
+                    const critBonus = unit.buffs.reduce((bonus, buff) => bonus + (buff.critBonus || 0), 0)
+                    unit.critChance = Math.min(1, unit.baseCritChance + critBonus)
+
+                    unit.defReduce = unit.baseDefReduce
+                },
+
+                applyBuff(unit, buff) {
+                    unit.buffs.push({ ...buff })
+                    this.refreshUnitStats(unit)
+                },
+
+                applyDebuff(unit, debuff) {
+                    unit.debuffs.push({ ...debuff })
+                    this.refreshUnitStats(unit)
+                },
+
+                getUnitStatBreakdown(unit) {
+                    // True base stats (no buffs/debuffs)
+                    const trueBaseAtk = unit.baseAtk
+                    const trueBaseDef = unit.baseDef
+                    const trueBaseSpd = unit.baseSpd
+                    const trueBaseCrit = unit.baseCritChance
+
+                    // Calculate differences from true base
+                    const atkDiff = unit.atk - trueBaseAtk
+                    const defDiff = unit.def - trueBaseDef
+                    const spdDiff = unit.spd - trueBaseSpd
+                    const critDiff = Math.round((unit.critChance - trueBaseCrit) * 100)
+
+                    // Check if any buffs/debuffs are active
+                    const hasBuffs = unit.buffs && unit.buffs.length > 0
+                    const hasDebuffs = unit.debuffs && unit.debuffs.length > 0
+
+                    return {
+                        hasBuffs,
+                        hasDebuffs,
+                        atkDiff,
+                        defDiff,
+                        spdDiff,
+                        critDiff
+                    }
+                },
+
+                getStatClass(diff) {
+                    if (diff > 0) return 'stat-up'
+                    if (diff < 0) return 'stat-down'
+                    return ''
+                },
+
+                tickUnitBuffs(unit) {
+                    unit.buffs = unit.buffs
+                        .map(buff => ({ ...buff, duration: buff.duration - 1 }))
+                        .filter(buff => buff.duration > 0)
+                    this.refreshUnitStats(unit)
+                },
+
+                tickUnitDebuffs(unit) {
+                    // Apply poison DOT damage before decrementing duration
+                    this.applyPoisonDamage(unit)
+
+                    unit.debuffs = unit.debuffs
+                        .map(d => ({ ...d, duration: d.duration - 1 }))
+                        .filter(d => d.duration > 0)
+                    this.refreshUnitStats(unit)
+                },
+
+                getHealMultiplier(unit) {
+                    const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
+                    return antihealDebuff ? antihealDebuff.healMult : 1
+                },
+
+                applyPoisonDamage(unit) {
+                    const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+                    poisonDebuffs.forEach(poison => {
+                        const dmg = Math.round(unit.baseHp * poison.dmgPct)
+                        unit.hp = Math.max(0, unit.hp - dmg)
+                    })
+                },
+
+                applyPoisonDamageWithDisplay(unit, action) {
+                    const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+                    poisonDebuffs.forEach(poison => {
+                        const dmg = Math.round(unit.baseHp * poison.dmgPct)
+                        const oldHp = unit.hp
+                        unit.hp = Math.max(0, unit.hp - dmg)
+                        const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
+                        this.hpChanges[key] = unit.hp - oldHp
+                    })
+                },
+
+                getPoisonTurns(unit) {
+                    if (!unit.debuffs) return 0
+                    const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+                    return poisonDebuffs.reduce((sum, p) => sum + p.duration, 0)
+                },
+
+                getAntihealTurns(unit) {
+                    if (!unit.debuffs) return 0
+                    const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
+                    return antihealDebuff ? antihealDebuff.duration : 0
+                },
+
+                saveGame() {
+                    const saveData = {
+                        gold: this.gold,
+                        exp: this.exp,
+                        afkGold: this.afkGold,
+                        afkExp: this.afkExp,
+                        diamond: this.diamond,
+                        currentStage: this.currentStage,
+                        selectedStage: this.selectedStage,
+                        team: this.team,
+                        characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
+                    }
+                    const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'text/plain;charset=utf-8' })
+                    const url = URL.createObjectURL(blob)
+                    const link = document.createElement('a')
+                    link.href = url
+                    link.download = this.saveFileName
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                    URL.revokeObjectURL(url)
+                },
+
+                autoSaveGame() {
+                    const saveData = {
+                        gold: this.gold,
+                        exp: this.exp,
+                        afkGold: this.afkGold,
+                        afkExp: this.afkExp,
+                        diamond: this.diamond,
+                        currentStage: this.currentStage,
+                        selectedStage: this.selectedStage,
+                        team: this.team,
+                        characters: this.characters.map(c => ({ id: c.id, level: c.level, skill1Level: c.skill1Level, skill2Level: c.skill2Level, equipment: c.equipment }))
+                    }
+                    localStorage.setItem('voyager_autosave', JSON.stringify(saveData))
+                },
+
+                loadAutoSave() {
+                    const saved = localStorage.getItem('voyager_autosave')
+                    if (saved) {
+                        try {
+                            this.applySaveData(JSON.parse(saved))
+                        } catch (error) {
+                            console.warn('Failed to parse autosave from localStorage:', error)
+                        }
+                    }
+                },
+
+                applySaveData(data) {
+                    if (typeof data.gold === 'number') this.gold = data.gold
+                    if (typeof data.exp === 'number') this.exp = data.exp
+                    if (typeof data.afkGold === 'number') this.afkGold = data.afkGold
+                    if (typeof data.afkExp === 'number') this.afkExp = data.afkExp
+                    if (typeof data.diamond === 'number') this.diamond = data.diamond
+                    if (typeof data.currentStage === 'number') {
+                        // Clamp currentStage to valid range (0 to maxStage - 1)
+                        this.currentStage = Math.max(0, Math.min(data.currentStage, this.maxStage - 1))
+                    }
+                    if (typeof data.selectedStage === 'number') {
+                        // Clamp selectedStage to valid range (0 to currentStage)
+                        this.selectedStage = Math.max(0, Math.min(data.selectedStage, this.currentStage))
+                    }
+                    if (Array.isArray(data.team)) this.team = data.team.slice(0, 5)
+                    if (Array.isArray(data.characters)) {
+                        data.characters.forEach(saved => {
+                            const char = this.getChar(saved.id)
+                            if (char) {
+                                if (typeof saved.level === 'number') {
+                                    char.level = Math.max(1, saved.level)
+                                }
+                                // Handle both old (skillLevel) and new (skill1Level, skill2Level) formats
+                                if (typeof saved.skill1Level === 'number') {
+                                    char.skill1Level = Math.max(1, saved.skill1Level)
+                                }
+                                if (typeof saved.skill2Level === 'number') {
+                                    char.skill2Level = Math.max(1, saved.skill2Level)
+                                }
+                                // Legacy support for old saves
+                                if (typeof saved.skillLevel === 'number') {
+                                    if (!char.skill1Level) char.skill1Level = Math.max(1, saved.skillLevel)
+                                    else if (!char.skill2Level) char.skill2Level = Math.max(1, saved.skillLevel)
+                                }
+                                if (saved.equipment && typeof saved.equipment === 'object') {
+                                    char.equipment = { ...char.equipment, ...saved.equipment }
+                                }
+                            }
+                        })
+                    }
+                },
+
+                triggerLoad() {
+                    this.$refs.saveInput.click()
+                },
+
+                confirmReset() {
+                    // Reset all game state to initial values
+                    this.gold = 0
+                    this.exp = 0
+                    this.afkGold = 0
+                    this.afkExp = 0
+                    this.diamond = 0
+                    this.diamondTimer = 0
+                    this.currentStage = 0
+                    this.selectedStage = 0
+                    this.team = [null, null, null, null, null]
+
+                    // Reset all characters to initial state
+                    this.characters.forEach(char => {
+                        char.level = 1
+                        char.skill1Level = 1
+                        char.skill2Level = 1
+                        char.equipment = {
+                            weapon: 0,
+                            helmet: 0,
+                            armor: 0,
+                            vambraces: 0,
+                            boots: 0,
+                            accessories: 0
+                        }
+                    })
+
+                    this.selectedChar = null
+                    this.selectedEquipment = null
+                    this.showResetModal = false
+
+                    // Clear localStorage autosave
+                    localStorage.removeItem('voyager_autosave')
+                },
+
+                loadGameFile(event) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        try {
+                            const data = JSON.parse(reader.result)
+                            this.applySaveData(data)
+                            this.selectedChar = null
+                            this.inBattle = false
+                            this.battleStatus = null
+                        } catch (error) {
+                            alert(this.t('Failed to load save file. Please pick a valid game save.'))
+                        }
+                    }
+                    reader.readAsText(file)
+                    event.target.value = ''
+                },
+
+                startBattle() {
+                    // Prevent starting battle if in progress or stage is locked
+                    if (this.battleLoop) return
+                    // Validate selected stage is within unlocked range
+                    if (this.selectedStage === null || this.selectedStage > this.currentStage || this.selectedStage >= this.maxStage) {
+                        return
+                    }
+
+                    // Clear any existing battle loop
+                    if (this.battleLoop) {
+                        clearInterval(this.battleLoop)
+                        this.battleLoop = null
+                    }
+
+                    this.playerUnits = this.team
+                        .filter(Boolean)
+                        .map(id => {
+                            const char = this.getChar(id)
+                            const effective = this.getCharEffective(char)
+                            const skill1 = getCharSkill(char, 1)
+                            const skill2 = getCharSkill(char, 2)
+                            const displayName = this.currentLang === 'zh' ? (char.nameZh || char.name) : char.name
+                            return {
+                                id: char.id,
+                                name: char.name,
+                                displayName: displayName,
+                                skills: [skill1, skill2].filter(Boolean),
+                                skillCooldowns: [0, 0], // Track cooldown for each skill slot (0 = ready)
+                                baseAtk: effective.atk,
+                                baseDef: effective.def,
+                                baseSpd: effective.spd,
+                                baseHp: effective.hp,
+                                baseCritChance: effective.critChance,
+                                baseDefReduce: effective.defReduce,
+                                atk: effective.atk,
+                                def: effective.def,
+                                spd: effective.spd,
+                                hp: effective.hp,
+                                critChance: effective.critChance,
+                                defReduce: effective.defReduce,
+                                buffs: [],
+                                stunnedTurns: 0,
+                                tauntTurns: 0,
+                                shieldBlocks: 0,
+                                debuffs: [],
+                                currentSkill: null,
+                                side: 'p'
+                            }
+                        })
+
+                    const enemyTeam = this.enemies.find(e => e.id === this.stages[this.selectedStage].enemyTeamId)
+                    this.enemyUnits = enemyTeam.members.map(e => ({
+                        ...e,
+                        baseAtk: e.atk,
+                        baseDef: e.def,
+                        baseSpd: e.spd,
+                        baseHp: e.hp,
+                        baseCritChance: e.critChance || 0.05,
+                        baseDefReduce: e.defReduce || Math.round(e.def * 0.1),
+                        critChance: e.critChance || 0.05,
+                        defReduce: e.defReduce || Math.round(e.def * 0.1),
                         buffs: [],
                         stunnedTurns: 0,
                         tauntTurns: 0,
                         shieldBlocks: 0,
                         debuffs: [],
                         currentSkill: null,
-                        side: 'p'
-                    }
-                })
+                        skillCooldowns: (e.skills || []).map(() => 0),
+                        side: 'e'
+                    }))
 
-            const enemyTeam = this.enemies.find(e => e.id === this.stages[this.selectedStage].enemyTeamId)
-            this.enemyUnits = enemyTeam.members.map(e => ({
-                ...e,
-                baseAtk: e.atk,
-                baseDef: e.def,
-                baseSpd: e.spd,
-                baseHp: e.hp,
-                baseCritChance: e.critChance || 0.05,
-                baseDefReduce: e.defReduce || Math.round(e.def * 0.1),
-                critChance: e.critChance || 0.05,
-                defReduce: e.defReduce || Math.round(e.def * 0.1),
-                buffs: [],
-                stunnedTurns: 0,
-                tauntTurns: 0,
-                shieldBlocks: 0,
-                debuffs: [],
-                currentSkill: null,
-                skillCooldowns: (e.skills || []).map(() => 0),
-                side: 'e'
-            }))
+                    this.turnNumber = 1
+                    this.battleStatus = null
+                    this.actingUnit = null
+                    this.battleActionOrder = null
+                    this.battleActionIndex = 0
+                    this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+                    this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+                    this.inBattle = true
 
-            this.turnNumber = 1
-            this.battleStatus = null
-            this.actingUnit = null
-            this.battleActionOrder = null
-            this.battleActionIndex = 0
-            this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
-            this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
-            this.inBattle = true
+                    this.runBattle()
+                },
 
-            this.runBattle()
-        },
-
-        closeBattle() {
-            this.inBattle = false
-            this.battleStatus = null
-            this.actingUnit = null
-            // Clear battle loop if still running
-            if (this.battleLoop) {
-                clearInterval(this.battleLoop)
-                this.battleLoop = null
-            }
-            // Ensure selectedStage stays within unlocked stages
-            this.selectedStage = Math.min(this.selectedStage, this.currentStage)
-        },
-
-        runBattle() {
-            // Prevent multiple battle loops
-            if (this.battleLoop) {
-                clearInterval(this.battleLoop)
-            }
-
-            this.battleLoop = setInterval(() => {
-                // Exit early if battle already ended
-                if (this.battleStatus) {
+                closeBattle() {
+                    this.inBattle = false
+                    this.battleStatus = null
+                    this.actingUnit = null
+                    // Clear battle loop if still running
                     if (this.battleLoop) {
                         clearInterval(this.battleLoop)
                         this.battleLoop = null
                     }
-                    return
-                }
-
-                // Clear battle loop reference when loop ends
-                if (!this.inBattle) {
-                    clearInterval(this.battleLoop)
-                    this.battleLoop = null
-                    return
-                }
-
-                if (this.isAllDead(this.playerUnits)) {
-                    this.battleStatus = 'lose'
-                    this.clearBattleHighlight()
-                    return
-                }
-
-                if (this.isAllDead(this.enemyUnits)) {
-                    this.battleStatus = 'win'
-                    const drop = this.stages[this.selectedStage].drops || { gold: 10, exp: 5, diamond: 0 }
-                    this.gold += drop.gold
-                    this.exp += drop.exp
-                    if (drop.diamond) {
-                        this.diamond += drop.diamond
-                    }
-                    // Only unlock next stage if clearing the highest unlocked stage
-                    if (this.selectedStage === this.currentStage && this.currentStage < this.maxStage - 1) {
-                        this.currentStage++
-                        this.selectedStage = this.currentStage
-                    }
-                    // Clamp selectedStage to valid range after stage progression
+                    // Ensure selectedStage stays within unlocked stages
                     this.selectedStage = Math.min(this.selectedStage, this.currentStage)
-                    this.autoSaveGame()
-                    this.clearBattleHighlight()
-                    return
-                }
+                },
 
-                // Build action order only when turnNumber changes
-                if (!this.battleActionOrder || this.battleActionIndex >= this.battleActionOrder.length) {
-                    // Create new action order for this "turn" - keep references to original units
-                    // Only include living units
-                    let all = [
-                        ...this.playerUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "p", unitIndex: this.playerUnits.indexOf(u) })),
-                        ...this.enemyUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "e", unitIndex: this.enemyUnits.indexOf(u) }))
-                    ]
-
-                    // Sort by speed
-                    all.sort((a, b) => {
-                        const aSpd = a.unitRef.spd + (a.unitRef.buffs?.reduce((sum, b) => sum + (b.spdMult || 0), 0) || 0)
-                        const bSpd = b.unitRef.spd + (b.unitRef.buffs?.reduce((sum, b) => sum + (b.spdMult || 0), 0) || 0)
-                        if (bSpd !== aSpd) return bSpd - aSpd
-                        return Math.random() > 0.5 ? 1 : -1
-                    })
-
-                    // Store the action order with unit references
-                    this.battleActionOrder = all
-                    this.battleActionIndex = 0
-                    this.turnNumber++
-                }
-
-                // Get the next living unit to act
-                let action = null
-                while (this.battleActionIndex < this.battleActionOrder.length) {
-                    const potentialAction = this.battleActionOrder[this.battleActionIndex]
-                    // Only accept living units (check unitRef for current HP)
-                    if (potentialAction.unitRef.hp > 0) {
-                        action = potentialAction
-                        this.battleActionIndex++
-                        break
-                    } else {
-                        // Remove dead unit from action order and move to next
-                        this.battleActionOrder.splice(this.battleActionIndex, 1)
+                runBattle() {
+                    // Prevent multiple battle loops
+                    if (this.battleLoop) {
+                        clearInterval(this.battleLoop)
                     }
-                }
 
-                // No living units left
-                if (!action) {
-                    // Check if battle ended
-                    if (this.isAllDead(this.enemyUnits)) {
-                        this.battleStatus = 'win'
-                        this.clearBattleHighlight()
-                    } else if (this.isAllDead(this.playerUnits)) {
-                        this.battleStatus = 'lose'
-                        this.clearBattleHighlight()
-                    } else {
-                        // No living units but battle not over - rebuild action order
-                        this.battleActionOrder = null
-                    }
-                    return
-                }
+                    this.battleLoop = setInterval(() => {
+                        // Exit early if battle already ended
+                        if (this.battleStatus) {
+                            if (this.battleLoop) {
+                                clearInterval(this.battleLoop)
+                                this.battleLoop = null
+                            }
+                            return
+                        }
 
-                const unit = action.unitRef
+                        // Clear battle loop reference when loop ends
+                        if (!this.inBattle) {
+                            clearInterval(this.battleLoop)
+                            this.battleLoop = null
+                            return
+                        }
 
-                // Clear previous skill display
-                this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
-                this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
-
-                // Apply poison DOT damage before the unit acts (even if stunned)
-                this.applyPoisonDamageWithDisplay(unit, action)
-
-                // Check if unit died from poison
-                if (unit.hp <= 0) {
-                    // Check for battle end
-                    if (this.isAllDead(this.enemyUnits)) {
-                        this.battleStatus = 'win'
-                        this.clearBattleHighlight()
-                    } else if (this.isAllDead(this.playerUnits)) {
-                        this.battleStatus = 'lose'
-                        this.clearBattleHighlight()
-                    }
-                    // Don't mark as acting or add highlight for dead units
-                    return
-                }
-
-                // Handle stunned units - still show highlight but skip action
-                if (unit.stunnedTurns > 0) {
-                    unit.stunnedTurns--
-                    // Mark this unit as acting (stunned)
-                    this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
-                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                        el.classList.remove('unit-acting')
-                    })
-                    const actingSide = action.side === "p" ? "player" : "enemy"
-                    const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
-                    const actingEl = document.querySelector(selector)
-                    if (actingEl) {
-                        actingEl.classList.add('unit-acting')
-                    }
-                    return
-                }
-
-                // Tick taunt
-                if (unit.tauntTurns > 0) {
-                    unit.tauntTurns--
-                }
-
-                // Mark this unit as acting
-                this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
-
-                // Directly update DOM for highlight (bypass Vue reactivity issues)
-                document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                    el.classList.remove('unit-acting')
-                })
-                const actingSide = action.side === "p" ? "player" : "enemy"
-                const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
-                const actingEl = document.querySelector(selector)
-                if (actingEl) {
-                    actingEl.classList.add('unit-acting')
-                }
-
-                // Execute unit action
-                {
-                    const targets = action.side === "p" ? this.enemyUnits : this.playerUnits
-                    let aliveTargets = targets.filter(t => t.hp > 0)
-                    if (!aliveTargets.length) {
-                        // Check for battle end
-                        if (this.isAllDead(this.enemyUnits)) {
-                            this.battleStatus = 'win'
-                            this.clearBattleHighlight()
-                        } else if (this.isAllDead(this.playerUnits)) {
+                        if (this.isAllDead(this.playerUnits)) {
                             this.battleStatus = 'lose'
                             this.clearBattleHighlight()
+                            return
                         }
-                        return
-                    }
 
-                    // Check skills - find skills with cooldown 0 (ready to use)
-                    let usedSkill = false
-                    let usedSkillSlot = -1
-                    if (unit.skills && unit.skills.length > 0) {
-                        // Find all skills with cooldown === 0 (ready)
-                        const readySkillIndices = []
-                        unit.skills.forEach((skill, index) => {
-                            const skillObj = typeof skill === 'string' ? getEnemySkill(skill) : skill
-                            if (skillObj && unit.skillCooldowns[index] === 0) {
-                                readySkillIndices.push(index)
+                        if (this.isAllDead(this.enemyUnits)) {
+                            this.battleStatus = 'win'
+                            const drop = this.stages[this.selectedStage].drops || { gold: 10, exp: 5, diamond: 0 }
+                            this.gold += drop.gold
+                            this.exp += drop.exp
+                            if (drop.diamond) {
+                                this.diamond += drop.diamond
                             }
+                            // Only unlock next stage if clearing the highest unlocked stage
+                            if (this.selectedStage === this.currentStage && this.currentStage < this.maxStage - 1) {
+                                this.currentStage++
+                                this.selectedStage = this.currentStage
+                            }
+                            // Clamp selectedStage to valid range after stage progression
+                            this.selectedStage = Math.min(this.selectedStage, this.currentStage)
+                            this.autoSaveGame()
+                            this.clearBattleHighlight()
+                            return
+                        }
+
+                        // Build action order only when turnNumber changes
+                        if (!this.battleActionOrder || this.battleActionIndex >= this.battleActionOrder.length) {
+                            // Create new action order for this "turn" - keep references to original units
+                            // Only include living units
+                            let all = [
+                                ...this.playerUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "p", unitIndex: this.playerUnits.indexOf(u) })),
+                                ...this.enemyUnits.filter(u => u.hp > 0).map((u, idx) => ({ unitRef: u, side: "e", unitIndex: this.enemyUnits.indexOf(u) }))
+                            ]
+
+                            // Sort by speed
+                            all.sort((a, b) => {
+                                const aSpd = a.unitRef.spd + (a.unitRef.buffs?.reduce((sum, b) => sum + (b.spdMult || 0), 0) || 0)
+                                const bSpd = b.unitRef.spd + (b.unitRef.buffs?.reduce((sum, b) => sum + (b.spdMult || 0), 0) || 0)
+                                if (bSpd !== aSpd) return bSpd - aSpd
+                                return Math.random() > 0.5 ? 1 : -1
+                            })
+
+                            // Store the action order with unit references
+                            this.battleActionOrder = all
+                            this.battleActionIndex = 0
+                            this.turnNumber++
+                        }
+
+                        // Get the next living unit to act
+                        let action = null
+                        while (this.battleActionIndex < this.battleActionOrder.length) {
+                            const potentialAction = this.battleActionOrder[this.battleActionIndex]
+                            // Only accept living units (check unitRef for current HP)
+                            if (potentialAction.unitRef.hp > 0) {
+                                action = potentialAction
+                                this.battleActionIndex++
+                                break
+                            } else {
+                                // Remove dead unit from action order and move to next
+                                this.battleActionOrder.splice(this.battleActionIndex, 1)
+                            }
+                        }
+
+                        // No living units left
+                        if (!action) {
+                            // Check if battle ended
+                            if (this.isAllDead(this.enemyUnits)) {
+                                this.battleStatus = 'win'
+                                this.clearBattleHighlight()
+                            } else if (this.isAllDead(this.playerUnits)) {
+                                this.battleStatus = 'lose'
+                                this.clearBattleHighlight()
+                            } else {
+                                // No living units but battle not over - rebuild action order
+                                this.battleActionOrder = null
+                            }
+                            return
+                        }
+
+                        const unit = action.unitRef
+
+                        // Clear previous skill display
+                        this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+                        this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
+
+                        // Apply poison DOT damage before the unit acts (even if stunned)
+                        this.applyPoisonDamageWithDisplay(unit, action)
+
+                        // Check if unit died from poison
+                        if (unit.hp <= 0) {
+                            // Check for battle end
+                            if (this.isAllDead(this.enemyUnits)) {
+                                this.battleStatus = 'win'
+                                this.clearBattleHighlight()
+                            } else if (this.isAllDead(this.playerUnits)) {
+                                this.battleStatus = 'lose'
+                                this.clearBattleHighlight()
+                            }
+                            // Don't mark as acting or add highlight for dead units
+                            return
+                        }
+
+                        // Handle stunned units - still show highlight but skip action
+                        if (unit.stunnedTurns > 0) {
+                            unit.stunnedTurns--
+                            // Mark this unit as acting (stunned)
+                            this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
+                            document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                                el.classList.remove('unit-acting')
+                            })
+                            const actingSide = action.side === "p" ? "player" : "enemy"
+                            const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
+                            const actingEl = document.querySelector(selector)
+                            if (actingEl) {
+                                actingEl.classList.add('unit-acting')
+                            }
+                            return
+                        }
+
+                        // Tick taunt
+                        if (unit.tauntTurns > 0) {
+                            unit.tauntTurns--
+                        }
+
+                        // Mark this unit as acting
+                        this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
+
+                        // Directly update DOM for highlight (bypass Vue reactivity issues)
+                        document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                            el.classList.remove('unit-acting')
                         })
+                        const actingSide = action.side === "p" ? "player" : "enemy"
+                        const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
+                        const actingEl = document.querySelector(selector)
+                        if (actingEl) {
+                            actingEl.classList.add('unit-acting')
+                        }
 
-                        if (readySkillIndices.length > 0) {
-                            // Randomly pick one skill to use
-                            usedSkillSlot = readySkillIndices[Math.floor(Math.random() * readySkillIndices.length)]
-                            const skill = typeof unit.skills[usedSkillSlot] === 'string'
-                                ? getEnemySkill(unit.skills[usedSkillSlot])
-                                : unit.skills[usedSkillSlot]
-                            usedSkill = true
-                            // Track skill name for display
-                            const skillName = this.currentLang === 'zh' ? (skill.nameZh || skill.name) : skill.name
-                            const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
-                            this.skillDisplays[key] = skillName
-
-                            // Set cooldown after using
-                            if (skill.cooldown > 0) {
-                                unit.skillCooldowns[usedSkillSlot] = skill.cooldown
+                        // Execute unit action
+                        {
+                            const targets = action.side === "p" ? this.enemyUnits : this.playerUnits
+                            let aliveTargets = targets.filter(t => t.hp > 0)
+                            if (!aliveTargets.length) {
+                                // Check for battle end
+                                if (this.isAllDead(this.enemyUnits)) {
+                                    this.battleStatus = 'win'
+                                    this.clearBattleHighlight()
+                                } else if (this.isAllDead(this.playerUnits)) {
+                                    this.battleStatus = 'lose'
+                                    this.clearBattleHighlight()
+                                }
+                                return
                             }
 
-                            if (skill.type === 'multi_attack') {
-                                const strikeTargets = aliveTargets.slice(0, skill.targets)
-                                strikeTargets.forEach(target => {
-                                    this.dealDamage(unit, target)
+                            // Check skills - find skills with cooldown 0 (ready to use)
+                            let usedSkill = false
+                            let usedSkillSlot = -1
+                            if (unit.skills && unit.skills.length > 0) {
+                                // Find all skills with cooldown === 0 (ready)
+                                const readySkillIndices = []
+                                unit.skills.forEach((skill, index) => {
+                                    const skillObj = typeof skill === 'string' ? getEnemySkill(skill) : skill
+                                    if (skillObj && unit.skillCooldowns[index] === 0) {
+                                        readySkillIndices.push(index)
+                                    }
                                 })
-                                // Check if battle ended after skill
-                                if (this.isAllDead(this.enemyUnits)) {
-                                    this.battleStatus = 'win'
-                                    this.clearBattleHighlight()
-                                    return
-                                } else if (this.isAllDead(this.playerUnits)) {
-                                    this.battleStatus = 'lose'
-                                    this.clearBattleHighlight()
-                                    return
-                                }
-                            } else if (skill.type === 'multi_attack_random') {
-                                for (let i = 0; i < skill.hits; i++) {
-                                    const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
-                                    if (target) {
-                                        const randomDmgPct = skill.minDmgPct + Math.random() * (skill.maxDmgPct - skill.minDmgPct)
-                                        const dmg = Math.max(1, Math.round(unit.atk * randomDmgPct))
-                                        const oldHp = target.hp
-                                        target.hp -= dmg
-                                        this.trackHpChange(target, target.hp - oldHp)
+
+                                if (readySkillIndices.length > 0) {
+                                    // Randomly pick one skill to use
+                                    usedSkillSlot = readySkillIndices[Math.floor(Math.random() * readySkillIndices.length)]
+                                    const skill = typeof unit.skills[usedSkillSlot] === 'string'
+                                        ? getEnemySkill(unit.skills[usedSkillSlot])
+                                        : unit.skills[usedSkillSlot]
+                                    usedSkill = true
+                                    // Track skill name for display
+                                    const skillName = this.currentLang === 'zh' ? (skill.nameZh || skill.name) : skill.name
+                                    const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
+                                    this.skillDisplays[key] = skillName
+
+                                    // Set cooldown after using
+                                    if (skill.cooldown > 0) {
+                                        unit.skillCooldowns[usedSkillSlot] = skill.cooldown
+                                    }
+
+                                    if (skill.type === 'multi_attack') {
+                                        const strikeTargets = aliveTargets.slice(0, skill.targets)
+                                        strikeTargets.forEach(target => {
+                                            this.dealDamage(unit, target)
+                                        })
+                                        // Check if battle ended after skill
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'multi_attack_random') {
+                                        for (let i = 0; i < skill.hits; i++) {
+                                            const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                            if (target) {
+                                                const randomDmgPct = skill.minDmgPct + Math.random() * (skill.maxDmgPct - skill.minDmgPct)
+                                                const dmg = Math.max(1, Math.round(unit.atk * randomDmgPct))
+                                                const oldHp = target.hp
+                                                target.hp -= dmg
+                                                this.trackHpChange(target, target.hp - oldHp)
+                                            }
+                                        }
+                                        // Check if battle ended after skill
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'stun') {
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        target.stunnedTurns = skill.duration
+                                    } else if (skill.type === 'taunt') {
+                                        unit.tauntTurns = skill.duration
+                                    } else if (skill.type === 'buff') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            const buff = { duration: skill.duration }
+                                            if (skill.atkMult) buff.atkMult = skill.atkMult
+                                            if (skill.defMult) buff.defMult = skill.defMult
+                                            if (skill.spdMult) buff.spdMult = skill.spdMult
+                                            this.applyBuff(ally, buff)
+                                        })
+                                    } else if (skill.type === 'multi_buff') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            const buff = {
+                                                duration: skill.duration,
+                                                atkMult: skill.atkMult,
+                                                defMult: skill.defMult,
+                                                spdMult: skill.spdMult
+                                            }
+                                            this.applyBuff(ally, buff)
+                                        })
+                                    } else if (skill.type === 'heal') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const healTarget = allies
+                                            .filter(a => a.hp > 0)
+                                            .sort((a, b) => a.hp - b.hp)[0]
+                                        if (healTarget) {
+                                            const healMult = this.getHealMultiplier(healTarget)
+                                            const oldHp = healTarget.hp
+                                            healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + Math.round(skill.amount * healMult))
+                                            this.trackHpChange(healTarget, healTarget.hp - oldHp)
+                                        }
+                                    } else if (skill.type === 'heal_percent') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
+                                        const targetsToHeal = injured.slice(0, skill.targets)
+                                        targetsToHeal.forEach(ally => {
+                                            const healMult = this.getHealMultiplier(ally)
+                                            const lostHp = ally.baseHp - ally.hp
+                                            const healAmount = Math.round(lostHp * skill.pct * healMult)
+                                            const oldHp = ally.hp
+                                            ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
+                                            this.trackHpChange(ally, ally.hp - oldHp)
+                                        })
+                                    } else if (skill.type === 'shield') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
+                                        alive.forEach(ally => {
+                                            ally.shieldBlocks += skill.blocks
+                                        })
+                                    } else if (skill.type === 'debuff') {
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                duration: skill.duration,
+                                                atkMult: skill.atkMult,
+                                                defMult: skill.defMult
+                                            })
+                                        })
+                                    } else if (skill.type === 'slow') {
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                duration: skill.duration,
+                                                spdMult: skill.spdMult
+                                            })
+                                        })
+                                    } else if (skill.type === 'resurrect') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const dead = allies.filter(a => a.hp <= 0)
+                                        if (dead.length > 0) {
+                                            const toRevive = dead[Math.floor(Math.random() * dead.length)]
+                                            const oldHp = toRevive.hp
+                                            toRevive.hp = Math.round(toRevive.baseHp * skill.hpPct)
+                                            toRevive.debuffs = []
+                                            this.trackHpChange(toRevive, toRevive.hp - oldHp)
+                                        }
+                                    } else if (skill.type === 'crit_buff') {
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            this.applyBuff(ally, {
+                                                duration: skill.duration,
+                                                critBonus: skill.critBonus
+                                            })
+                                        })
+                                    } else if (skill.type === 'poison') {
+                                        // Apply poison DOT debuff
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                type: 'poison',
+                                                duration: skill.duration,
+                                                dmgPct: skill.dmgPct
+                                            })
+                                        })
+                                    } else if (skill.type === 'antiheal') {
+                                        // Apply antiheal debuff
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                type: 'antiheal',
+                                                duration: skill.duration,
+                                                healMult: skill.healMult
+                                            })
+                                        })
                                     }
                                 }
-                                // Check if battle ended after skill
-                                if (this.isAllDead(this.enemyUnits)) {
-                                    this.battleStatus = 'win'
-                                    this.clearBattleHighlight()
-                                    return
-                                } else if (this.isAllDead(this.playerUnits)) {
-                                    this.battleStatus = 'lose'
-                                    this.clearBattleHighlight()
-                                    return
-                                }
-                            } else if (skill.type === 'stun') {
-                                const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
-                                target.stunnedTurns = skill.duration
-                            } else if (skill.type === 'taunt') {
-                                unit.tauntTurns = skill.duration
-                            } else if (skill.type === 'buff') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                allies.filter(a => a.hp > 0).forEach(ally => {
-                                    const buff = { duration: skill.duration }
-                                    if (skill.atkMult) buff.atkMult = skill.atkMult
-                                    if (skill.defMult) buff.defMult = skill.defMult
-                                    if (skill.spdMult) buff.spdMult = skill.spdMult
-                                    this.applyBuff(ally, buff)
-                                })
-                            } else if (skill.type === 'multi_buff') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                allies.filter(a => a.hp > 0).forEach(ally => {
-                                    const buff = {
-                                        duration: skill.duration,
-                                        atkMult: skill.atkMult,
-                                        defMult: skill.defMult,
-                                        spdMult: skill.spdMult
+                            }
+
+                            // Normal attack
+                            let target
+
+                            // Check for taunt targets
+                            const tauntTargets = aliveTargets.filter(t => t.tauntTurns > 0)
+                            if (tauntTargets.length > 0) {
+                                target = tauntTargets[Math.floor(Math.random() * tauntTargets.length)]
+                            } else {
+                                target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                            }
+
+                            let dmg = this.calculateDamage(unit, target)
+
+                            // Execute passive check (skill with cooldown 0 is passive)
+                            if (unit.skills) {
+                                for (const skillId of unit.skills) {
+                                    const skill = typeof skillId === 'string' ? getEnemySkill(skillId) : skillId
+                                    if (skill && skill.type === 'execute' && skill.cooldown === 0) {
+                                        const hpPct = target.hp / target.baseHp
+                                        if (hpPct <= skill.hpThreshold) {
+                                            dmg = Math.round(dmg * skill.dmgMult)
+                                        }
+                                        break
                                     }
-                                    this.applyBuff(ally, buff)
-                                })
-                            } else if (skill.type === 'heal') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                const healTarget = allies
-                                    .filter(a => a.hp > 0)
-                                    .sort((a, b) => a.hp - b.hp)[0]
-                                if (healTarget) {
-                                    const healMult = this.getHealMultiplier(healTarget)
-                                    const oldHp = healTarget.hp
-                                    healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + Math.round(skill.amount * healMult))
-                                    this.trackHpChange(healTarget, healTarget.hp - oldHp)
                                 }
-                            } else if (skill.type === 'heal_percent') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
-                                const targetsToHeal = injured.slice(0, skill.targets)
-                                targetsToHeal.forEach(ally => {
-                                    const healMult = this.getHealMultiplier(ally)
-                                    const lostHp = ally.baseHp - ally.hp
-                                    const healAmount = Math.round(lostHp * skill.pct * healMult)
-                                    const oldHp = ally.hp
-                                    ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
-                                    this.trackHpChange(ally, ally.hp - oldHp)
-                                })
-                            } else if (skill.type === 'shield') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
-                                alive.forEach(ally => {
-                                    ally.shieldBlocks += skill.blocks
-                                })
-                            } else if (skill.type === 'debuff') {
-                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
-                                enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    this.applyDebuff(enemy, {
-                                        duration: skill.duration,
-                                        atkMult: skill.atkMult,
-                                        defMult: skill.defMult
-                                    })
-                                })
-                            } else if (skill.type === 'slow') {
-                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
-                                enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    this.applyDebuff(enemy, {
-                                        duration: skill.duration,
-                                        spdMult: skill.spdMult
-                                    })
-                                })
-                            } else if (skill.type === 'resurrect') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                const dead = allies.filter(a => a.hp <= 0)
-                                if (dead.length > 0) {
-                                    const toRevive = dead[Math.floor(Math.random() * dead.length)]
-                                    const oldHp = toRevive.hp
-                                    toRevive.hp = Math.round(toRevive.baseHp * skill.hpPct)
-                                    toRevive.debuffs = []
-                                    this.trackHpChange(toRevive, toRevive.hp - oldHp)
-                                }
-                            } else if (skill.type === 'crit_buff') {
-                                const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
-                                allies.filter(a => a.hp > 0).forEach(ally => {
-                                    this.applyBuff(ally, {
-                                        duration: skill.duration,
-                                        critBonus: skill.critBonus
-                                    })
-                                })
-                            } else if (skill.type === 'poison') {
-                                // Apply poison DOT debuff
-                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
-                                enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    this.applyDebuff(enemy, {
-                                        type: 'poison',
-                                        duration: skill.duration,
-                                        dmgPct: skill.dmgPct
-                                    })
-                                })
-                            } else if (skill.type === 'antiheal') {
-                                // Apply antiheal debuff
-                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
-                                enemies.filter(e => e.hp > 0).forEach(enemy => {
-                                    this.applyDebuff(enemy, {
-                                        type: 'antiheal',
-                                        duration: skill.duration,
-                                        healMult: skill.healMult
-                                    })
-                                })
+                            }
+
+                            // Apply shield
+                            if (target.shieldBlocks > 0) {
+                                target.shieldBlocks--
+                                dmg = 0
+                            }
+
+                            const oldHp = target.hp
+                            target.hp -= dmg
+                            this.trackHpChange(target, target.hp - oldHp)
+
+                            // Decrement buffs for unit that acted
+                            this.tickUnitBuffs(unit)
+                            this.tickUnitDebuffs(unit)
+                            // Decrement skill cooldowns
+                            if (unit.skillCooldowns) {
+                                unit.skillCooldowns = unit.skillCooldowns.map(cd => Math.max(0, cd - 1))
+                            }
+
+                            // Clear highlight from dead targets (in case they died during this action)
+                            this.clearDeadUnitHighlights()
+
+                            // Check if battle ended mid-action
+                            if (this.isAllDead(this.enemyUnits)) {
+                                this.battleStatus = 'win'
+                                this.clearBattleHighlight()
+                            } else if (this.isAllDead(this.playerUnits)) {
+                                this.battleStatus = 'lose'
+                                this.clearBattleHighlight()
                             }
                         }
+
+                    }, 1000)
+                },
+
+                calculateDamage(attacker, defender) {
+                    const effectiveDef = Math.max(0, defender.def - attacker.defReduce)
+                    let dmg = Math.max(1, attacker.atk - effectiveDef)
+                    if (Math.random() < attacker.critChance) {
+                        dmg = Math.round(dmg * 1.5)
                     }
+                    return dmg
+                },
 
-                    // Normal attack
-                    let target
+                dealDamage(attacker, defender) {
+                    let dmg = this.calculateDamage(attacker, defender)
 
-                    // Check for taunt targets
-                    const tauntTargets = aliveTargets.filter(t => t.tauntTurns > 0)
-                    if (tauntTargets.length > 0) {
-                        target = tauntTargets[Math.floor(Math.random() * tauntTargets.length)]
-                    } else {
-                        target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
-                    }
-
-                    let dmg = this.calculateDamage(unit, target)
-
-                    // Execute passive check (skill with cooldown 0 is passive)
-                    if (unit.skills) {
-                        for (const skillId of unit.skills) {
+                    // Execute passive check
+                    if (attacker.skills) {
+                        for (const skillId of attacker.skills) {
                             const skill = typeof skillId === 'string' ? getEnemySkill(skillId) : skillId
                             if (skill && skill.type === 'execute' && skill.cooldown === 0) {
-                                const hpPct = target.hp / target.baseHp
+                                const hpPct = defender.hp / defender.baseHp
                                 if (hpPct <= skill.hpThreshold) {
                                     dmg = Math.round(dmg * skill.dmgMult)
                                 }
@@ -2232,125 +2402,66 @@ createApp({
                     }
 
                     // Apply shield
-                    if (target.shieldBlocks > 0) {
-                        target.shieldBlocks--
+                    if (defender.shieldBlocks > 0) {
+                        defender.shieldBlocks--
                         dmg = 0
                     }
 
-                    const oldHp = target.hp
-                    target.hp -= dmg
-                    this.trackHpChange(target, target.hp - oldHp)
+                    const oldHp = defender.hp
+                    defender.hp -= dmg
+                    const change = defender.hp - oldHp
+                    this.trackHpChange(defender, change)
+                },
 
-                    // Decrement buffs for unit that acted
-                    this.tickUnitBuffs(unit)
-                    this.tickUnitDebuffs(unit)
-                    // Decrement skill cooldowns
-                    if (unit.skillCooldowns) {
-                        unit.skillCooldowns = unit.skillCooldowns.map(cd => Math.max(0, cd - 1))
+                trackHpChange(unit, change) {
+                    if (change === 0) return
+                    let index = this.enemyUnits.indexOf(unit)
+                    let key = index !== -1 ? 'e' + index : null
+                    if (!key) {
+                        index = this.playerUnits.indexOf(unit)
+                        key = index !== -1 ? 'p' + index : null
                     }
-
-                    // Clear highlight from dead targets (in case they died during this action)
-                    this.clearDeadUnitHighlights()
-
-                    // Check if battle ended mid-action
-                    if (this.isAllDead(this.enemyUnits)) {
-                        this.battleStatus = 'win'
-                        this.clearBattleHighlight()
-                    } else if (this.isAllDead(this.playerUnits)) {
-                        this.battleStatus = 'lose'
-                        this.clearBattleHighlight()
+                    if (key) {
+                        this.hpChanges[key] = (this.hpChanges[key] || 0) + change
                     }
-                }
+                },
 
-            }, 1000)
-        },
+                clearBattleHighlight() {
+                    this.actingUnit = null
+                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                        el.classList.remove('unit-acting')
+                    })
+                    if (this.battleLoop) {
+                        clearInterval(this.battleLoop)
+                        this.battleLoop = null
+                    }
+                },
 
-        calculateDamage(attacker, defender) {
-            const effectiveDef = Math.max(0, defender.def - attacker.defReduce)
-            let dmg = Math.max(1, attacker.atk - effectiveDef)
-            if (Math.random() < attacker.critChance) {
-                dmg = Math.round(dmg * 1.5)
-            }
-            return dmg
-        },
+                isAllDead(team) {
+                    return team.every(u => u.hp <= 0)
+                },
 
-        dealDamage(attacker, defender) {
-            let dmg = this.calculateDamage(attacker, defender)
-
-            // Execute passive check
-            if (attacker.skills) {
-                for (const skillId of attacker.skills) {
-                    const skill = typeof skillId === 'string' ? getEnemySkill(skillId) : skillId
-                    if (skill && skill.type === 'execute' && skill.cooldown === 0) {
-                        const hpPct = defender.hp / defender.baseHp
-                        if (hpPct <= skill.hpThreshold) {
-                            dmg = Math.round(dmg * skill.dmgMult)
+                clearDeadUnitHighlights() {
+                    // Clear highlight from dead units
+                    this.playerUnits.forEach((unit, i) => {
+                        if (unit && unit.hp <= 0) {
+                            const el = document.querySelector(`.unit-slot[data-unit-side="player"][data-unit-index="${i}"]`)
+                            if (el) el.classList.remove('unit-acting')
                         }
-                        break
-                    }
+                    })
+                    this.enemyUnits.forEach((unit, i) => {
+                        if (unit && unit.hp <= 0) {
+                            const el = document.querySelector(`.unit-slot[data-unit-side="enemy"][data-unit-index="${i}"]`)
+                            if (el) el.classList.remove('unit-acting')
+                        }
+                    })
                 }
+
             }
 
-            // Apply shield
-            if (defender.shieldBlocks > 0) {
-                defender.shieldBlocks--
-                dmg = 0
-            }
-
-            const oldHp = defender.hp
-            defender.hp -= dmg
-            const change = defender.hp - oldHp
-            this.trackHpChange(defender, change)
-        },
-
-        trackHpChange(unit, change) {
-            if (change === 0) return
-            let index = this.enemyUnits.indexOf(unit)
-            let key = index !== -1 ? 'e' + index : null
-            if (!key) {
-                index = this.playerUnits.indexOf(unit)
-                key = index !== -1 ? 'p' + index : null
-            }
-            if (key) {
-                this.hpChanges[key] = (this.hpChanges[key] || 0) + change
-            }
-        },
-
-        clearBattleHighlight() {
-            this.actingUnit = null
-            document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                el.classList.remove('unit-acting')
-            })
-            if (this.battleLoop) {
-                clearInterval(this.battleLoop)
-                this.battleLoop = null
-            }
-        },
-
-        isAllDead(team) {
-            return team.every(u => u.hp <= 0)
-        },
-
-        clearDeadUnitHighlights() {
-            // Clear highlight from dead units
-            this.playerUnits.forEach((unit, i) => {
-                if (unit && unit.hp <= 0) {
-                    const el = document.querySelector(`.unit-slot[data-unit-side="player"][data-unit-index="${i}"]`)
-                    if (el) el.classList.remove('unit-acting')
-                }
-            })
-            this.enemyUnits.forEach((unit, i) => {
-                if (unit && unit.hp <= 0) {
-                    const el = document.querySelector(`.unit-slot[data-unit-side="enemy"][data-unit-index="${i}"]`)
-                    if (el) el.classList.remove('unit-acting')
-                }
-            })
-        }
-
-    }
-
-}).mount("#app")
-</script>
+        }).mount("#app")
+    </script>
 
 </body>
+
 </html>
