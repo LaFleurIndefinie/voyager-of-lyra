@@ -197,11 +197,14 @@
         .chars-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 50px;
             gap: 4px;
         }
 
-        .chars-grid > .char-btn-wrapper {
-            height: 50px;
+        .char-btn-wrapper {
+            position: relative;
+            display: flex;
+            align-items: stretch;
         }
 
         .chars-grid button {
@@ -237,10 +240,6 @@
 
         .chars-grid button .char-name.long-name {
             font-size: 0.6rem;
-        }
-
-        .char-btn-wrapper {
-            position: relative;
         }
 
         .team-toggle-btn {
