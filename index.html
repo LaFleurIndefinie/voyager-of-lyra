@@ -209,27 +209,21 @@
             align-items: stretch;
         }
 
-        .char-lock-info {
+        .char-lock-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.55rem;
-            color: #aaa;
-            background: rgba(0,0,0,0.6);
-            border-radius: 4px;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .char-lock-info span {
-            background: rgba(0,0,0,0.8);
-            padding: 2px 4px;
+            font-size: 0.6rem;
+            color: #fff;
+            background: rgba(0,0,0,0.7);
             border-radius: 2px;
+            pointer-events: none;
         }
 
         .chars-grid button {
@@ -251,6 +245,7 @@
             align-items: center;
             word-break: break-word;
             hyphens: auto;
+            position: relative;
         }
 
         .chars-grid button .char-name {
@@ -864,6 +859,9 @@
                                             :class="{ 'long-name': getCharName(char.id).length > 6 }">{{
                                             getCharName(char.id) }}</span>
                                         <span class="char-level">Lv.{{ char.level }}</span>
+                                        <div v-if="!isCharUnlocked(char.id)" class="char-lock-overlay">
+                                            🔒 {{ getStageDisplayName(getCharUnlockStage(char.id)) }}
+                                        </div>
                                     </button>
                                     <button
                                         v-if="hoveredCharId === char.id && isCharUnlocked(char.id) && (team.includes(char.id) || team.filter(Boolean).length < 5)"
@@ -871,10 +869,6 @@
                                         :style="{ background: team.includes(char.id) ? '#e53935' : '#4caf50' }">
                                         {{ team.includes(char.id) ? '−' : '+' }}
                                     </button>
-                                    <div v-if="!isCharUnlocked(char.id)" class="char-lock-info">
-                                        <span>{{ getStageDisplayName(getCharUnlockStage(char.id)) }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div class="char-illustration-container">
