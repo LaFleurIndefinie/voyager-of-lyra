@@ -236,19 +236,21 @@
 
         .char-btn-wrapper {
             position: relative;
-            display: inline-block;
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         .team-toggle-btn {
             position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 18px;
-            height: 18px;
+            top: -4px;
+            right: -4px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            border: 2px solid #fff;
+            border: 1.5px solid #fff;
             color: #fff;
-            font-size: 14px;
+            font-size: 10px;
             font-weight: bold;
             line-height: 1;
             display: flex;
@@ -257,11 +259,11 @@
             cursor: pointer;
             z-index: 10;
             padding: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
         }
 
         .team-toggle-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
         }
 
         .chars-grid button:hover {
@@ -1131,7 +1133,7 @@ createApp({
             team: [null, null, null, null, null],
             currentStage: 0,
             selectedStage: 0,
-            maxStage: 30, // Maximum stage available
+            maxStage: 101, // Maximum stage available
             battleStatus: null, // 'win', 'lose', or null
             selectedChar: null,
             hoveredCharId: null,
@@ -1840,8 +1842,7 @@ createApp({
                 clearInterval(this.battleLoop)
                 this.battleLoop = null
             }
-            // Ensure selectedStage stays within unlocked stages and maxStage
-            this.currentStage = Math.min(this.currentStage, this.maxStage - 1)
+            // Ensure selectedStage stays within unlocked stages
             this.selectedStage = Math.min(this.selectedStage, this.currentStage)
         },
 
@@ -1959,17 +1960,6 @@ createApp({
 
                 // Check if unit died from poison
                 if (unit.hp <= 0) {
-                    // Mark this unit as acting briefly (died to poison)
-                    this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
-                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
-                        el.classList.remove('unit-acting')
-                    })
-                    const actingSide = action.side === "p" ? "player" : "enemy"
-                    const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
-                    const actingEl = document.querySelector(selector)
-                    if (actingEl) {
-                        actingEl.classList.add('unit-acting')
-                    }
                     // Check for battle end
                     if (this.isAllDead(this.enemyUnits)) {
                         this.battleStatus = 'win'
@@ -1978,6 +1968,7 @@ createApp({
                         this.battleStatus = 'lose'
                         this.clearBattleHighlight()
                     }
+                    // Don't mark as acting or add highlight for dead units
                     return
                 }
 
