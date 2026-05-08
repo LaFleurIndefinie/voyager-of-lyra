@@ -514,7 +514,7 @@
         }
 
         .unit-slot.enemy-unit .unit-stats {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
         }
 
         .unit-slot .stat-row {
@@ -791,6 +791,12 @@
                                 <span class="char-level">Lv.{{ char.level }}</span>
                             </button>
                         </div>
+                        <div style="margin-top: 8px;">
+                            <button @click="toggleTeam(selectedChar)" style="width: 100%; padding: 6px;"
+                                :disabled="!selectedChar || (team.filter(Boolean).length >= 5 && !team.includes(selectedChar))">
+                                {{ selectedChar ? (team.includes(selectedChar) ? t('Remove') : t('Add to Team')) : t('Select a character') }}
+                            </button>
+                        </div>
                     </div>
                     <div class="char-illustration-container">
                         <div v-if="selectedChar && getChar(selectedChar)" class="char-illustration">
@@ -838,14 +844,10 @@
                     <div style="margin-top: 8px;">
                         <span>{{ t('EXP') }}: {{ exp }} / {{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}</span>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 8px;">
-                        <button @click="toggleTeam(selectedChar)" style="flex: 1;"
-                            :disabled="team.filter(Boolean).length >= 5 && !team.includes(selectedChar)">
-                            {{ team.includes(selectedChar) ? t('Remove') : t('Add to Team') }}
-                        </button>
+                    <div style="margin-top: 8px;">
                         <button @click="levelUpChar(selectedChar)" :disabled="!canLevelUp(getChar(selectedChar))"
                             @mouseenter="showLevelUpPreview = true" @mouseleave="showLevelUpPreview = false"
-                            style="padding: 2px 8px; white-space: nowrap;">
+                            style="width: 100%; padding: 6px;">
                             {{ t('Level Up') }} 📖{{ getNextLevelInfo(getChar(selectedChar)) ? getNextLevelInfo(getChar(selectedChar)).exp : t('Max') }}
                         </button>
                     </div>
@@ -1536,9 +1538,18 @@ createApp({
             const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
             poisonDebuffs.forEach(poison => {
                 const dmg = Math.round(unit.baseHp * poison.dmgPct)
+                unit.hp = Math.max(0, unit.hp - dmg)
+            })
+        },
+
+        applyPoisonDamageWithDisplay(unit, action) {
+            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+            poisonDebuffs.forEach(poison => {
+                const dmg = Math.round(unit.baseHp * poison.dmgPct)
                 const oldHp = unit.hp
                 unit.hp = Math.max(0, unit.hp - dmg)
-                this.trackHpChange(unit, unit.hp - oldHp)
+                const key = action.side === 'p' ? 'p' + action.unitIndex : 'e' + action.unitIndex
+                this.hpChanges[key] = unit.hp - oldHp
             })
         },
 
@@ -1909,6 +1920,33 @@ createApp({
                 this.skillDisplays = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
                 this.hpChanges = { p0: null, p1: null, p2: null, p3: null, p4: null, e0: null, e1: null, e2: null, e3: null, e4: null }
 
+                // Apply poison DOT damage before the unit acts (even if stunned)
+                this.applyPoisonDamageWithDisplay(unit, action)
+
+                // Check if unit died from poison
+                if (unit.hp <= 0) {
+                    // Mark this unit as acting briefly (died to poison)
+                    this.actingUnit = { side: action.side === "p" ? "player" : "enemy", index: action.unitIndex }
+                    document.querySelectorAll('.unit-slot.unit-acting').forEach(el => {
+                        el.classList.remove('unit-acting')
+                    })
+                    const actingSide = action.side === "p" ? "player" : "enemy"
+                    const selector = `.unit-slot[data-unit-side="${actingSide}"][data-unit-index="${action.unitIndex}"]`
+                    const actingEl = document.querySelector(selector)
+                    if (actingEl) {
+                        actingEl.classList.add('unit-acting')
+                    }
+                    // Check for battle end
+                    if (this.isAllDead(this.enemyUnits)) {
+                        this.battleStatus = 'win'
+                        this.clearBattleHighlight()
+                    } else if (this.isAllDead(this.playerUnits)) {
+                        this.battleStatus = 'lose'
+                        this.clearBattleHighlight()
+                    }
+                    return
+                }
+
                 // Handle stunned units - still show highlight but skip action
                 if (unit.stunnedTurns > 0) {
                     unit.stunnedTurns--
@@ -2185,6 +2223,9 @@ createApp({
                         unit.skillCooldowns = unit.skillCooldowns.map(cd => Math.max(0, cd - 1))
                     }
 
+                    // Clear highlight from dead targets (in case they died during this action)
+                    this.clearDeadUnitHighlights()
+
                     // Check if battle ended mid-action
                     if (this.isAllDead(this.enemyUnits)) {
                         this.battleStatus = 'win'
@@ -2262,6 +2303,22 @@ createApp({
 
         isAllDead(team) {
             return team.every(u => u.hp <= 0)
+        },
+
+        clearDeadUnitHighlights() {
+            // Clear highlight from dead units
+            this.playerUnits.forEach((unit, i) => {
+                if (unit && unit.hp <= 0) {
+                    const el = document.querySelector(`.unit-slot[data-unit-side="player"][data-unit-index="${i}"]`)
+                    if (el) el.classList.remove('unit-acting')
+                }
+            })
+            this.enemyUnits.forEach((unit, i) => {
+                if (unit && unit.hp <= 0) {
+                    const el = document.querySelector(`.unit-slot[data-unit-side="enemy"][data-unit-index="${i}"]`)
+                    if (el) el.classList.remove('unit-acting')
+                }
+            })
         }
 
     }
