@@ -234,6 +234,36 @@
             font-size: 0.6rem;
         }
 
+        .char-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .team-toggle-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .team-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
         .chars-grid button:hover {
             opacity: 0.85;
         }
@@ -778,24 +808,27 @@
                 <div class="chars-panel-layout">
                     <div class="chars-grid-container">
                         <div class="chars-grid">
-                            <button v-for="char in characters" :key="char.id"
-                                @click="selectChar(char.id)"
-                                :style="{
-                                    background: team.includes(char.id) ? '#2196f3' : '#333',
-                                    color: '#fff',
-                                    outline: selectedChar === char.id ? '2px solid #ffd700' : 'none',
-                                    outlineOffset: '-2px',
-                                    boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none'
-                                }">
-                                <span class="char-name" :class="{ 'long-name': getCharName(char.id).length > 6 }">{{ getCharName(char.id) }}</span>
-                                <span class="char-level">Lv.{{ char.level }}</span>
-                            </button>
-                        </div>
-                        <div style="margin-top: 8px;">
-                            <button @click="toggleTeam(selectedChar)" style="width: 100%; padding: 6px;"
-                                :disabled="!selectedChar || (team.filter(Boolean).length >= 5 && !team.includes(selectedChar))">
-                                {{ selectedChar ? (team.includes(selectedChar) ? t('Remove') : t('Add to Team')) : t('Select a character') }}
-                            </button>
+                            <div v-for="char in characters" :key="char.id" class="char-btn-wrapper"
+                                @mouseenter="hoveredCharId = char.id"
+                                @mouseleave="hoveredCharId = null">
+                                <button @click="selectChar(char.id)"
+                                    :style="{
+                                        background: team.includes(char.id) ? '#2196f3' : '#333',
+                                        color: '#fff',
+                                        outline: selectedChar === char.id ? '2px solid #ffd700' : 'none',
+                                        outlineOffset: '-2px',
+                                        boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none'
+                                    }">
+                                    <span class="char-name" :class="{ 'long-name': getCharName(char.id).length > 6 }">{{ getCharName(char.id) }}</span>
+                                    <span class="char-level">Lv.{{ char.level }}</span>
+                                </button>
+                                <button v-if="hoveredCharId === char.id && (team.includes(char.id) || team.filter(Boolean).length < 5)"
+                                    @click.stop="toggleTeam(char.id)"
+                                    class="team-toggle-btn"
+                                    :style="{ background: team.includes(char.id) ? '#e53935' : '#4caf50' }">
+                                    {{ team.includes(char.id) ? '−' : '+' }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="char-illustration-container">
@@ -1101,6 +1134,7 @@ createApp({
             maxStage: 30, // Maximum stage available
             battleStatus: null, // 'win', 'lose', or null
             selectedChar: null,
+            hoveredCharId: null,
             selectedEquipment: null, // 'weapon', 'helmet', 'armor', 'vambraces', 'boots', 'accessories'
             saveFileName: 'voyager_save.txt',
             turnNumber: 0,
