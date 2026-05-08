@@ -4,8 +4,8 @@ export const CHARACTERS = [
     name: "Lily",
     nameZh: "莉莉",
     image: "assets/characters/001_Lily.png",
-    story: "Lily Astesia Born in the coastal village of Solhaven, Lily grew up watching her grandfather repair ships. His stories of distant lands sparked her wanderlust. When pirates burned Solhaven to the ground, Lily swore to explore every corner of Lyra and beyond, seeking both adventure and the truth behind the celestial harmony that governs their world.",
-    storyZh: "莉莉·埃斯特西亚出生于海滨村庄埃斯特西亚，在祖父修船的时光中长大。祖父讲述的遥远国度的故事点燃了她对旅行的渴望。当海盗将埃斯特西亚烧成灰烬时，莉莉发誓要踏遍天琴星的每一个角落，寻找冒险，也寻找支配这个世界的天体和谐的真相。",
+    story: "Lily Astesia was born in the port city of Astesia on the western coast of the Northern Continent. As the heir to the Star Condensation Church, she traveled with her mother from a young age, visiting various ruins and churches to learn about the knowledge and history of the Star Condensation Church. She is curious about the stars and the universe, dreaming of one day uncovering the secrets of the star god and the universe, and finding the truth of the world. Her personality is calm and determined, good at analysis and thinking, but also has a spirit of adventure and courage. Her goal is to become a great explorer and scholar, contributing her strength to the future of humanity.",
+    storyZh: "莉莉·埃斯特西亚出生于北方大陆西海岸港口埃斯特西亚，作为星凝教的传承人，她从小就跟随母亲四处游历，探访各地的遗迹和教堂，学习星凝教的知识和历史。她对星辰和宇宙充满了好奇心，梦想着有一天能够揭开星神和宇宙的秘密，找到世界的真理。她的性格沉稳而坚定，善于分析和思考，但也不失冒险精神和勇气。她的目标是成为一名伟大的探险家和学者，为人类的未来贡献自己的力量。",
     basicInfo: {
       birthday: { year: 1157, month: 4, day: 23 },
       birthPlace: "Astesia",
@@ -74,7 +74,7 @@ export const CHARACTERS = [
     level: 1,
     skill1Id: "inspiring_chant",
     skill1Level: 1,
-    skill2Id: "healing_light",
+    skill2Id: "curse_of_withering",
     skill2Level: 1,
     equipment: {
       weapon: 0,
@@ -98,7 +98,7 @@ export const CHARACTERS = [
     critChance: 0.1,
     defReduce: 5,
     level: 1,
-    skill1Id: "healing_light",
+    skill1Id: "venomous_strike",
     skill1Level: 1,
     skill2Id: "blessing",
     skill2Level: 1,

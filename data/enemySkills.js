@@ -102,8 +102,8 @@ export const ENEMY_SKILLS = {
     description: "Reduces SPD"
   },
 
-  poison: {
-    id: "poison",
+  weak_poison: {
+    id: "weak_poison",
     name: "Poison",
     nameZh: "中毒",
     type: "debuff",
@@ -339,6 +339,30 @@ export const ENEMY_SKILLS = {
     spdMult: 0.6,
     cooldown: 4,
     description: "Slows and weakens"
+  },
+
+  // Poison DOT - damage over time
+  venomous_strike: {
+    id: "venomous_strike",
+    name: "Venomous Strike",
+    nameZh: "毒液打击",
+    type: "poison",
+    duration: 3,
+    dmgPct: 0.05,
+    cooldown: 3,
+    description: "Poison: deals damage each turn"
+  },
+
+  // Antiheal - reduces healing received
+  curse_of_withering: {
+    id: "curse_of_withering",
+    name: "Curse of Withering",
+    nameZh: "凋零诅咒",
+    type: "antiheal",
+    duration: 3,
+    healMult: 0.5,
+    cooldown: 4,
+    description: "Reduces healing received"
   }
 }
 
@@ -362,8 +386,7 @@ export const ENEMY_SKILL_SETS = {
     "flurry"
   ],
   spider: [
-    "poison",
-    "web_strike"
+    "venomous_strike"
   ],
   orc: [
     "battle_cry",
@@ -386,7 +409,7 @@ export const ENEMY_SKILL_SETS = {
   skeleton_mage: [
     "slow",
     "group_heal",
-    "weaken"
+    "curse_of_withering"
   ],
   knight: [
     "power_strike",

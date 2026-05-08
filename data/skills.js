@@ -293,6 +293,46 @@ export const SKILLS = {
       9:  { hpThreshold: 0.35, dmgMult: 2.0, cost: 640 },
       10: { hpThreshold: 0.3, dmgMult: 2.5, cost: 1280 }
     }
+  },
+  // 11. Poison - damage over time
+  venomous_strike: {
+    id: 'venomous_strike',
+    name: 'Venomous Strike',
+    nameZh: '毒液打击',
+    type: 'poison',
+    cooldown: 3,
+    levels: {
+      1:  { duration: 3, dmgPct: 0.05, cost: 0 },
+      2:  { duration: 3, dmgPct: 0.06, cost: 5 },
+      3:  { duration: 3, dmgPct: 0.07, cost: 10 },
+      4:  { duration: 4, dmgPct: 0.07, cost: 20 },
+      5:  { duration: 4, dmgPct: 0.08, cost: 40 },
+      6:  { duration: 4, dmgPct: 0.09, cost: 80 },
+      7:  { duration: 5, dmgPct: 0.09, cost: 160 },
+      8:  { duration: 5, dmgPct: 0.10, cost: 320 },
+      9:  { duration: 5, dmgPct: 0.12, cost: 640 },
+      10: { duration: 6, dmgPct: 0.15, cost: 1280 }
+    }
+  },
+  // 12. Antiheal - reduces healing received
+  curse_of_withering: {
+    id: 'curse_of_withering',
+    name: 'Curse of Withering',
+    nameZh: '凋零诅咒',
+    type: 'antiheal',
+    cooldown: 4,
+    levels: {
+      1:  { duration: 3, healMult: 0.5, cost: 0 },
+      2:  { duration: 3, healMult: 0.45, cost: 5 },
+      3:  { duration: 3, healMult: 0.4, cost: 10 },
+      4:  { duration: 4, healMult: 0.4, cost: 20 },
+      5:  { duration: 4, healMult: 0.35, cost: 40 },
+      6:  { duration: 4, healMult: 0.3, cost: 80 },
+      7:  { duration: 5, healMult: 0.3, cost: 160 },
+      8:  { duration: 5, healMult: 0.25, cost: 320 },
+      9:  { duration: 5, healMult: 0.2, cost: 640 },
+      10: { duration: 6, healMult: 0.1, cost: 1280 }
+    }
   }
 }
 
@@ -357,6 +397,10 @@ export function getSkillDescription(skillId, level) {
       return `+${Math.round(data.critBonus * 100)}% Crit for ${data.duration} turns`
     case 'execute':
       return `+${Math.round((data.dmgMult - 1) * 100)}% dmg to enemies <${Math.round((1 - data.hpThreshold) * 100)}% HP`
+    case 'poison':
+      return `Poison: ${Math.round(data.dmgPct * 100)}% HP/turn for ${data.duration} turns`
+    case 'antiheal':
+      return `Antiheal: heals reduced to ${Math.round(data.healMult * 100)}% for ${data.duration} turns`
     default:
       return ''
   }

@@ -983,6 +983,8 @@
                                         <div class="unit-tags">
                                             <span v-if="unit.tauntTurns > 0" style="color: #ffa500;">[{{ t('TAUNT') }}]</span>
                                             <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
+                                            <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{ t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
+                                            <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{ t('ANTIHEAL') }}]</span>
                                         </div>
                                         <div class="unit-stats">
                                             <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('p', i)" :class="getHpChange('p', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('p', i) > 0 ? '+' : '' }}{{ getHpChange('p', i) }})</span></span>
@@ -1013,6 +1015,8 @@
                                         <div class="unit-tags">
                                             <span v-if="unit.shieldBlocks > 0" style="color: #00bfff;">[{{ t('SHIELD') }}x{{ unit.shieldBlocks }}]</span>
                                             <span v-if="unit.stunnedTurns > 0" style="color: #ff6b6b;">[{{ t('STUN') }}x{{ unit.stunnedTurns }}]</span>
+                                            <span v-if="getPoisonTurns(unit) > 0" style="color: #32cd32;">[{{ t('POISON') }}x{{ getPoisonTurns(unit) }}]</span>
+                                            <span v-if="getAntihealTurns(unit) > 0" style="color: #9932cc;">[{{ t('ANTIHEAL') }}]</span>
                                         </div>
                                         <div class="unit-stats">
                                             <span>{{ t('HP') }}: {{ unit.hp }}/{{ unit.baseHp }}<span v-if="getHpChange('e', i)" :class="getHpChange('e', i) > 0 ? 'hp-gain' : 'hp-loss'">({{ getHpChange('e', i) > 0 ? '+' : '' }}{{ getHpChange('e', i) }})</span></span>
@@ -1512,10 +1516,40 @@ createApp({
         },
 
         tickUnitDebuffs(unit) {
+            // Apply poison DOT damage before decrementing duration
+            this.applyPoisonDamage(unit)
+
             unit.debuffs = unit.debuffs
                 .map(d => ({ ...d, duration: d.duration - 1 }))
                 .filter(d => d.duration > 0)
             this.refreshUnitStats(unit)
+        },
+
+        getHealMultiplier(unit) {
+            const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
+            return antihealDebuff ? antihealDebuff.healMult : 1
+        },
+
+        applyPoisonDamage(unit) {
+            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+            poisonDebuffs.forEach(poison => {
+                const dmg = Math.round(unit.baseHp * poison.dmgPct)
+                const oldHp = unit.hp
+                unit.hp = Math.max(0, unit.hp - dmg)
+                this.trackHpChange(unit, unit.hp - oldHp)
+            })
+        },
+
+        getPoisonTurns(unit) {
+            if (!unit.debuffs) return 0
+            const poisonDebuffs = unit.debuffs.filter(d => d.type === 'poison')
+            return poisonDebuffs.reduce((sum, p) => sum + p.duration, 0)
+        },
+
+        getAntihealTurns(unit) {
+            if (!unit.debuffs) return 0
+            const antihealDebuff = unit.debuffs.find(d => d.type === 'antiheal')
+            return antihealDebuff ? antihealDebuff.duration : 0
         },
 
         saveGame() {
@@ -2022,8 +2056,9 @@ createApp({
                                     .filter(a => a.hp > 0)
                                     .sort((a, b) => a.hp - b.hp)[0]
                                 if (healTarget) {
+                                    const healMult = this.getHealMultiplier(healTarget)
                                     const oldHp = healTarget.hp
-                                    healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + skill.amount)
+                                    healTarget.hp = Math.min(healTarget.baseHp, healTarget.hp + Math.round(skill.amount * healMult))
                                     this.trackHpChange(healTarget, healTarget.hp - oldHp)
                                 }
                             } else if (skill.type === 'heal_percent') {
@@ -2031,8 +2066,9 @@ createApp({
                                 const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
                                 const targetsToHeal = injured.slice(0, skill.targets)
                                 targetsToHeal.forEach(ally => {
+                                    const healMult = this.getHealMultiplier(ally)
                                     const lostHp = ally.baseHp - ally.hp
-                                    const healAmount = Math.round(lostHp * skill.pct)
+                                    const healAmount = Math.round(lostHp * skill.pct * healMult)
                                     const oldHp = ally.hp
                                     ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
                                     this.trackHpChange(ally, ally.hp - oldHp)
@@ -2076,6 +2112,26 @@ createApp({
                                     this.applyBuff(ally, {
                                         duration: skill.duration,
                                         critBonus: skill.critBonus
+                                    })
+                                })
+                            } else if (skill.type === 'poison') {
+                                // Apply poison DOT debuff
+                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                    this.applyDebuff(enemy, {
+                                        type: 'poison',
+                                        duration: skill.duration,
+                                        dmgPct: skill.dmgPct
+                                    })
+                                })
+                            } else if (skill.type === 'antiheal') {
+                                // Apply antiheal debuff
+                                const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                    this.applyDebuff(enemy, {
+                                        type: 'antiheal',
+                                        duration: skill.duration,
+                                        healMult: skill.healMult
                                     })
                                 })
                             }

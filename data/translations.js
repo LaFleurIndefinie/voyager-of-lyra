@@ -84,6 +84,8 @@ export const UI_TRANSLATIONS = {
   'TAUNT': { en: 'TAUNT', zh: '嘲讽' },
   'SHIELD': { en: 'SHIELD', zh: '护盾' },
   'STUN': { en: 'STUN', zh: '眩晕' },
+  'POISON': { en: 'POISON', zh: '中毒' },
+  'ANTIHEAL': { en: 'ANTIHEAL', zh: '禁疗' },
 
   // Language Toggle
   'ToggleLang': { en: '中文', zh: 'EN' },
