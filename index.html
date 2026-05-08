@@ -211,13 +211,25 @@
 
         .char-lock-info {
             position: absolute;
-            bottom: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.6rem;
-            color: #888;
-            white-space: nowrap;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            color: #aaa;
+            background: rgba(0,0,0,0.6);
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .char-lock-info span {
+            background: rgba(0,0,0,0.8);
+            padding: 2px 4px;
+            border-radius: 2px;
         }
 
         .chars-grid button {
@@ -860,7 +872,7 @@
                                         {{ team.includes(char.id) ? '−' : '+' }}
                                     </button>
                                     <div v-if="!isCharUnlocked(char.id)" class="char-lock-info">
-                                        {{ t('Unlock at Stage') }} {{ getCharUnlockStage(char.id) }}
+                                        <span>🔒 {{ getCharUnlockStage(char.id) }}</span>
                                     </div>
                                 </div>
                             </div>
