@@ -32,6 +32,7 @@ export const UI_TRANSLATIONS = {
 
   // Character Info Panel
   'Character Info': { en: 'Character Info', zh: '角色信息' },
+  'Unlock at Stage': { en: 'Unlock at Stage', zh: '通关第' },
   'Background': { en: 'Background', zh: '背景故事' },
   'Name': { en: 'Name', zh: '名称' },
   'Lv': { en: 'Lv', zh: '等级' },

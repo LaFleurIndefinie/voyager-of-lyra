@@ -198,7 +198,7 @@
 
         .chars-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             grid-auto-rows: 50px;
             gap: 4px;
         }
@@ -207,6 +207,17 @@
             position: relative;
             display: flex;
             align-items: stretch;
+        }
+
+        .char-lock-info {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: #888;
+            white-space: nowrap;
+            z-index: 10;
         }
 
         .chars-grid button {
@@ -828,24 +839,29 @@
                             <div class="chars-grid">
                                 <div v-for="char in characters" :key="char.id" class="char-btn-wrapper"
                                     @mouseenter="hoveredCharId = char.id" @mouseleave="hoveredCharId = null">
-                                    <button @click="selectChar(char.id)" :style="{
-                                        background: team.includes(char.id) ? '#2196f3' : '#333',
-                                        color: '#fff',
+                                    <button @click="isCharUnlocked(char.id) && selectChar(char.id)" :style="{
+                                        background: team.includes(char.id) ? '#2196f3' : (isCharUnlocked(char.id) ? '#333' : '#1a1a1a'),
+                                        color: isCharUnlocked(char.id) ? '#fff' : '#666',
                                         outline: selectedChar === char.id ? '2px solid #ffd700' : 'none',
                                         outlineOffset: '-2px',
-                                        boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none'
+                                        boxShadow: selectedChar === char.id ? '0 0 8px rgba(255, 215, 0, 0.8)' : 'none',
+                                        cursor: isCharUnlocked(char.id) ? 'pointer' : 'not-allowed',
+                                        opacity: isCharUnlocked(char.id) ? 1 : 0.5
                                     }">
                                         <span class="char-name"
                                             :class="{ 'long-name': getCharName(char.id).length > 6 }">{{
                                             getCharName(char.id) }}</span>
-                                        <span class="char-level">Lv.{{ char.level }}</span>
+                                        <span class="char-level">{{ isCharUnlocked(char.id) ? 'Lv.' + char.level : '🔒' }}</span>
                                     </button>
                                     <button
-                                        v-if="hoveredCharId === char.id && (team.includes(char.id) || team.filter(Boolean).length < 5)"
+                                        v-if="hoveredCharId === char.id && isCharUnlocked(char.id) && (team.includes(char.id) || team.filter(Boolean).length < 5)"
                                         @click.stop="toggleTeam(char.id)" class="team-toggle-btn"
                                         :style="{ background: team.includes(char.id) ? '#e53935' : '#4caf50' }">
                                         {{ team.includes(char.id) ? '−' : '+' }}
                                     </button>
+                                    <div v-if="!isCharUnlocked(char.id)" class="char-lock-info">
+                                        {{ t('Unlock at Stage') }} {{ getCharUnlockStage(char.id) }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1206,6 +1222,7 @@
         import { UI_TRANSLATIONS, getSkillDescription as getTranslatedSkillDescription } from "./data/translations.js"
         import { getStageStory } from "./data/stageStories.js"
         import { ENEMY_SKILLS, getEnemySkill } from "./data/enemySkills.js"
+        import { isCharacterUnlocked, getCharacterUnlockInfo } from "./data/characterUnlocks.js"
 
         const { createApp } = Vue
 
@@ -1345,6 +1362,15 @@
 
                 getChar(id) {
                     return this.characters.find(c => c.id === id)
+                },
+
+                isCharUnlocked(charId) {
+                    return isCharacterUnlocked(charId, this.currentStage)
+                },
+
+                getCharUnlockStage(charId) {
+                    const info = getCharacterUnlockInfo(charId)
+                    return info ? info.stageId : 0
                 },
 
                 toggleTeam(id) {
