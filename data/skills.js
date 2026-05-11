@@ -346,6 +346,7 @@ export function getSkillAtLevel(skillId, level) {
   return {
     id: skill.id,
     name: skill.name,
+    nameZh: skill.nameZh,
     type: skill.type,
     cooldown: skill.cooldown,
     ...levelData

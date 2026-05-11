@@ -801,7 +801,7 @@
             <div class="title-stats">
                 <h1>{{ t('Voyager of Lyra') }}</h1>
                 <div class="stats">💰{{ t('Gold') }}: {{ gold }} | 📖{{ t('Exp') }}: {{ exp }} | 💎{{ t('Diamond') }}:
-                    {{ diamond }} | ⏱️{{ t('AFK') }}: {{ stages[selectedStage] ? stages[selectedStage].afkGain : 1 }}x
+                    {{ diamond }} | ⏱️{{ t('AFK') }}: {{ stages[currentStage] ? stages[currentStage].afkGain : 1 }}x
                 </div>
             </div>
             <div class="header-actions">
