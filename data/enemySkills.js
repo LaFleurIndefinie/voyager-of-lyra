@@ -1,8 +1,7 @@
-// Enemy skills - separate from player skills
-// These are used by enemy units during battle
+// Enemy skills - novel-themed skills for Le Foyer du Futur
 
 export const ENEMY_SKILLS = {
-  // Basic attack skills
+  // Basic attack
   basic_attack: {
     id: "basic_attack",
     name: "Attack",
@@ -22,52 +21,7 @@ export const ENEMY_SKILLS = {
     description: "Attacks two enemies"
   },
 
-  triple_strike: {
-    id: "triple_strike",
-    name: "Triple Strike",
-    nameZh: "三重打击",
-    type: "multi_attack",
-    targets: 3,
-    cooldown: 0,
-    description: "Attacks three enemies"
-  },
-
-  // Random multi-hit attacks
-  flurry: {
-    id: "flurry",
-    name: "Flurry",
-    nameZh: "连击",
-    type: "multi_attack_random",
-    hits: 3,
-    minDmgPct: 0.4,
-    maxDmgPct: 0.6,
-    cooldown: 2,
-    description: "Random hits"
-  },
-
-  savage_flurry: {
-    id: "savage_flurry",
-    name: "Savage Flurry",
-    nameZh: "狂野连击",
-    type: "multi_attack_random",
-    hits: 5,
-    minDmgPct: 0.3,
-    maxDmgPct: 0.5,
-    cooldown: 3,
-    description: "Multiple random hits"
-  },
-
-  // Stun skills
-  headbutt: {
-    id: "headbutt",
-    name: "Headbutt",
-    nameZh: "头槌",
-    type: "stun",
-    duration: 1,
-    cooldown: 3,
-    description: "Stuns target for 1 turn"
-  },
-
+  // Stun skill
   power_strike: {
     id: "power_strike",
     name: "Power Strike",
@@ -102,17 +56,6 @@ export const ENEMY_SKILLS = {
     description: "Reduces SPD"
   },
 
-  weak_poison: {
-    id: "weak_poison",
-    name: "Poison",
-    nameZh: "中毒",
-    type: "debuff",
-    duration: 3,
-    atkMult: 0.9,
-    cooldown: 2,
-    description: "Weakens target"
-  },
-
   // Buff skills
   battle_cry: {
     id: "battle_cry",
@@ -136,30 +79,7 @@ export const ENEMY_SKILLS = {
     description: "Increases DEF"
   },
 
-  war_chant: {
-    id: "war_chant",
-    name: "War Chant",
-    nameZh: "战歌",
-    type: "multi_buff",
-    duration: 2,
-    atkMult: 1.2,
-    defMult: 1.2,
-    spdMult: 1.1,
-    cooldown: 5,
-    description: "Buffs all stats"
-  },
-
   // Heal skills
-  regeneration: {
-    id: "regeneration",
-    name: "Regeneration",
-    nameZh: "再生",
-    type: "heal",
-    amount: 50,
-    cooldown: 4,
-    description: "Heals self"
-  },
-
   group_heal: {
     id: "group_heal",
     name: "Group Heal",
@@ -183,28 +103,6 @@ export const ENEMY_SKILLS = {
     description: "Creates shield"
   },
 
-  group_barrier: {
-    id: "group_barrier",
-    name: "Group Barrier",
-    nameZh: "群体屏障",
-    type: "shield",
-    blocks: 1,
-    targets: 3,
-    cooldown: 5,
-    description: "Shields allies"
-  },
-
-  // Taunt skills
-  taunt: {
-    id: "taunt",
-    name: "Taunt",
-    nameZh: "嘲讽",
-    type: "taunt",
-    duration: 2,
-    cooldown: 4,
-    description: "Forces enemies to attack"
-  },
-
   // Execute (bonus damage to low HP)
   execute: {
     id: "execute",
@@ -217,30 +115,7 @@ export const ENEMY_SKILLS = {
     description: "Bonus damage to low HP enemies"
   },
 
-  devour: {
-    id: "devour",
-    name: "Devour",
-    nameZh: "吞噬",
-    type: "execute",
-    hpThreshold: 0.5,
-    dmgMult: 1.5,
-    cooldown: 2,
-    description: "Attacks weakened enemies"
-  },
-
-  // Critical buff
-  focus: {
-    id: "focus",
-    name: "Focus",
-    nameZh: "专注",
-    type: "crit_buff",
-    critBonus: 0.2,
-    duration: 2,
-    cooldown: 4,
-    description: "Increases critical chance"
-  },
-
-  // Resurrect (rare)
+  // Resurrect
   soul_revival: {
     id: "soul_revival",
     name: "Soul Revival",
@@ -252,16 +127,6 @@ export const ENEMY_SKILLS = {
   },
 
   // Special boss skills
-  crushing_blow: {
-    id: "crushing_blow",
-    name: "Crushing Blow",
-    nameZh: "粉碎打击",
-    type: "multi_attack",
-    targets: 3,
-    cooldown: 0,
-    description: "Attacks three enemies"
-  },
-
   meteor_strike: {
     id: "meteor_strike",
     name: "Meteor Strike",
@@ -309,51 +174,7 @@ export const ENEMY_SKILLS = {
     description: "Deadly attack on wounded"
   },
 
-  divine_shield: {
-    id: "divine_shield",
-    name: "Divine Shield",
-    nameZh: "神圣护盾",
-    type: "shield",
-    blocks: 3,
-    targets: 2,
-    cooldown: 6,
-    description: "Strong protective barrier"
-  },
-
-  thunder_clap: {
-    id: "thunder_clap",
-    name: "Thunder Clap",
-    nameZh: "雷霆之击",
-    type: "stun",
-    duration: 2,
-    cooldown: 5,
-    description: "Stuns all enemies"
-  },
-
-  poison_cloud: {
-    id: "poison_cloud",
-    name: "Poison Cloud",
-    nameZh: "毒云",
-    type: "slow",
-    duration: 3,
-    spdMult: 0.6,
-    cooldown: 4,
-    description: "Slows and weakens"
-  },
-
-  // Poison DOT - damage over time
-  venomous_strike: {
-    id: "venomous_strike",
-    name: "Venomous Strike",
-    nameZh: "毒液打击",
-    type: "poison",
-    duration: 3,
-    dmgPct: 0.05,
-    cooldown: 3,
-    description: "Poison: deals damage each turn"
-  },
-
-  // Antiheal - reduces healing received
+  // Antiheal
   curse_of_withering: {
     id: "curse_of_withering",
     name: "Curse of Withering",
@@ -363,6 +184,82 @@ export const ENEMY_SKILLS = {
     healMult: 0.5,
     cooldown: 4,
     description: "Reduces healing received"
+  },
+
+  // ========== NOVEL-THEMED SKILLS ==========
+
+  // Time manipulation
+  time_distortion: {
+    id: "time_distortion",
+    name: "Time Distortion",
+    nameZh: "时间扭曲",
+    type: "slow",
+    duration: 3,
+    spdMult: 0.5,
+    cooldown: 5,
+    description: "Severely slows all enemies"
+  },
+
+  // Life drain
+  soul_drain: {
+    id: "soul_drain",
+    name: "Soul Drain",
+    nameZh: "灵魂汲取",
+    type: "drain",
+    dmgPct: 0.4,
+    healPct: 0.3,
+    cooldown: 4,
+    description: "Drains HP from enemies and heals self"
+  },
+
+  // Buff/debuff all allies
+  buff_all: {
+    id: "buff_all",
+    name: "Mass Buff",
+    nameZh: "全体强化",
+    type: "multi_buff",
+    duration: 3,
+    atkMult: 1.25,
+    defMult: 1.15,
+    spdMult: 1.1,
+    cooldown: 5,
+    description: "Buffs all ally stats"
+  },
+
+  shield_all: {
+    id: "shield_all",
+    name: "Mass Shield",
+    nameZh: "全体护盾",
+    type: "shield",
+    blocks: 2,
+    targets: 4,
+    cooldown: 5,
+    description: "Shields all allies"
+  },
+
+  // Light healing (Star God themed)
+  light_heal: {
+    id: "light_heal",
+    name: "Light Heal",
+    nameZh: "光之治愈",
+    type: "heal_percent",
+    pct: 0.25,
+    targets: 2,
+    cooldown: 4,
+    description: "Heals allies with light energy"
+  },
+
+  // Music/symphony themed
+  multi_attack_random: {
+    id: "multi_attack_random",
+    name: "Harmonic Strike",
+    nameZh: "和音打击",
+    type: "multi_attack_random",
+    hits: 3,
+    minDmgPct: 0.5,
+    maxDmgPct: 0.8,
+    cooldown: 3,
+    description: "Random melodic strikes"
   }
 }
 
@@ -371,109 +268,59 @@ export function getEnemySkill(skillId) {
   return ENEMY_SKILLS[skillId] || null
 }
 
-// Predefined skill sets for different enemy types
+// Predefined skill sets for novel-themed enemy types
 export const ENEMY_SKILL_SETS = {
-  // Basic enemies (stages 1-10)
-  slime: [],  // No skills, basic attack only
-  goblin: [
-    "headbutt"
-  ],
-  goblin_shaman: [
-    "weaken",
-    "regeneration"
-  ],
-  wolf: [
-    "flurry"
-  ],
-  spider: [
-    "venomous_strike"
-  ],
-  orc: [
-    "battle_cry",
-    "double_strike"
-  ],
-  orc_shaman: [
-    "weaken",
-    "group_heal"
-  ],
+  // Eternal Slumber Remnants (Stages 31-40)
+  slumber_soldier: ["slow", "power_strike"],
+  slumber_preacher: ["weaken", "curse_of_withering"],
+  void_acolyte: ["soul_drain", "weaken"],
+  slumber_knight: ["battle_cry", "double_strike"],
+  slumber_lord: ["dark_healing", "soul_revival", "execute"],
+  temporal_echo: ["time_distortion", "slow"],
+  historical_fragment: ["slow", "fortify"],
 
-  // Mid-game enemies (stages 11-30)
-  ghost: [
-    "slow",
-    "soul_revival"
-  ],
-  skeleton: [
-    "double_strike",
-    "fortify"
-  ],
-  skeleton_mage: [
-    "slow",
-    "group_heal",
-    "curse_of_withering"
-  ],
-  knight: [
-    "power_strike",
-    "taunt"
-  ],
-  undead_mage: [
-    "weaken",
-    "group_heal",
-    "slow"
-  ],
-  golem: [
-    "fortify",
-    "barrier"
-  ],
+  // Institute Enemies (Stages 41-50)
+  institute_guard: ["fortify", "battle_cry"],
+  calibration_drone: ["slow", "time_distortion"],
+  research_clone: ["double_strike", "execute"],
+  institute_director: ["dark_healing", "soul_revival", "weaken"],
 
-  // Dragon-type enemies
-  young_dragon: [
-    "flurry",
-    "execute"
-  ],
-  adult_dragon: [
-    "triple_strike",
-    "fire_breath",
-    "execute"
-  ],
-  ancient_dragon: [
-    "meteor_strike",
-    "ancient_wrath",
-    "execute",
-    "soul_revival"
-  ],
+  // Prison Camp Echoes (Stages 41-50)
+  exam_guard: ["fortify", "power_strike"],
+  compliance_officer: ["weaken", "curse_of_withering"],
+  reformation_warden: ["soul_drain", "dark_healing"],
+  prison_commander: ["battle_cry", "execute", "soul_revival"],
 
-  // Boss skill sets
-  forest_guardian: [
-    "fortify",
-    "barrier",
-    "group_heal",
-    "crushing_blow"
-  ],
-  lich_lord: [
-    "dark_healing",
-    "weaken",
-    "soul_revival",
-    "death_sentence"
-  ],
-  ice_dragon_queen: [
-    "thunder_clap",
-    "slow",
-    "group_barrier",
-    "execute"
-  ],
-  shadow_emperor: [
-    "dark_healing",
-    "ancient_wrath",
-    "soul_revival",
-    "death_sentence"
-  ],
-  void_emperor: [
-    "meteor_strike",
-    "ancient_wrath",
-    "slow",
-    "soul_revival",
-    "execute"
-  ]
+  // Star God Remnants (Stages 51-60)
+  constellation_shade: ["slow", "light_heal"],
+  symphonie_echo: ["multi_attack_random", "buff_all"],
+  starlight_wraith: ["soul_drain", "execute"],
+  loom_guardian: ["fortify", "barrier", "group_heal"],
+  star_god_fragment: ["dark_healing", "soul_revival", "buff_all"],
+
+  // Music Spirits (Stages 61-70)
+  melody_fragment: ["slow", "multi_attack_random"],
+  harmony_shade: ["buff_all", "shield_all"],
+  dissonance_entity: ["weaken", "curse_of_withering"],
+  symphony_guardian: ["barrier", "group_heal", "execute"],
+  lyre_spirit: ["buff_all", "light_heal", "shield_all"],
+
+  // Hope and Future (Stages 71-100)
+  future_echo: ["time_distortion", "buff_all"],
+  memory_fragment: ["soul_drain", "slow"],
+  possibility_shade: ["shield_all", "fortify"],
+  eternal_harmony: ["group_heal", "buff_all", "execute"],
+  origin_compass: ["fortify", "power_strike", "execute"],
+
+  // Final Boss Enemies
+  thanatos_fragment: ["death_sentence", "soul_revival", "dark_healing"],
+  meteor_entity: ["meteor_strike", "ancient_wrath", "execute"],
+  worldline_controller: ["time_distortion", "soul_revival", "buff_all"],
+  synthesizer: ["buff_all", "group_heal", "shield_all"],
+
+  // Generic skills
+  fortify: ["fortify"],
+  slow: ["slow"]
 }
 
 // Get skills for an enemy type
