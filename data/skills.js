@@ -333,6 +333,323 @@ export const SKILLS = {
       9:  { duration: 5, healMult: 0.2, cost: 640 },
       10: { duration: 6, healMult: 0.1, cost: 1280 }
     }
+  },
+
+  // ============ NEW SKILLS FOR CHARACTERS 5-15 ============
+
+  // 13. Star Compass - Lily's unique skill, ignores defense
+  star_compass: {
+    id: 'star_compass',
+    name: 'Star Compass',
+    nameZh: '星之指南针',
+    type: 'pierce',
+    cooldown: 4,
+    levels: {
+      1:  { ignoreDefPct: 0.3, cost: 0 },
+      2:  { ignoreDefPct: 0.35, cost: 5 },
+      3:  { ignoreDefPct: 0.4, cost: 10 },
+      4:  { ignoreDefPct: 0.45, cost: 20 },
+      5:  { ignoreDefPct: 0.5, cost: 40 },
+      6:  { ignoreDefPct: 0.55, cost: 80 },
+      7:  { ignoreDefPct: 0.6, cost: 160 },
+      8:  { ignoreDefPct: 0.65, cost: 320 },
+      9:  { ignoreDefPct: 0.7, cost: 640 },
+      10: { ignoreDefPct: 0.8, cost: 1280 }
+    }
+  },
+
+  // 14. Symphonie des Étoiles - Estelle's signature, damages enemies and heals allies
+  symphonie: {
+    id: 'symphonie',
+    name: 'Symphonie des Étoiles',
+    nameZh: '群星的乐章',
+    type: 'symphonie',
+    cooldown: 5,
+    levels: {
+      1:  { dmgPct: 0.8, healPct: 0.15, cost: 0 },
+      2:  { dmgPct: 0.85, healPct: 0.17, cost: 5 },
+      3:  { dmgPct: 0.9, healPct: 0.2, cost: 10 },
+      4:  { dmgPct: 0.95, healPct: 0.22, cost: 20 },
+      5:  { dmgPct: 1.0, healPct: 0.25, cost: 40 },
+      6:  { dmgPct: 1.05, healPct: 0.28, cost: 80 },
+      7:  { dmgPct: 1.1, healPct: 0.3, cost: 160 },
+      8:  { dmgPct: 1.15, healPct: 0.32, cost: 320 },
+      9:  { dmgPct: 1.2, healPct: 0.35, cost: 640 },
+      10: { dmgPct: 1.3, healPct: 0.4, cost: 1280 }
+    }
+  },
+
+  // 15. Star God's Voice - Iris's ultimate healing/cleanse skill
+  star_gods_voice: {
+    id: 'star_gods_voice',
+    name: "Star God's Voice",
+    nameZh: '星神之声',
+    type: 'purify_heal',
+    cooldown: 6,
+    levels: {
+      1:  { targets: 2, healPct: 0.3, cleanse: true, cost: 0 },
+      2:  { targets: 2, healPct: 0.33, cleanse: true, cost: 5 },
+      3:  { targets: 2, healPct: 0.36, cleanse: true, cost: 10 },
+      4:  { targets: 3, healPct: 0.35, cleanse: true, cost: 20 },
+      5:  { targets: 3, healPct: 0.38, cleanse: true, cost: 40 },
+      6:  { targets: 3, healPct: 0.42, cleanse: true, cost: 80 },
+      7:  { targets: 4, healPct: 0.4, cleanse: true, cost: 160 },
+      8:  { targets: 4, healPct: 0.45, cleanse: true, cost: 320 },
+      9:  { targets: 4, healPct: 0.5, cleanse: true, cost: 640 },
+      10: { targets: 5, healPct: 0.6, cleanse: true, cost: 1280 }
+    }
+  },
+
+  // 16. Voice of Regret - Vivian's debuff song
+  voice_of_regret: {
+    id: 'voice_of_regret',
+    name: 'Voice of Regret',
+    nameZh: '悔恨之音',
+    type: 'multi_debuff',
+    cooldown: 5,
+    levels: {
+      1:  { duration: 2, atkMult: 0.85, spdMult: 0.85, cost: 0 },
+      2:  { duration: 2, atkMult: 0.82, spdMult: 0.82, cost: 5 },
+      3:  { duration: 2, atkMult: 0.8, spdMult: 0.8, cost: 10 },
+      4:  { duration: 3, atkMult: 0.78, spdMult: 0.78, cost: 20 },
+      5:  { duration: 3, atkMult: 0.75, spdMult: 0.75, cost: 40 },
+      6:  { duration: 3, atkMult: 0.72, spdMult: 0.72, cost: 80 },
+      7:  { duration: 4, atkMult: 0.7, spdMult: 0.7, cost: 160 },
+      8:  { duration: 4, atkMult: 0.68, spdMult: 0.68, cost: 320 },
+      9:  { duration: 4, atkMult: 0.65, spdMult: 0.65, cost: 640 },
+      10: { duration: 5, atkMult: 0.6, spdMult: 0.6, cost: 1280 }
+    }
+  },
+
+  // 17. Worldline Calibration - Séraphine's time manipulation
+  worldline_calibration: {
+    id: 'worldline_calibration',
+    name: 'Worldline Calibration',
+    nameZh: '世界线校准',
+    type: 'time_dilation',
+    cooldown: 6,
+    levels: {
+      1:  { slowPct: 0.2, duration: 2, cost: 0 },
+      2:  { slowPct: 0.22, duration: 2, cost: 5 },
+      3:  { slowPct: 0.25, duration: 2, cost: 10 },
+      4:  { slowPct: 0.28, duration: 3, cost: 20 },
+      5:  { slowPct: 0.3, duration: 3, cost: 40 },
+      6:  { slowPct: 0.32, duration: 3, cost: 80 },
+      7:  { slowPct: 0.35, duration: 4, cost: 160 },
+      8:  { slowPct: 0.38, duration: 4, cost: 320 },
+      9:  { slowPct: 0.4, duration: 4, cost: 640 },
+      10: { slowPct: 0.5, duration: 5, cost: 1280 }
+    }
+  },
+
+  // 18. Nightingales Truth - Noelle's piercing truth attack
+  nightingale_truth: {
+    id: 'nightingale_truth',
+    name: "Nightingale's Truth",
+    nameZh: '夜莺的真相',
+    type: 'true_strike',
+    cooldown: 4,
+    levels: {
+      1:  { ignoreDefPct: 0.5, cost: 0 },
+      2:  { ignoreDefPct: 0.55, cost: 5 },
+      3:  { ignoreDefPct: 0.6, cost: 10 },
+      4:  { ignoreDefPct: 0.65, cost: 20 },
+      5:  { ignoreDefPct: 0.7, cost: 40 },
+      6:  { ignoreDefPct: 0.75, cost: 80 },
+      7:  { ignoreDefPct: 0.8, cost: 160 },
+      8:  { ignoreDefPct: 0.85, cost: 320 },
+      9:  { ignoreDefPct: 0.9, cost: 640 },
+      10: { ignoreDefPct: 1.0, cost: 1280 }
+    }
+  },
+
+  // 19. Harmony of Three Worlds - Alouette's triple shield
+  harmony_three_worlds: {
+    id: 'harmony_three_worlds',
+    name: 'Harmony of Three Worlds',
+    nameZh: '三界之和声',
+    type: 'triple_shield',
+    cooldown: 5,
+    levels: {
+      1:  { blocks: 3, targets: 3, cost: 0 },
+      2:  { blocks: 3, targets: 3, cost: 5 },
+      3:  { blocks: 4, targets: 3, cost: 10 },
+      4:  { blocks: 4, targets: 4, cost: 20 },
+      5:  { blocks: 5, targets: 4, cost: 40 },
+      6:  { blocks: 5, targets: 4, cost: 80 },
+      7:  { blocks: 6, targets: 5, cost: 160 },
+      8:  { blocks: 6, targets: 5, cost: 320 },
+      9:  { blocks: 7, targets: 5, cost: 640 },
+      10: { blocks: 8, targets: 5, cost: 1280 }
+    }
+  },
+
+  // 20. Stardust Melody - Solros's healing song
+  stardust_melody: {
+    id: 'stardust_melody',
+    name: 'Stardust Melody',
+    nameZh: '星屑旋律',
+    type: 'dot_heal',
+    cooldown: 4,
+    levels: {
+      1:  { targets: 2, hotPct: 0.08, duration: 3, cost: 0 },
+      2:  { targets: 2, hotPct: 0.09, duration: 3, cost: 5 },
+      3:  { targets: 2, hotPct: 0.1, duration: 3, cost: 10 },
+      4:  { targets: 3, hotPct: 0.1, duration: 4, cost: 20 },
+      5:  { targets: 3, hotPct: 0.12, duration: 4, cost: 40 },
+      6:  { targets: 3, hotPct: 0.14, duration: 4, cost: 80 },
+      7:  { targets: 4, hotPct: 0.15, duration: 5, cost: 160 },
+      8:  { targets: 4, hotPct: 0.17, duration: 5, cost: 320 },
+      9:  { targets: 4, hotPct: 0.2, duration: 5, cost: 640 },
+      10: { targets: 5, hotPct: 0.25, duration: 6, cost: 1280 }
+    }
+  },
+
+  // 21. Accumulated Faith - Agnès's ancient prayer power
+  accumulated_faith: {
+    id: 'accumulated_faith',
+    name: 'Accumulated Faith',
+    nameZh: '积累的信仰',
+    type: 'faith_power',
+    cooldown: 5,
+    levels: {
+      1:  { atkMult: 1.3, defMult: 1.1, duration: 3, cost: 0 },
+      2:  { atkMult: 1.35, defMult: 1.12, duration: 3, cost: 5 },
+      3:  { atkMult: 1.4, defMult: 1.15, duration: 3, cost: 10 },
+      4:  { atkMult: 1.45, defMult: 1.18, duration: 4, cost: 20 },
+      5:  { atkMult: 1.5, defMult: 1.2, duration: 4, cost: 40 },
+      6:  { atkMult: 1.55, defMult: 1.22, duration: 4, cost: 80 },
+      7:  { atkMult: 1.6, defMult: 1.25, duration: 5, cost: 160 },
+      8:  { atkMult: 1.65, defMult: 1.28, duration: 5, cost: 320 },
+      9:  { atkMult: 1.7, defMult: 1.3, duration: 5, cost: 640 },
+      10: { atkMult: 1.8, defMult: 1.35, duration: 6, cost: 1280 }
+    }
+  },
+
+  // 22. Rope Code Escape - Odette's survival shield burst
+  rope_code_escape: {
+    id: 'rope_code_escape',
+    name: 'Rope Code Escape',
+    nameZh: '绳索密码逃脱',
+    type: 'burst_shield',
+    cooldown: 5,
+    levels: {
+      1:  { blocks: 4, targets: 3, cost: 0 },
+      2:  { blocks: 4, targets: 3, cost: 5 },
+      3:  { blocks: 5, targets: 3, cost: 10 },
+      4:  { blocks: 5, targets: 4, cost: 20 },
+      5:  { blocks: 6, targets: 4, cost: 40 },
+      6:  { blocks: 6, targets: 4, cost: 80 },
+      7:  { blocks: 7, targets: 5, cost: 160 },
+      8:  { blocks: 7, targets: 5, cost: 320 },
+      9:  { blocks: 8, targets: 5, cost: 640 },
+      10: { blocks: 10, targets: 5, cost: 1280 }
+    }
+  },
+
+  // 23. Memory of Music - Äelovar's memory-based attack
+  memory_of_music: {
+    id: 'memory_of_music',
+    name: 'Memory of Music',
+    nameZh: '音乐的记忆',
+    type: 'memory_attack',
+    cooldown: 4,
+    levels: {
+      1:  { targets: 2, atkPct: 1.0, cost: 0 },
+      2:  { targets: 2, atkPct: 1.05, cost: 5 },
+      3:  { targets: 2, atkPct: 1.1, cost: 10 },
+      4:  { targets: 3, atkPct: 1.1, cost: 20 },
+      5:  { targets: 3, atkPct: 1.15, cost: 40 },
+      6:  { targets: 3, atkPct: 1.2, cost: 80 },
+      7:  { targets: 4, atkPct: 1.2, cost: 160 },
+      8:  { targets: 4, atkPct: 1.25, cost: 320 },
+      9:  { targets: 4, atkPct: 1.3, cost: 640 },
+      10: { targets: 5, atkPct: 1.4, cost: 1280 }
+    }
+  },
+
+  // 24. Guilt's Price - Marcelline's redemption strike
+  guilts_price: {
+    id: 'guilts_price',
+    name: "Guilt's Price",
+    nameZh: '愧疚的代价',
+    type: 'guilt_strike',
+    cooldown: 5,
+    levels: {
+      1:  { dmgMult: 1.5, cost: 0 },
+      2:  { dmgMult: 1.55, cost: 5 },
+      3:  { dmgMult: 1.6, cost: 10 },
+      4:  { dmgMult: 1.7, cost: 20 },
+      5:  { dmgMult: 1.8, cost: 40 },
+      6:  { dmgMult: 1.9, cost: 80 },
+      7:  { dmgMult: 2.0, cost: 160 },
+      8:  { dmgMult: 2.2, cost: 320 },
+      9:  { dmgMult: 2.4, cost: 640 },
+      10: { dmgMult: 2.8, cost: 1280 }
+    }
+  },
+
+  // 25. Prayer of Millennia - Tulranda's accumulated prayers
+  prayer_of_millennia: {
+    id: 'prayer_of_millennia',
+    name: 'Prayer of Millennia',
+    nameZh: '千年的祈祷',
+    type: 'millennia_prayer',
+    cooldown: 7,
+    levels: {
+      1:  { healPct: 0.5, revivePct: 0.3, cost: 0 },
+      2:  { healPct: 0.52, revivePct: 0.32, cost: 5 },
+      3:  { healPct: 0.55, revivePct: 0.35, cost: 10 },
+      4:  { healPct: 0.58, revivePct: 0.38, cost: 20 },
+      5:  { healPct: 0.6, revivePct: 0.4, cost: 40 },
+      6:  { healPct: 0.65, revivePct: 0.45, cost: 80 },
+      7:  { healPct: 0.7, revivePct: 0.5, cost: 160 },
+      8:  { healPct: 0.75, revivePct: 0.55, cost: 320 },
+      9:  { healPct: 0.8, revivePct: 0.6, cost: 640 },
+      10: { healPct: 0.9, revivePct: 0.7, cost: 1280 }
+    }
+  },
+
+  // 26. First Light - Orgašija's primordial power
+  first_light: {
+    id: 'first_light',
+    name: 'First Light',
+    nameZh: '最初之光',
+    type: 'primordial_strike',
+    cooldown: 4,
+    levels: {
+      1:  { dmgMult: 1.8, cost: 0 },
+      2:  { dmgMult: 1.9, cost: 5 },
+      3:  { dmgMult: 2.0, cost: 10 },
+      4:  { dmgMult: 2.15, cost: 20 },
+      5:  { dmgMult: 2.3, cost: 40 },
+      6:  { dmgMult: 2.5, cost: 80 },
+      7:  { dmgMult: 2.7, cost: 160 },
+      8:  { dmgMult: 2.9, cost: 320 },
+      9:  { dmgMult: 3.2, cost: 640 },
+      10: { dmgMult: 3.5, cost: 1280 }
+    }
+  },
+
+  // 27. Eternal Bond - Leorard's love-pierced strike
+  eternal_bond: {
+    id: 'eternal_bond',
+    name: 'Eternal Bond',
+    nameZh: '永恒的羁绊',
+    type: 'love_strike',
+    cooldown: 4,
+    levels: {
+      1:  { dmgMult: 2.0, cost: 0 },
+      2:  { dmgMult: 2.1, cost: 5 },
+      3:  { dmgMult: 2.2, cost: 10 },
+      4:  { dmgMult: 2.4, cost: 20 },
+      5:  { dmgMult: 2.6, cost: 40 },
+      6:  { dmgMult: 2.8, cost: 80 },
+      7:  { dmgMult: 3.0, cost: 160 },
+      8:  { dmgMult: 3.3, cost: 320 },
+      9:  { dmgMult: 3.6, cost: 640 },
+      10: { dmgMult: 4.0, cost: 1280 }
+    }
   }
 }
 
@@ -402,6 +719,37 @@ export function getSkillDescription(skillId, level) {
       return `Poison: ${Math.round(data.dmgPct * 100)}% HP/turn for ${data.duration} turns`
     case 'antiheal':
       return `Antiheal: heals reduced to ${Math.round(data.healMult * 100)}% for ${data.duration} turns`
+    // New skill types for characters 5-15
+    case 'pierce':
+      return `Pierce: Ignore ${Math.round(data.ignoreDefPct * 100)}% enemy defense`
+    case 'symphonie':
+      return `Damages all enemies (${Math.round(data.dmgPct * 100)}% ATK), heals allies (${Math.round(data.healPct * 100)}% HP)`
+    case 'purify_heal':
+      return `Heals ${data.targets} allies (${Math.round(data.healPct * 100)}% HP), removes debuffs`
+    case 'multi_debuff':
+      return `${Math.round((1 - data.atkMult) * 100)}% ATK/SPD to enemies for ${data.duration} turns`
+    case 'time_dilation':
+      return `Slow all enemies by ${Math.round(data.slowPct * 100)}% for ${data.duration} turns`
+    case 'true_strike':
+      return `True Strike: Ignore ${Math.round(data.ignoreDefPct * 100)}% defense, high damage`
+    case 'triple_shield':
+      return `Triple Shield: ${data.blocks} blocks to ${data.targets} allies`
+    case 'dot_heal':
+      return `Heals ${data.targets} allies ${Math.round(data.hotPct * 100)}% HP/turn for ${data.duration} turns`
+    case 'faith_power':
+      return `${(data.atkMult * 100).toFixed(0)}% ATK, ${(data.defMult * 100).toFixed(0)}% DEF for ${data.duration} turns`
+    case 'burst_shield':
+      return `Burst Shield: ${data.blocks} blocks to ${data.targets} allies instantly`
+    case 'memory_attack':
+      return `Hits ${data.targets} targets at ${Math.round(data.atkPct * 100)}% ATK`
+    case 'guilt_strike':
+      return `High damage attack (${Math.round(data.dmgMult * 100)}% ATK) with guaranteed crit`
+    case 'millennia_prayer':
+      return `Heals all allies (${Math.round(data.healPct * 100)}% HP), chance to revive fallen (${Math.round(data.revivePct * 100)}%)`
+    case 'primordial_strike':
+      return `Primordial Strike: ${Math.round(data.dmgMult * 100)}% ATK damage`
+    case 'love_strike':
+      return `Love Strike: ${Math.round(data.dmgMult * 100)}% ATK, ignores defense`
     default:
       return ''
   }

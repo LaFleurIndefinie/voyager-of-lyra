@@ -138,7 +138,25 @@ export const SKILL_DESCRIPTIONS = {
     slow: (data) => `${(data.spdMult * 100).toFixed(0)}% SPD to enemies for ${data.duration} turns`,
     resurrect: (data) => `Revive ally at ${Math.round(data.hpPct * 100)}% HP`,
     crit_buff: (data) => `+${Math.round(data.critBonus * 100)}% Crit for ${data.duration} turns`,
-    execute: (data) => `+${Math.round((data.dmgMult - 1) * 100)}% dmg to enemies <${Math.round((1 - data.hpThreshold) * 100)}% HP`
+    execute: (data) => `+${Math.round((data.dmgMult - 1) * 100)}% dmg to enemies <${Math.round((1 - data.hpThreshold) * 100)}% HP`,
+    poison: (data) => `Poison: ${Math.round(data.dmgPct * 100)}% HP/turn for ${data.duration} turns`,
+    antiheal: (data) => `Antiheal: heals reduced to ${Math.round(data.healMult * 100)}% for ${data.duration} turns`,
+    // New skill types for characters 5-15
+    pierce: (data) => `Pierce: Ignore ${Math.round(data.ignoreDefPct * 100)}% enemy defense`,
+    symphonie: (data) => `Damages all enemies (${Math.round(data.dmgPct * 100)}% ATK), heals allies (${Math.round(data.healPct * 100)}% HP)`,
+    purify_heal: (data) => `Heals ${data.targets} allies (${Math.round(data.healPct * 100)}% HP), removes debuffs`,
+    multi_debuff: (data) => `${Math.round((1 - data.atkMult) * 100)}% ATK/SPD to enemies for ${data.duration} turns`,
+    time_dilation: (data) => `Slow all enemies by ${Math.round(data.slowPct * 100)}% for ${data.duration} turns`,
+    true_strike: (data) => `True Strike: Ignore ${Math.round(data.ignoreDefPct * 100)}% defense, high damage`,
+    triple_shield: (data) => `Triple Shield: ${data.blocks} blocks to ${data.targets} allies`,
+    dot_heal: (data) => `Heals ${data.targets} allies ${Math.round(data.hotPct * 100)}% HP/turn for ${data.duration} turns`,
+    faith_power: (data) => `${(data.atkMult * 100).toFixed(0)}% ATK, ${(data.defMult * 100).toFixed(0)}% DEF for ${data.duration} turns`,
+    burst_shield: (data) => `Burst Shield: ${data.blocks} blocks to ${data.targets} allies instantly`,
+    memory_attack: (data) => `Hits ${data.targets} targets at ${Math.round(data.atkPct * 100)}% ATK`,
+    guilt_strike: (data) => `High damage attack (${Math.round(data.dmgMult * 100)}% ATK) with guaranteed crit`,
+    millennia_prayer: (data) => `Heals all allies (${Math.round(data.healPct * 100)}% HP), chance to revive fallen (${Math.round(data.revivePct * 100)}%)`,
+    primordial_strike: (data) => `Primordial Strike: ${Math.round(data.dmgMult * 100)}% ATK damage`,
+    love_strike: (data) => `Love Strike: ${Math.round(data.dmgMult * 100)}% ATK, ignores defense`
   },
   zh: {
     multi_attack: (data) => `攻击 ${data.targets} 个目标`,
@@ -158,7 +176,25 @@ export const SKILL_DESCRIPTIONS = {
     slow: (data) => `敌人 ${data.duration} 回合内 -${Math.round((1 - data.spdMult) * 100)}% 速度`,
     resurrect: (data) => `复活队友，恢复 ${Math.round(data.hpPct * 100)}% 生命值`,
     crit_buff: (data) => `${data.duration} 回合内 +${Math.round(data.critBonus * 100)}% 暴击率`,
-    execute: (data) => `对生命值低于 ${Math.round(data.hpThreshold * 100)}% 的敌人 +${Math.round((data.dmgMult - 1) * 100)}% 伤害`
+    execute: (data) => `对生命值低于 ${Math.round(data.hpThreshold * 100)}% 的敌人 +${Math.round((data.dmgMult - 1) * 100)}% 伤害`,
+    poison: (data) => `中毒: 每回合损失 ${Math.round(data.dmgPct * 100)}% 生命，持续 ${data.duration} 回合`,
+    antiheal: (data) => `禁疗: 治疗效果降低至 ${Math.round(data.healMult * 100)}%，持续 ${data.duration} 回合`,
+    // New skill types for characters 5-15
+    pierce: (data) => `穿刺: 忽略敌人 ${Math.round(data.ignoreDefPct * 100)}% 防御`,
+    symphonie: (data) => `攻击所有敌人 (${Math.round(data.dmgPct * 100)}% 攻击力)，治疗队友 (${Math.round(data.healPct * 100)}% 生命)`,
+    purify_heal: (data) => `治疗 ${data.targets} 名队友 (${Math.round(data.healPct * 100)}% 生命)，并清除减益`,
+    multi_debuff: (data) => `敌人 ${data.duration} 回合内 -${Math.round((1 - data.atkMult) * 100)}% 攻击/速度`,
+    time_dilation: (data) => `所有敌人减速 ${Math.round(data.slowPct * 100)}%，持续 ${data.duration} 回合`,
+    true_strike: (data) => `真实打击: 忽略 ${Math.round(data.ignoreDefPct * 100)}% 防御，高伤害`,
+    triple_shield: (data) => `三界护盾: 为 ${data.targets} 名队友提供 ${data.blocks} 次护盾`,
+    dot_heal: (data) => `治疗 ${data.targets} 名队友，每回合恢复 ${Math.round(data.hotPct * 100)}% 生命，持续 ${data.duration} 回合`,
+    faith_power: (data) => `${data.duration} 回合内 +${(data.atkMult * 100).toFixed(0)}% 攻击、+${(data.defMult * 100).toFixed(0)}% 防御`,
+    burst_shield: (data) => `爆发护盾: 立即为 ${data.targets} 名队友提供 ${data.blocks} 次护盾`,
+    memory_attack: (data) => `攻击 ${data.targets} 个目标 (${Math.round(data.atkPct * 100)}% 攻击力)`,
+    guilt_strike: (data) => `愧疚打击: 高伤害攻击 (${Math.round(data.dmgMult * 100)}% 攻击力)，必定暴击`,
+    millennia_prayer: (data) => `治疗所有队友 (${Math.round(data.healPct * 100)}% 生命)，有 ${Math.round(data.revivePct * 100)}% 概率复活阵亡队友`,
+    primordial_strike: (data) => `原初打击: ${Math.round(data.dmgMult * 100)}% 攻击力伤害`,
+    love_strike: (data) => `爱的打击: ${Math.round(data.dmgMult * 100)}% 攻击力，无视防御`
   }
 }
 

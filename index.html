@@ -2368,6 +2368,228 @@
                                                 healMult: skill.healMult
                                             })
                                         })
+                                    } else if (skill.type === 'pierce') {
+                                        // Star Compass - ignore defense
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        const effectiveDef = Math.max(0, target.def * (1 - skill.ignoreDefPct))
+                                        const dmg = Math.max(1, Math.round(unit.atk - effectiveDef))
+                                        const oldHp = target.hp
+                                        target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'symphonie') {
+                                        // Symphonie des Étoiles - damages enemies and heals allies
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            const dmg = Math.max(1, Math.round(unit.atk * skill.dmgPct))
+                                            const oldHp = enemy.hp
+                                            enemy.hp -= dmg
+                                            this.trackHpChange(enemy, enemy.hp - oldHp)
+                                        })
+                                        if (this.isAllDead(action.side === 'p' ? this.enemyUnits : this.playerUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            const healAmount = Math.round(ally.baseHp * skill.healPct)
+                                            const healMult = this.getHealMultiplier(ally)
+                                            const oldHp = ally.hp
+                                            ally.hp = Math.min(ally.baseHp, ally.hp + Math.round(healAmount * healMult))
+                                            this.trackHpChange(ally, ally.hp - oldHp)
+                                        })
+                                    } else if (skill.type === 'purify_heal') {
+                                        // Star God's Voice - heals and removes debuffs
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const injured = allies.filter(a => a.hp > 0).sort((a, b) => (b.baseHp - b.hp) - (a.baseHp - a.hp))
+                                        const targetsToHeal = injured.slice(0, skill.targets)
+                                        targetsToHeal.forEach(ally => {
+                                            const healMult = this.getHealMultiplier(ally)
+                                            const healAmount = Math.round(ally.baseHp * skill.healPct * healMult)
+                                            const oldHp = ally.hp
+                                            ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
+                                            this.trackHpChange(ally, ally.hp - oldHp)
+                                            // Remove debuffs if cleanse is true
+                                            if (skill.cleanse) {
+                                                ally.debuffs = ally.debuffs.filter(d => d.type === 'poison' || d.type === 'antiheal')
+                                            }
+                                        })
+                                    } else if (skill.type === 'multi_debuff') {
+                                        // Voice of Regret - reduces ATK and SPD
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                duration: skill.duration,
+                                                atkMult: skill.atkMult,
+                                                spdMult: skill.spdMult
+                                            })
+                                        })
+                                    } else if (skill.type === 'time_dilation') {
+                                        // Worldline Calibration - slows all enemies
+                                        const enemies = action.side === 'p' ? this.enemyUnits : this.playerUnits
+                                        enemies.filter(e => e.hp > 0).forEach(enemy => {
+                                            this.applyDebuff(enemy, {
+                                                duration: skill.duration,
+                                                spdMult: (1 - skill.slowPct)
+                                            })
+                                        })
+                                    } else if (skill.type === 'true_strike') {
+                                        // Nightingale's Truth - ignores defense
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        const effectiveDef = Math.max(0, target.def * (1 - skill.ignoreDefPct))
+                                        let dmg = Math.max(1, Math.round(unit.atk - effectiveDef))
+                                        // Guaranteed crit for true strike
+                                        dmg = Math.round(dmg * 1.5)
+                                        const oldHp = target.hp
+                                        target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'triple_shield') {
+                                        // Harmony of Three Worlds - triple shield
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
+                                        alive.forEach(ally => {
+                                            ally.shieldBlocks += skill.blocks
+                                        })
+                                    } else if (skill.type === 'dot_heal') {
+                                        // Stardust Melody - heal over time
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
+                                        alive.forEach(ally => {
+                                            this.applyBuff(ally, {
+                                                type: 'dot_heal',
+                                                duration: skill.duration,
+                                                hotPct: skill.hotPct
+                                            })
+                                        })
+                                    } else if (skill.type === 'faith_power') {
+                                        // Accumulated Faith - attack and defense buff
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            this.applyBuff(ally, {
+                                                duration: skill.duration,
+                                                atkMult: skill.atkMult,
+                                                defMult: skill.defMult
+                                            })
+                                        })
+                                    } else if (skill.type === 'burst_shield') {
+                                        // Rope Code Escape - burst shield
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        const alive = allies.filter(a => a.hp > 0).slice(0, skill.targets)
+                                        alive.forEach(ally => {
+                                            ally.shieldBlocks += skill.blocks
+                                        })
+                                    } else if (skill.type === 'memory_attack') {
+                                        // Memory of Music - multi-target attack
+                                        const targets = aliveTargets.slice(0, skill.targets)
+                                        targets.forEach(target => {
+                                            let dmg = Math.max(1, Math.round(unit.atk * skill.atkPct))
+                                            const oldHp = target.hp
+                                            target.hp -= dmg
+                                            this.trackHpChange(target, target.hp - oldHp)
+                                        })
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'guilt_strike') {
+                                        // Guilt's Price - high damage with guaranteed crit
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        let dmg = Math.max(1, Math.round(unit.atk * skill.dmgMult))
+                                        dmg = Math.round(dmg * 1.5) // Guaranteed crit
+                                        const oldHp = target.hp
+                                        target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'millennia_prayer') {
+                                        // Prayer of Millennia - heal all and chance to revive
+                                        const allies = action.side === 'p' ? this.playerUnits : this.enemyUnits
+                                        // Heal all alive allies
+                                        allies.filter(a => a.hp > 0).forEach(ally => {
+                                            const healMult = this.getHealMultiplier(ally)
+                                            const healAmount = Math.round(ally.baseHp * skill.healPct * healMult)
+                                            const oldHp = ally.hp
+                                            ally.hp = Math.min(ally.baseHp, ally.hp + healAmount)
+                                            this.trackHpChange(ally, ally.hp - oldHp)
+                                        })
+                                        // Chance to revive dead allies
+                                        const dead = allies.filter(a => a.hp <= 0)
+                                        dead.forEach(ally => {
+                                            if (Math.random() < skill.revivePct) {
+                                                ally.hp = Math.round(ally.baseHp * 0.5)
+                                                ally.debuffs = []
+                                                this.trackHpChange(ally, ally.hp)
+                                            }
+                                        })
+                                    } else if (skill.type === 'primordial_strike') {
+                                        // First Light - primordial power strike
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        let dmg = Math.max(1, Math.round(unit.atk * skill.dmgMult))
+                                        if (Math.random() < unit.critChance * 2) {
+                                            dmg = Math.round(dmg * 1.5)
+                                        }
+                                        const oldHp = target.hp
+                                        target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
+                                    } else if (skill.type === 'love_strike') {
+                                        // Eternal Bond - ignores defense
+                                        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)]
+                                        const effectiveDef = Math.max(0, target.def * 0.2) // Only 20% defense counts
+                                        let dmg = Math.max(1, Math.round(unit.atk - effectiveDef) * skill.dmgMult)
+                                        if (Math.random() < unit.critChance) {
+                                            dmg = Math.round(dmg * 1.5)
+                                        }
+                                        const oldHp = target.hp
+                                        target.hp -= dmg
+                                        this.trackHpChange(target, target.hp - oldHp)
+                                        if (this.isAllDead(this.enemyUnits)) {
+                                            this.battleStatus = 'win'
+                                            this.clearBattleHighlight()
+                                            return
+                                        } else if (this.isAllDead(this.playerUnits)) {
+                                            this.battleStatus = 'lose'
+                                            this.clearBattleHighlight()
+                                            return
+                                        }
                                     }
                                 }
                             }
