@@ -491,12 +491,12 @@
         }
 
         .player-column .unit-slot {
-            background: #0d250e;
+            background: #1a1a1a;
             border-color: #1a7f2e;
         }
 
         .enemy-column .unit-slot {
-            background: #2a0d0d;
+            background: #1a1a1a;
             border-color: #9f2d2d;
         }
 
@@ -515,11 +515,11 @@
         }
 
         .player-column .unit-slot.unit-acting {
-            background: #1a4a1c !important;
+            background: transparent !important;
         }
 
         .enemy-column .unit-slot.unit-acting {
-            background: #4a1a1a !important;
+            background: transparent !important;
         }
 
         .unit-slot {
@@ -609,6 +609,15 @@
         .enemy-unit .unit-image {
             border-radius: 3px 0 0 3px;
             object-position: left center;
+            position: absolute;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
         }
 
         .enemy-unit .unit-image-wrapper::before {
@@ -1301,7 +1310,12 @@
                                         <div v-for="(unit, i) in enemyUnits" :key="'enemy-' + i" :data-unit-index="i"
                                             :data-unit-side="'enemy'" class="unit-slot enemy-unit"
                                             :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
-                                            <div v-if="unit" class="unit-image-placeholder"></div>
+                                            <div v-if="unit" class="unit-image-wrapper">
+                                                <img v-if="getEnemyBattleImg(unit.name)"
+                                                    :src="getEnemyBattleImg(unit.name)" class="unit-image"
+                                                    :alt="unit.name" />
+                                                <div v-else class="unit-image-placeholder"></div>
+                                            </div>
                                             <div v-if="unit" class="unit-info"
                                                 :style="{ opacity: unit.hp <= 0 ? 0.3 : 1 }">
                                                 <div class="unit-name">
@@ -1521,6 +1535,15 @@
                     // Check if battle image exists using the naming convention: {id}_{name}_b.png
                     const imgPath = `assets/charactersBattle/${String(charId).padStart(3, '0')}_${char.name}_b.png`
                     // Return the path - the actual existence check is done by the browser when loading
+                    return imgPath
+                },
+
+                getEnemyBattleImg(enemyName) {
+                    if (!enemyName) return null
+                    // Use naming convention: enemy_{name}_b.png
+                    // Replace spaces with underscores for valid filenames
+                    const safeName = enemyName.replace(/\s+/g, '_')
+                    const imgPath = `assets/charactersBattle/enemy_${safeName}_b.png`
                     return imgPath
                 },
 
