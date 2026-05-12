@@ -559,13 +559,75 @@
             border-radius: 0 3px 3px 0;
         }
 
+        .player-unit .unit-image,
+        .enemy-unit .unit-image {
+            position: relative;
+        }
+
+        .player-unit .unit-image-wrapper,
+        .enemy-unit .unit-image-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            height: 100%;
+        }
+
         .player-unit .unit-image {
             border-radius: 0 3px 3px 0;
+            object-position: right center;
+            position: absolute;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
+        }
+
+        .player-unit .unit-image-wrapper::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+
+            width: 48px;
+            height: 100%;
+
+            pointer-events: none;
+            z-index: 2;
+
+            background: linear-gradient(to right,
+                    #1a1a1a 0%,
+                    rgba(26, 26, 26, 0.92) 18%,
+                    rgba(26, 26, 26, 0.55) 48%,
+                    rgba(26, 26, 26, 0) 100%);
         }
 
         .enemy-unit .unit-image {
             border-radius: 3px 0 0 3px;
             object-position: left center;
+        }
+
+        .enemy-unit .unit-image-wrapper::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+
+            width: 48px;
+            height: 100%;
+
+            pointer-events: none;
+            z-index: 2;
+
+            background: linear-gradient(to left,
+                    #1a1a1a 0%,
+                    rgba(26, 26, 26, 0.92) 18%,
+                    rgba(26, 26, 26, 0.55) 48%,
+                    rgba(26, 26, 26, 0) 100%);
         }
 
         .enemy-unit .unit-image-placeholder {
@@ -643,7 +705,6 @@
             flex: 1;
             height: 100%;
             object-fit: cover;
-            object-position: right center;
             flex-shrink: 0;
             background: #1a1a1a;
         }
@@ -651,7 +712,7 @@
         .unit-slot .unit-image-placeholder {
             flex: 1;
             flex-shrink: 0;
-            background: #333;
+            background: transparent;
         }
 
         .unit-slot .unit-name {
@@ -1224,12 +1285,10 @@
                                                     <span>{{ t('DEFPEN') }}: {{ unit.defReduce }}</span>
                                                 </div>
                                             </div>
-                                            <img v-if="unit && unit.charId && getCharBattleImg(unit.charId)"
-                                                :src="getCharBattleImg(unit.charId)" class="unit-image"
-                                                :alt="unit.displayName" />
-                                            <div v-else-if="unit" class="unit-image-placeholder"></div>
-                                            <div v-else class="unit-name unit-image-placeholder">
-                                                {{ t('Empty') }}
+                                            <div class="unit-image-wrapper">
+                                                <img v-if="unit && unit.charId && getCharBattleImg(unit.charId)"
+                                                    :src="getCharBattleImg(unit.charId)" class="unit-image"
+                                                    :alt="unit.displayName" />
                                             </div>
                                         </div>
                                     </div>
