@@ -1,4 +1,5 @@
 // Enemy skills - novel-themed skills for Le Foyer du Futur
+// Each skill has a unique ID (string name) and associated data
 
 export const ENEMY_SKILLS = {
   // Basic attack
@@ -186,8 +187,6 @@ export const ENEMY_SKILLS = {
     description: "Reduces healing received"
   },
 
-  // ========== NOVEL-THEMED SKILLS ==========
-
   // Time manipulation
   time_distortion: {
     id: "time_distortion",
@@ -268,63 +267,8 @@ export function getEnemySkill(skillId) {
   return ENEMY_SKILLS[skillId] || null
 }
 
-// Predefined skill sets for novel-themed enemy types
-export const ENEMY_SKILL_SETS = {
-  // Eternal Slumber Remnants (Stages 31-40)
-  slumber_soldier: ["slow", "power_strike"],
-  slumber_preacher: ["weaken", "curse_of_withering"],
-  void_acolyte: ["soul_drain", "weaken"],
-  slumber_knight: ["battle_cry", "double_strike"],
-  slumber_lord: ["dark_healing", "soul_revival", "execute"],
-  temporal_echo: ["time_distortion", "slow"],
-  historical_fragment: ["slow", "fortify"],
-
-  // Institute Enemies (Stages 41-50)
-  institute_guard: ["fortify", "battle_cry"],
-  calibration_drone: ["slow", "time_distortion"],
-  research_clone: ["double_strike", "execute"],
-  institute_director: ["dark_healing", "soul_revival", "weaken"],
-
-  // Prison Camp Echoes (Stages 41-50)
-  exam_guard: ["fortify", "power_strike"],
-  compliance_officer: ["weaken", "curse_of_withering"],
-  reformation_warden: ["soul_drain", "dark_healing"],
-  prison_commander: ["battle_cry", "execute", "soul_revival"],
-
-  // Star God Remnants (Stages 51-60)
-  constellation_shade: ["slow", "light_heal"],
-  symphonie_echo: ["multi_attack_random", "buff_all"],
-  starlight_wraith: ["soul_drain", "execute"],
-  loom_guardian: ["fortify", "barrier", "group_heal"],
-  star_god_fragment: ["dark_healing", "soul_revival", "buff_all"],
-
-  // Music Spirits (Stages 61-70)
-  melody_fragment: ["slow", "multi_attack_random"],
-  harmony_shade: ["buff_all", "shield_all"],
-  dissonance_entity: ["weaken", "curse_of_withering"],
-  symphony_guardian: ["barrier", "group_heal", "execute"],
-  lyre_spirit: ["buff_all", "light_heal", "shield_all"],
-
-  // Hope and Future (Stages 71-100)
-  future_echo: ["time_distortion", "buff_all"],
-  memory_fragment: ["soul_drain", "slow"],
-  possibility_shade: ["shield_all", "fortify"],
-  eternal_harmony: ["group_heal", "buff_all", "execute"],
-  origin_compass: ["fortify", "power_strike", "execute"],
-
-  // Final Boss Enemies
-  thanatos_fragment: ["death_sentence", "soul_revival", "dark_healing"],
-  meteor_entity: ["meteor_strike", "ancient_wrath", "execute"],
-  worldline_controller: ["time_distortion", "soul_revival", "buff_all"],
-  synthesizer: ["buff_all", "group_heal", "shield_all"],
-
-  // Generic skills
-  fortify: ["fortify"],
-  slow: ["slow"]
-}
-
-// Get skills for an enemy type
-export function getEnemySkillSet(enemyType) {
-  const skillIds = ENEMY_SKILL_SETS[enemyType] || []
+// Get multiple skills by IDs
+export function getEnemySkills(skillIds) {
+  if (!skillIds || !Array.isArray(skillIds)) return []
   return skillIds.map(id => getEnemySkill(id)).filter(s => s !== null)
 }

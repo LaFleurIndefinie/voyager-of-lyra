@@ -919,9 +919,16 @@
         }
 
         .story-content {
+            display: flex;
+            gap: 12px;
             font-size: 0.85rem;
             color: #ccc;
             line-height: 1.5;
+        }
+
+        .story-text-wrapper {
+            flex: 1;
+            min-width: 0;
         }
 
         .story-date {
@@ -935,6 +942,36 @@
             margin: 0;
             color: #b8b8b8;
             text-align: justify;
+        }
+
+        .story-image-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            height: 300px;
+        }
+
+        .story-image-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border: 3px solid #b8860b;
+            border-radius: 4px;
+        }
+
+        .story-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #2a2a3e;
+            border: 2px dashed #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -1223,10 +1260,17 @@
                 <div class="panel story-panel" v-if="selectedStage !== null && selectedStage < stages.length">
                     <h3>{{ currentLang === 'zh' ? '故事' : 'Story' }}</h3>
                     <div class="story-content">
-                        <div class="story-date">{{ currentLang === 'zh' ? getStageStory(selectedStage).dateZh :
-                            getStageStory(selectedStage).date }}</div>
-                        <p class="story-text">{{ currentLang === 'zh' ? getStageStory(selectedStage).storyZh :
-                            getStageStory(selectedStage).story }}</p>
+                        <div class="story-text-wrapper">
+                            <div class="story-date">{{ currentLang === 'zh' ? getStageStory(selectedStage).dateZh :
+                                getStageStory(selectedStage).date }}</div>
+                            <p class="story-text">{{ currentLang === 'zh' ? getStageStory(selectedStage).storyZh :
+                                getStageStory(selectedStage).story }}</p>
+                        </div>
+                        <div class="story-image-wrapper">
+                            <img v-if="getStageBgImg(selectedStage)" :src="getStageBgImg(selectedStage)"
+                                :alt="'Stage ' + stages[selectedStage].displayNo" />
+                            <div v-else class="story-image-placeholder">{{ t('Stage') }} {{ stages[selectedStage].displayNo }}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -1311,8 +1355,8 @@
                                             :data-unit-side="'enemy'" class="unit-slot enemy-unit"
                                             :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
                                             <div v-if="unit" class="unit-image-wrapper">
-                                                <img v-if="getEnemyBattleImg(unit.name)"
-                                                    :src="getEnemyBattleImg(unit.name)" class="unit-image"
+                                                <img v-if="getEnemyBattleImg(unit)"
+                                                    :src="getEnemyBattleImg(unit)" class="unit-image"
                                                     :alt="unit.name" />
                                                 <div v-else class="unit-image-placeholder"></div>
                                             </div>
@@ -1378,7 +1422,7 @@
     <!-- 🔥 用 module -->
     <script type="module">
         import { CHARACTERS } from "./data/characters.js"
-        import { ENEMIES } from "./data/enemies.js"
+        import { ENEMIES, createEnemyInstance } from "./data/enemies.js"
         import { STAGES } from "./data/stages.js"
         import { LEVELS } from "./data/levels.js"
         import { EQUIPMENT_UPGRADES } from "./data/equipment.js"
@@ -1530,20 +1574,27 @@
 
                 getCharBattleImg(charId) {
                     if (!charId) return null
-                    const char = this.getChar(charId)
-                    if (!char) return null
-                    // Check if battle image exists using the naming convention: {id}_{name}_b.png
-                    const imgPath = `assets/charactersBattle/${String(charId).padStart(3, '0')}_${char.name}_b.png`
-                    // Return the path - the actual existence check is done by the browser when loading
+                    // Use naming convention: ch_{id}_b.png
+                    const imgPath = `assets/charactersBattle/ch_${charId}_b.png`
                     return imgPath
                 },
 
-                getEnemyBattleImg(enemyName) {
-                    if (!enemyName) return null
-                    // Use naming convention: enemy_{name}_b.png
-                    // Replace spaces with underscores for valid filenames
-                    const safeName = enemyName.replace(/\s+/g, '_')
-                    const imgPath = `assets/charactersBattle/enemy_${safeName}_b.png`
+                getEnemyBattleImg(unit) {
+                    if (!unit) return null
+                    // Use typeId for consistent naming: e_{typeId}_b.png
+                    const typeId = unit.typeId || unit.name?.replace(/\s+/g, '_')
+                    if (!typeId) return null
+                    const imgPath = `assets/enemiesBattle/e_${typeId}_b.png`
+                    return imgPath
+                },
+
+                getStageBgImg(stageIndex) {
+                    if (stageIndex === null || stageIndex === undefined) return null
+                    const stageId = this.stages[stageIndex]?.id
+                    if (!stageId) return null
+                    // Naming convention: st_{id}.png in assets/storyBgs/
+                    // e.g., st_1.png for stage 1
+                    const imgPath = `assets/storyBgs/st_${stageId}.png`
                     return imgPath
                 },
 
@@ -2128,25 +2179,29 @@
                         })
 
                     const enemyTeam = this.enemies.find(e => e.id === this.stages[this.selectedStage].enemyTeamId)
-                    this.enemyUnits = enemyTeam.members.map(e => ({
-                        ...e,
-                        baseAtk: e.atk,
-                        baseDef: e.def,
-                        baseSpd: e.spd,
-                        baseHp: e.hp,
-                        baseCritChance: e.critChance || 0.05,
-                        baseDefReduce: e.defReduce || Math.round(e.def * 0.1),
-                        critChance: e.critChance || 0.05,
-                        defReduce: e.defReduce || Math.round(e.def * 0.1),
-                        buffs: [],
-                        stunnedTurns: 0,
-                        tauntTurns: 0,
-                        shieldBlocks: 0,
-                        debuffs: [],
-                        currentSkill: null,
-                        skillCooldowns: (e.skills || []).map(() => 0),
-                        side: 'e'
-                    }))
+                    const stage = this.stages[this.selectedStage].id
+                    this.enemyUnits = enemyTeam.members.map((typeId, idx) => {
+                        const enemy = createEnemyInstance(typeId, `enemy_${idx}`, stage)
+                        return {
+                            ...enemy,
+                            baseAtk: enemy.atk,
+                            baseDef: enemy.def,
+                            baseSpd: enemy.spd,
+                            baseHp: enemy.hp,
+                            baseCritChance: enemy.critChance || 0.05,
+                            baseDefReduce: enemy.defReduce || Math.round(enemy.def * 0.1),
+                            critChance: enemy.critChance || 0.05,
+                            defReduce: enemy.defReduce || Math.round(enemy.def * 0.1),
+                            buffs: [],
+                            stunnedTurns: 0,
+                            tauntTurns: 0,
+                            shieldBlocks: 0,
+                            debuffs: [],
+                            currentSkill: null,
+                            skillCooldowns: (enemy.skills || []).map(() => 0),
+                            side: 'e'
+                        }
+                    })
 
                     this.turnNumber = 1
                     this.battleStatus = null
