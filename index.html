@@ -908,32 +908,32 @@
             border-radius: 8px;
             padding: 12px 16px;
             margin-bottom: 10px;
+            justify-content: space-between;
         }
 
         .story-panel h3 {
             color: #c9a227;
             margin-bottom: 8px;
-            font-size: 1rem;
+            font-size: 1.15rem;
             border-bottom: 1px solid #333;
             padding-bottom: 6px;
         }
 
         .story-content {
-            display: flex;
-            gap: 12px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #ccc;
-            line-height: 1.5;
+            line-height: 1.7;
         }
 
-        .story-text-wrapper {
-            flex: 1;
-            min-width: 0;
+        .story-content::after {
+            content: "";
+            display: block;
+            clear: both;
         }
 
         .story-date {
             color: #888;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-style: italic;
             margin-bottom: 6px;
         }
@@ -945,18 +945,21 @@
         }
 
         .story-image-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 0;
-            height: 300px;
+            float: right;
+
+            width: 520px;
+            max-width: 45%;
+
+            margin-left: 20px;
+            margin-bottom: 10px;
+            margin-top: 32px;
         }
 
         .story-image-wrapper img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            width: 100%;
+            height: auto;
+            display: block;
+
             border: 3px solid #b8860b;
             border-radius: 4px;
         }
@@ -1260,17 +1263,19 @@
                 <div class="panel story-panel" v-if="selectedStage !== null && selectedStage < stages.length">
                     <h3>{{ currentLang === 'zh' ? '故事' : 'Story' }}</h3>
                     <div class="story-content">
+                        <div class="story-image-wrapper">
+                            <img v-if="getStageBgImg(selectedStage)" :src="getStageBgImg(selectedStage)"
+                                :alt="'Stage ' + stages[selectedStage].displayNo" />
+                            <div v-else class="story-image-placeholder">{{ t('Stage') }} {{
+                                stages[selectedStage].displayNo }}</div>
+                        </div>
                         <div class="story-text-wrapper">
                             <div class="story-date">{{ currentLang === 'zh' ? getStageStory(selectedStage).dateZh :
                                 getStageStory(selectedStage).date }}</div>
                             <p class="story-text">{{ currentLang === 'zh' ? getStageStory(selectedStage).storyZh :
                                 getStageStory(selectedStage).story }}</p>
                         </div>
-                        <div class="story-image-wrapper">
-                            <img v-if="getStageBgImg(selectedStage)" :src="getStageBgImg(selectedStage)"
-                                :alt="'Stage ' + stages[selectedStage].displayNo" />
-                            <div v-else class="story-image-placeholder">{{ t('Stage') }} {{ stages[selectedStage].displayNo }}</div>
-                        </div>
+
                     </div>
                 </div>
 
@@ -1355,9 +1360,8 @@
                                             :data-unit-side="'enemy'" class="unit-slot enemy-unit"
                                             :class="{'unit-acting': actingUnit && actingUnit.side === 'enemy' && actingUnit.index === i}">
                                             <div v-if="unit" class="unit-image-wrapper">
-                                                <img v-if="getEnemyBattleImg(unit)"
-                                                    :src="getEnemyBattleImg(unit)" class="unit-image"
-                                                    :alt="unit.name" />
+                                                <img v-if="getEnemyBattleImg(unit)" :src="getEnemyBattleImg(unit)"
+                                                    class="unit-image" :alt="unit.name" />
                                                 <div v-else class="unit-image-placeholder"></div>
                                             </div>
                                             <div v-if="unit" class="unit-info"
