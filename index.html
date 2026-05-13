@@ -27,7 +27,7 @@
 
         .header {
             background: #222;
-            padding: 10px;
+            padding: 5px 10px 5px 15px;
             border-bottom: 2px solid #444;
             display: flex;
             align-items: center;
@@ -59,6 +59,110 @@
             gap: 10px;
             flex-wrap: wrap;
             justify-content: flex-end;
+        }
+
+        /* Music Player */
+        .music-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0px;
+            padding: 3px 24px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            min-width: 300px;
+            width: 600px;
+        }
+
+        .music-player .song-name {
+            font-size: 0.9rem;
+            color: #e0b830;
+            text-align: center;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+            min-height: 1em;
+            margin-bottom: 6px;
+            margin-top: 2px;
+        }
+
+        .music-player .progress-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 6px;
+        }
+
+        .music-player .time-display {
+            font-size: 0.65rem;
+            color: #888;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .music-player .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #444;
+            border-radius: 1px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .music-player .progress-bar .progress {
+            height: 100%;
+            background: #c9a227;
+            transition: width 0.1s linear;
+        }
+
+        .music-player .controls {
+            display: flex;
+            align-items: center;
+            gap: 0px;
+        }
+
+        .music-player .controls button {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .music-player .controls button:hover {
+            background: #444;
+            color: #fff;
+        }
+
+        .music-player .controls .play-btn {
+            font-size: 0.9rem;
+            color: #c9a227;
+        }
+
+        .music-player .controls .play-btn:hover {
+            color: #e0b830;
+        }
+
+        .theme-song-btn {
+            background: linear-gradient(135deg, #c9a227, #8b6914);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .theme-song-btn:hover {
+            background: linear-gradient(135deg, #d4b02f, #9a7518);
         }
 
         .main-content {
@@ -989,6 +1093,26 @@
                     {{ diamond }} | ⏱️{{ t('AFK') }}: {{ stages[currentStage] ? stages[currentStage].afkGain : 1 }}x
                 </div>
             </div>
+
+            <!-- Music Player -->
+            <div class="music-player">
+                <div class="song-name">{{ getMusicDisplayName() }}</div>
+                <div class="progress-row">
+                    <span class="time-display">{{ formatTime(currentTime) }}</span>
+                    <div class="progress-bar" @click="seekMusic">
+                        <div class="progress" :style="{ width: musicProgress + '%' }"></div>
+                    </div>
+                    <span class="time-display">{{ formatTime(musicDuration) }}</span>
+                </div>
+                <div class="controls">
+                    <button @click="prevSong" title="Previous">⏮</button>
+                    <button class="play-btn" @click="togglePlay">
+                        {{ isPlaying ? '⏸' : '▶' }}
+                    </button>
+                    <button @click="nextSong" title="Next">⏭</button>
+                </div>
+            </div>
+
             <div class="header-actions">
                 <button @click="toggleLang">{{ t('ToggleLang') }}</button>
                 <button @click="saveGame">{{ t('Save Game') }}</button>
@@ -1228,6 +1352,11 @@
                                     getChar(selectedChar).basicInfo.height }}{{ t('cm') }}</div>
                                 <div><span style="color: #888;">{{ t('Weight') }}:</span> {{
                                     getChar(selectedChar).basicInfo.weight }}{{ t('kg') }}</div>
+                            </div>
+                            <div style="grid-column: 1 / -1; margin-top: 8px;">
+                                <button class="theme-song-btn" @click="playThemeSong(selectedChar)" style="width: 100%;">
+                                    {{ currentLang === 'zh' ? '播放主题曲' : 'Play Theme Song' }}
+                                </button>
                             </div>
                         </div>
                         <!-- Story Section -->
@@ -1490,7 +1619,15 @@
                     actingUnit: null, // { side: 'player'|'enemy', index: 0-4 }
                     battleLoop: null, // Store interval ID to prevent multiple loops
                     battleActionOrder: null, // Array of units in action order
-                    battleActionIndex: 0 // Current index in action order
+                    battleActionIndex: 0, // Current index in action order
+
+                    // Music Player
+                    audioPlayer: null,
+                    currentMusicId: 1,
+                    isPlaying: false,
+                    musicProgress: 0,
+                    currentTime: 0,
+                    musicDuration: 0
                 }
             },
 
@@ -1573,6 +1710,7 @@
                 },
 
                 getChar(id) {
+                    if (!this.characters) return null
                     return this.characters.find(c => c.id === id)
                 },
 
@@ -2182,7 +2320,7 @@
                             }
                         })
 
-                    const enemyTeam = this.enemies.find(e => e.id === this.stages[this.selectedStage].enemyTeamId)
+                    const enemyTeam = this.enemies.find(e => e.id === Number(this.stages[this.selectedStage].enemyTeamId))
                     const stage = this.stages[this.selectedStage].id
                     this.enemyUnits = enemyTeam.members.map((typeId, idx) => {
                         const enemy = createEnemyInstance(typeId, `enemy_${idx}`, stage)
@@ -2976,6 +3114,111 @@
                             if (el) el.classList.remove('unit-acting')
                         }
                     })
+                },
+
+                // Music Player
+                getMusicPath(charId) {
+                    return `assets/music/ch_${charId}_m.wav`
+                },
+
+                getMusicName(charId) {
+                    const char = this.getChar(charId)
+                    if (!char) return 'No Music'
+                    if (char.songName) {
+                        return this.currentLang === 'zh' ? char.songNameZh || char.songName : char.songName
+                    }
+                    return this.currentLang === 'zh' ? `${char.nameZh} 主题曲` : `${char.name}'s Theme`
+                },
+
+                get currentMusicName() {
+                    if (!this.characters || !this.currentMusicId) return 'No Music'
+                    const char = this.getChar(this.currentMusicId)
+                    if (!char) return 'No Music'
+                    if (char.songName) {
+                        return this.currentLang === 'zh' ? (char.songNameZh || char.songName) : char.songName
+                    }
+                    return this.currentLang === 'zh' ? `${char.nameZh} 主题曲` : `${char.name}'s Theme`
+                },
+
+                getMusicDisplayName() {
+                    if (!this.characters || !this.currentMusicId) return 'No Music'
+                    const char = this.getChar(this.currentMusicId)
+                    if (!char) return 'No Music'
+                    if (char.songName) {
+                        return this.currentLang === 'zh' ? (char.songNameZh || char.songName) : char.songName
+                    }
+                    return this.currentLang === 'zh' ? `${char.nameZh} 主题曲` : `${char.name}'s Theme`
+                },
+
+                playThemeSong(charId) {
+                    if (!charId) return
+                    this.currentMusicId = charId
+                    this.playMusic()
+                },
+
+                playMusic() {
+                    if (!this.audioPlayer) {
+                        this.audioPlayer = new Audio()
+                        this.audioPlayer.addEventListener('timeupdate', () => {
+                            if (this.audioPlayer.duration) {
+                                this.musicProgress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
+                                this.currentTime = this.audioPlayer.currentTime
+                                this.musicDuration = this.audioPlayer.duration
+                            }
+                        })
+                        this.audioPlayer.addEventListener('loadedmetadata', () => {
+                            this.musicDuration = this.audioPlayer.duration
+                        })
+                        this.audioPlayer.addEventListener('ended', () => {
+                            this.isPlaying = false
+                            this.musicProgress = 0
+                            this.currentTime = 0
+                        })
+                    }
+                    this.audioPlayer.src = this.getMusicPath(this.currentMusicId)
+                    this.audioPlayer.play()
+                    this.isPlaying = true
+                },
+
+                togglePlay() {
+                    if (!this.audioPlayer || !this.audioPlayer.src) {
+                        this.playMusic()
+                        return
+                    }
+                    if (this.isPlaying) {
+                        this.audioPlayer.pause()
+                        this.isPlaying = false
+                    } else {
+                        this.audioPlayer.play()
+                        this.isPlaying = true
+                    }
+                },
+
+                prevSong() {
+                    const totalChars = this.characters.length
+                    this.currentMusicId = this.currentMusicId > 1 ? this.currentMusicId - 1 : totalChars
+                    this.playMusic()
+                },
+
+                nextSong() {
+                    const totalChars = this.characters.length
+                    this.currentMusicId = this.currentMusicId < totalChars ? this.currentMusicId + 1 : 1
+                    this.playMusic()
+                },
+
+                formatTime(seconds) {
+                    if (!seconds || isNaN(seconds)) return '0:00'
+                    const mins = Math.floor(seconds / 60)
+                    const secs = Math.floor(seconds % 60)
+                    return `${mins}:${secs.toString().padStart(2, '0')}`
+                },
+
+                seekMusic(event) {
+                    if (!this.audioPlayer || !this.audioPlayer.duration) return
+                    const bar = event.currentTarget
+                    const rect = bar.getBoundingClientRect()
+                    const percent = (event.clientX - rect.left) / rect.width
+                    this.audioPlayer.currentTime = percent * this.audioPlayer.duration
                 }
 
             }
